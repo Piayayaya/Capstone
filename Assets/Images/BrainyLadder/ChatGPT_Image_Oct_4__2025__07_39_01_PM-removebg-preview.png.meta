@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: be488a243e1b0cf4caf9d2f95d40eccd
+guid: 6c06e41bf618ba24eb2352a69b7308d2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4425843831031411769
-    second: f_ladder_0
+      213: -2985995412014448140
+    second: ChatGPT_Image_Oct_4__2025__07_39_01_PM-removebg-preview_0
+  - first:
+      213: -7363826350866334893
+    second: ChatGPT_Image_Oct_4__2025__07_39_01_PM-removebg-preview_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +51,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -75,7 +78,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: f_ladder_0
+      name: ChatGPT_Image_Oct_4__2025__07_39_01_PM-removebg-preview_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 45
-        height: 192
+        x: 58
+        y: 110
+        width: 355
+        height: 349
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +144,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7cbc40c1c7e3492c0800000000000000
-      internalID: -4425843831031411769
+      spriteID: 4f1cee54efc9f86d0800000000000000
+      internalID: -2985995412014448140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChatGPT_Image_Oct_4__2025__07_39_01_PM-removebg-preview_1
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 45
+        width: 236
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35b73f8f2fe6ec990800000000000000
+      internalID: -7363826350866334893
       vertices: []
       indices: 
       edges: []
@@ -160,8 +185,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      f_ladder_0: -4425843831031411769
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

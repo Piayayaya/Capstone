@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: be488a243e1b0cf4caf9d2f95d40eccd
+guid: a59b73e0127adb74ea8db2b73815ee03
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4425843831031411769
-    second: f_ladder_0
+      213: -2325335826107847909
+    second: Rectangle 307_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: f_ladder_0
+      name: Rectangle 307_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 45
-        height: 192
+        width: 412
+        height: 189
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7cbc40c1c7e3492c0800000000000000
-      internalID: -4425843831031411769
+      spriteID: b1b2a55e26fbabfd0800000000000000
+      internalID: -2325335826107847909
       vertices: []
       indices: 
       edges: []
@@ -160,8 +160,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      f_ladder_0: -4425843831031411769
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
