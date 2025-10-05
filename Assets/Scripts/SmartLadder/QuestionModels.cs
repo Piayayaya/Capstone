@@ -1,7 +1,5 @@
 using UnityEngine;
 
-public enum LadderDifficulty { Easy, Normal, Hard, Advanced, Expert }
-
 [System.Serializable]
 public class Question
 {

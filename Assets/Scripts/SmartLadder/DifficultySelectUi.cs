@@ -1,9 +1,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class DifficultySelectUI : MonoBehaviour
+public enum LadderDifficulty { Easy, Normal, Hard, Advanced, Expert }
+
+public static class SmartLadderSession
 {
-    [SerializeField] string gameplaySceneName = "SmartLadder-Easy";  // the scene you're using now
+    public static LadderDifficulty SelectedDifficulty = LadderDifficulty.Easy;
+}
+
+public class DifficultySelectUi : MonoBehaviour
+{
+    [SerializeField] string gameplaySceneName = "SmartLadder-Easy"; // your gameplay scene
 
     public void PickEasy() { Pick(LadderDifficulty.Easy); }
     public void PickNormal() { Pick(LadderDifficulty.Normal); }
