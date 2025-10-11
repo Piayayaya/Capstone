@@ -29,7 +29,7 @@ public class Gameplay : MonoBehaviour
     [Header("Question Panel Behavior")]
     public bool hidePanelDuringMove = true;
     public bool autoShowOnArrive = true;
-    public float arriveShowDelay = 0.1f;
+    public float arriveShowDelay = 0.5f;
 
     [Header("Scroll View Follow (optional)")]
     public ScrollRect scroll;                // Scroll View
