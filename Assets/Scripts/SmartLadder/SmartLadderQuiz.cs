@@ -31,6 +31,13 @@ public class SmartLadderQuiz : MonoBehaviour
     [Header("Mover Hook")]
     public Gameplay mover;                         // drag the object that has Gameplay
 
+    [Header("Difficulty Source")]
+    public bool useSessionDifficulty = true;       // if true, override inspector value from session
+
+    // ----- Helper: always use the chosen difficulty at fetch time -----
+    LadderDifficulty EffectiveDifficulty
+        => useSessionDifficulty ? SmartLadderSession.SelectedDifficulty : difficulty;
+
     // Data/provider
     IQuestionProvider _provider;
     HashSet<int> _asked = new HashSet<int>();
@@ -51,6 +58,16 @@ public class SmartLadderQuiz : MonoBehaviour
         UpdateCoinsUI();
     }
 
+    void OnEnable()
+    {
+        // Optional: sync the field for clarity and reset run on scene re-enter.
+        if (useSessionDifficulty)
+        {
+            difficulty = SmartLadderSession.SelectedDifficulty;
+            ResetRun();
+        }
+    }
+
     void EnsureInit()
     {
         if (_inited) return;
@@ -60,16 +77,10 @@ public class SmartLadderQuiz : MonoBehaviour
     }
 
     // -------- Public API (called by scene setup) --------
-    /// <summary>Set the difficulty to pull questions from.</summary>
     public void SetDifficulty(LadderDifficulty d) => difficulty = d;
-
-    /// <summary>Set how many correct answers finish the run.</summary>
     public void SetTargetCorrect(int count) => _targetCorrect = Mathf.Max(1, count);
-
-    /// <summary>Have we reached the goal (correct answers >= target)?</summary>
     public bool ReachedTarget() => _correctSoFar >= _targetCorrect;
 
-    /// <summary>Reset coins/wrong streak/asked indices. Call this when starting a new run.</summary>
     public void ResetRun()
     {
         _coins = 0;
@@ -85,7 +96,9 @@ public class SmartLadderQuiz : MonoBehaviour
     {
         EnsureInit();
 
-        _current = _provider.GetNext(difficulty, _asked);
+        // *** key line changed to use EffectiveDifficulty ***
+        _current = _provider.GetNext(EffectiveDifficulty, _asked);
+
         if (_current == null)
         {
             if (questionPanel) questionPanel.SetActive(true);
@@ -147,7 +160,6 @@ public class SmartLadderQuiz : MonoBehaviour
 
         if (_lastAnswerWasCorrect())
         {
-            // coins for this level (10 -> 7 -> 5 -> 3 floor)
             int reward = RewardForCurrentStreak();
             _coins += reward;
             UpdateCoinsUI();
@@ -155,7 +167,6 @@ public class SmartLadderQuiz : MonoBehaviour
             _wrongStreakThisLevel = 0;
             _correctSoFar++;
 
-            // If we've hit the goal, fire completion and stop advancing.
             if (ReachedTarget())
             {
                 onRunCompleted?.Invoke();
@@ -167,7 +178,6 @@ public class SmartLadderQuiz : MonoBehaviour
         }
         else
         {
-            // stay on same level; increase streak and ask another question
             _wrongStreakThisLevel++;
             ShowNextQuestion();
         }
@@ -189,5 +199,17 @@ public class SmartLadderQuiz : MonoBehaviour
     {
         if (coinsText) coinsText.text = $"{_coins}";
         onCoinsChanged?.Invoke(_coins);
+    }
+
+    // Hide the question panel (for the X/Close button)
+    public void CloseQuestionPanel()
+    {
+        if (questionPanel) questionPanel.SetActive(false);
+    }
+
+    // (Optional) Show it again without changing the current question
+    public void ReopenQuestionPanel()
+    {
+        if (questionPanel) questionPanel.SetActive(true);
     }
 }

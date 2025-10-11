@@ -2,6 +2,8 @@
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;   // <-- add this
+
 
 public class Gameplay : MonoBehaviour
 {
@@ -19,6 +21,7 @@ public class Gameplay : MonoBehaviour
 
     [Header("Movement")]
     [Range(0.1f, 2f)] public float moveDuration = 0.7f;
+    public float preMoveDelay = 0.3f;        // NEW: pause BEFORE starting any move
     public Vector3 landingOffset = Vector3.zero;
     public AnimationCurve ease = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
@@ -29,7 +32,7 @@ public class Gameplay : MonoBehaviour
     [Header("Question Panel Behavior")]
     public bool hidePanelDuringMove = true;
     public bool autoShowOnArrive = true;
-    public float arriveShowDelay = 0.5f;
+    public float arriveShowDelay = 0.3f;
 
     [Header("Scroll View Follow (optional)")]
     public ScrollRect scroll;                // Scroll View
@@ -45,6 +48,11 @@ public class Gameplay : MonoBehaviour
     [Header("Events")]
     public UnityEvent<int> onArrived;
 
+    [Header("Navigation")]
+    [SerializeField] string difficultySceneName = "SmartLadder-DifficultySelection";
+    [SerializeField] GameObject explanationPanel;   // optional: drag your ExplanationPanel here
+
+
     public int CurrentIndex { get; private set; } = -1;
 
     bool isMoving = false;
@@ -53,7 +61,6 @@ public class Gameplay : MonoBehaviour
     void Awake()
     {
         if (questionPanel) questionPanel.SetActive(false);
-        // Ensure StartPanel is visible when entering scene (optional)
         if (startPanel) startPanel.SetActive(true);
     }
 
@@ -62,11 +69,9 @@ public class Gameplay : MonoBehaviour
         if (!player) { Debug.LogError("Gameplay: Assign 'player'."); yield break; }
         if (points == null || points.Length == 0) { Debug.LogError("Gameplay: 'points' is empty."); yield break; }
 
-        // Let Canvas/ScrollView finish layout
         yield return null;
         Canvas.ForceUpdateCanvases();
 
-        // Start scrolled at bottom (or your chosen position)
         if (setInitialScroll && scroll)
         {
             scroll.velocity = Vector2.zero;
@@ -74,7 +79,6 @@ public class Gameplay : MonoBehaviour
             Canvas.ForceUpdateCanvases();
         }
 
-        // If a StartPanel is up, do NOT auto-move.
         bool blockAuto = startPanel && startPanel.activeSelf;
         if (autoMoveToFirstOnStart && !blockAuto)
             MoveToLevel(startLevel1Based);
@@ -87,7 +91,7 @@ public class Gameplay : MonoBehaviour
     {
         if (startPanel) startPanel.SetActive(false);
         if (hidePanelDuringMove && questionPanel) questionPanel.SetActive(false);
-        MoveToLevel(startLevel1Based);    // this will center & show question on arrive
+        MoveToLevel(startLevel1Based);    // pre-move delay applies here too
     }
 
     // ---------- Public API ----------
@@ -143,7 +147,14 @@ public class Gameplay : MonoBehaviour
         }
 
         StopAllCoroutines();
-        StartCoroutine(CoMove(target, idx));
+        StartCoroutine(CoMoveWithPreDelay(target, idx));   // <— NEW wrapper
+    }
+
+    // NEW: simple wrapper that waits before moving
+    IEnumerator CoMoveWithPreDelay(Vector3 targetPos, int targetIndex)
+    {
+        if (preMoveDelay > 0f) yield return new WaitForSeconds(preMoveDelay);
+        yield return StartCoroutine(CoMove(targetPos, targetIndex));
     }
 
     IEnumerator CoMove(Vector3 targetPos, int targetIndex)
@@ -281,4 +292,17 @@ public class Gameplay : MonoBehaviour
         if (points[idx] == null) { Debug.LogWarning($"Gameplay: points[{idx}] is null."); return false; }
         return true;
     }
+
+    public void GoBack()
+    {
+        // Close any open panels (optional)
+        if (questionPanel) questionPanel.SetActive(false);
+        if (explanationPanel) explanationPanel.SetActive(false);
+
+        // If you ever paused time, unpause here
+        // Time.timeScale = 1f;
+
+        SceneManager.LoadScene(difficultySceneName);
+    }
+
 }
