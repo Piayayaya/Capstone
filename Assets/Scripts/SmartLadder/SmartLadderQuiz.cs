@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
 
@@ -21,6 +22,11 @@ public class SmartLadderQuiz : MonoBehaviour
     public GameObject explanationPanel;            // active after picking, shows explanation
     public TMP_Text explanationText;
 
+    [Header("Reward Popup")]
+    public GameObject rewardPanel;                 // small "+10 COINS" bubble
+    public TMP_Text rewardText;                    // text inside the bubble
+    public float rewardPopupDuration = 1.5f;       // seconds the bubble is visible
+
     [Header("Coins (optional UI)")]
     public TMP_Text coinsText;                     // optional UI label to show total coins
 
@@ -34,7 +40,7 @@ public class SmartLadderQuiz : MonoBehaviour
     [Header("Difficulty Source")]
     public bool useSessionDifficulty = true;       // if true, override inspector value from session
 
-    // ----- Helper: always use the chosen difficulty at fetch time -----
+    // Always fetch using the chosen difficulty
     LadderDifficulty EffectiveDifficulty
         => useSessionDifficulty ? SmartLadderSession.SelectedDifficulty : difficulty;
 
@@ -49,18 +55,33 @@ public class SmartLadderQuiz : MonoBehaviour
     int _coins = 0;
     int _wrongStreakThisLevel = 0;                 // wrong attempts on the *current level*
     int _correctSoFar = 0;                         // total correct answers this run
+    Coroutine _rewardCo;
 
     // -------- Lifecycle --------
     void Awake()
     {
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(false);
+        if (rewardPanel) rewardPanel.SetActive(false);
+
+        // --- Guard against bad wiring ---
+        if (explanationText == null) Debug.LogError("[Quiz] explanationText is not assigned.", this);
+        if (coinsText == null) Debug.LogWarning("[Quiz] coinsText is not assigned (OK if you don't display coins).", this);
+        if (rewardText == null) Debug.LogWarning("[Quiz] rewardText is not assigned (OK if you don't show popup).", this);
+
+        if (coinsText != null && explanationText != null && ReferenceEquals(coinsText, explanationText))
+        {
+            Debug.LogError("[Quiz] coinsText and explanationText reference the SAME TMP object. Fix the Inspector.", this);
+            // To prevent damage at runtime:
+            coinsText = null; // disable coins UI until you fix the binding
+        }
+
         UpdateCoinsUI();
     }
 
+
     void OnEnable()
     {
-        // Optional: sync the field for clarity and reset run on scene re-enter.
         if (useSessionDifficulty)
         {
             difficulty = SmartLadderSession.SelectedDifficulty;
@@ -88,6 +109,11 @@ public class SmartLadderQuiz : MonoBehaviour
         _correctSoFar = 0;
         _asked.Clear();
         UpdateCoinsUI();
+
+        if (questionPanel) questionPanel.SetActive(false);
+        if (explanationPanel) explanationPanel.SetActive(false);
+        if (rewardPanel) rewardPanel.SetActive(false);
+        if (_rewardCo != null) { StopCoroutine(_rewardCo); _rewardCo = null; }
     }
 
     // -------- Gameplay flow --------
@@ -96,7 +122,6 @@ public class SmartLadderQuiz : MonoBehaviour
     {
         EnsureInit();
 
-        // *** key line changed to use EffectiveDifficulty ***
         _current = _provider.GetNext(EffectiveDifficulty, _asked);
 
         if (_current == null)
@@ -110,6 +135,7 @@ public class SmartLadderQuiz : MonoBehaviour
         _asked.Add(_current.Id);
 
         if (explanationPanel) explanationPanel.SetActive(false);
+        if (rewardPanel) rewardPanel.SetActive(false);
         if (questionPanel) questionPanel.SetActive(true);
 
         if (questionText) questionText.text = _current.Text;
@@ -130,6 +156,7 @@ public class SmartLadderQuiz : MonoBehaviour
         }
     }
 
+    // OnOption: change this part
     void OnOption(int choiceIndex)
     {
         foreach (var b in optionButtons) if (b) b.interactable = false;
@@ -140,13 +167,58 @@ public class SmartLadderQuiz : MonoBehaviour
         {
             string prefix = _lastAnswerCorrect ? "Correct! " : "Not quite. ";
             explanationText.text = prefix + (_current?.Explanation ?? "");
+
+            // Debug: tint the explanation so you can see you’re writing to the right label
+            explanationText.color = new Color(1f, 1f, 1f, 1f); // solid white (or any color you want)
         }
 
-        if (questionPanel) questionPanel.SetActive(false);
-        if (explanationPanel) explanationPanel.SetActive(true);
+
+        if (_lastAnswerCorrect)
+        {
+            // DO NOT hide the question panel yet – we want the popup to overlap it
+            int reward = RewardForCurrentStreak();
+            _coins += reward;
+            UpdateCoinsUI();
+
+            if (_rewardCo != null) StopCoroutine(_rewardCo);
+            _rewardCo = StartCoroutine(CoShowRewardThenExplanation(reward));
+        }
+        else
+        {
+            // Wrong: hide question immediately and show explanation
+            if (questionPanel) questionPanel.SetActive(false);
+            if (explanationPanel) explanationPanel.SetActive(true);
+        }
 
         onAnswered?.Invoke(_lastAnswerCorrect);
     }
+
+
+    // CoShowRewardThenExplanation: put popup over the question panel, then switch to explanation
+    IEnumerator CoShowRewardThenExplanation(int reward)
+    {
+        if (rewardPanel)
+        {
+            // make sure the popup is a child of the question panel so it overlaps it
+            if (questionPanel && rewardPanel.transform.parent != questionPanel.transform)
+                rewardPanel.transform.SetParent(questionPanel.transform, false);
+
+            rewardPanel.transform.SetAsLastSibling(); // draw on top of question contents
+            if (rewardText) rewardText.text = $"+{reward} COINS";
+            rewardPanel.SetActive(true);
+        }
+
+        yield return new WaitForSeconds(rewardPopupDuration);
+
+        if (rewardPanel) rewardPanel.SetActive(false);
+
+        // now swap panels: hide question, show explanation
+        if (questionPanel) questionPanel.SetActive(false);
+        if (explanationPanel) explanationPanel.SetActive(true);
+
+        _rewardCo = null;
+    }
+
 
     public void CloseExplanation()
     {
@@ -158,12 +230,9 @@ public class SmartLadderQuiz : MonoBehaviour
     {
         CloseExplanation();
 
-        if (_lastAnswerWasCorrect())
+        if (_lastAnswerCorrect)
         {
-            int reward = RewardForCurrentStreak();
-            _coins += reward;
-            UpdateCoinsUI();
-
+            // We already added coins; now finalize the level result
             _wrongStreakThisLevel = 0;
             _correctSoFar++;
 
@@ -178,14 +247,13 @@ public class SmartLadderQuiz : MonoBehaviour
         }
         else
         {
+            // stay on same level; increase streak and ask another
             _wrongStreakThisLevel++;
             ShowNextQuestion();
         }
     }
 
     // -------- Helpers --------
-    bool _lastAnswerWasCorrect() => _lastAnswerCorrect;
-
     int RewardForCurrentStreak()
     {
         // 0 wrong so far -> 10; 1 -> 7; 2 -> 5; 3+ -> 3
@@ -197,19 +265,16 @@ public class SmartLadderQuiz : MonoBehaviour
 
     void UpdateCoinsUI()
     {
-        if (coinsText) coinsText.text = $"{_coins}";
-        onCoinsChanged?.Invoke(_coins);
+        if (coinsText != null)
+        {
+            coinsText.text = $"{_coins}";
+        }
+        // If you had listeners, keep them; otherwise leave them out
+        // onCoinsChanged?.Invoke(_coins);
     }
 
-    // Hide the question panel (for the X/Close button)
-    public void CloseQuestionPanel()
-    {
-        if (questionPanel) questionPanel.SetActive(false);
-    }
 
-    // (Optional) Show it again without changing the current question
-    public void ReopenQuestionPanel()
-    {
-        if (questionPanel) questionPanel.SetActive(true);
-    }
+    // Optional close/reopen
+    public void CloseQuestionPanel() { if (questionPanel) questionPanel.SetActive(false); }
+    public void ReopenQuestionPanel() { if (questionPanel) questionPanel.SetActive(true); }
 }

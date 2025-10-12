@@ -1,234 +1,111 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+
+public interface IQuestionProvider
+{
+    void Initialize();
+    Question GetNext(LadderDifficulty diff, HashSet<int> excludedIds);
+}
+
+[System.Serializable]
+public class Question
+{
+    public int Id;
+    public string Text;
+    public string[] Choices;
+    public int CorrectIndex;
+    public string Explanation;
+
+    public Question(int id, string text, string[] choices, int correctIndex, string explanation)
+    {
+        Id = id;
+        Text = text;
+        Choices = choices;
+        CorrectIndex = correctIndex;
+        Explanation = explanation;
+    }
+}
 
 public class InMemoryQuestionProvider : IQuestionProvider
 {
-    private readonly List<Question> _all = new List<Question>();
+    private readonly Dictionary<LadderDifficulty, List<Question>> _byDiff =
+        new Dictionary<LadderDifficulty, List<Question>>();
+
+    private System.Random _rng;
 
     public void Initialize()
     {
-        // --- 20 EASY QUESTIONS (3 choices + explanation) ---
-        _all.Add(new Question
-        {
-            Id = 1,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "What planet do we live on?",
-            Choices = new[] { "Mars", "Earth", "Venus" },
-            CorrectIndex = 1,
-            Explanation = "We live on Earth, the third planet from the Sun."
-        });
+        if (_rng == null) _rng = new System.Random();
 
-        _all.Add(new Question
-        {
-            Id = 2,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "2 + 3 = ?",
-            Choices = new[] { "4", "5", "6" },
-            CorrectIndex = 1,
-            Explanation = "2 plus 3 equals 5."
-        });
+        _byDiff.Clear();
 
-        _all.Add(new Question
+        // TODO: Replace these with your real data. IDs must be UNIQUE per difficulty.
+        _byDiff[LadderDifficulty.Easy] = new List<Question>
         {
-            Id = 3,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Which animal is a mammal?",
-            Choices = new[] { "Shark", "Dolphin", "Salmon" },
-            CorrectIndex = 1,
-            Explanation = "Dolphins are warm-blooded, breathe air, and feed milk to their young."
-        });
+            new Question(2001, "What is 2 + 3?", new[] {"4", "5", "6"}, 1, "2 + 3 = 5."),
+            new Question(2002, "Which animal says \"meow\"?", new[] {"Dog", "Cat", "Cow"}, 1, "Cats meow; dogs bark, cows moo."),
+            new Question(2003, "Which day comes after Monday?", new[] {"Sunday", "Tuesday", "Friday"}, 1, "The order is Monday → Tuesday."),
+            new Question(2004, "How many sides does a triangle have?", new[] {"3", "4", "5"}, 0, "A triangle has 3 sides."),
+            new Question(2005, "What color do you get by mixing red and blue?", new[] {"Purple", "Green", "Orange"}, 0, "Red + blue = purple."),
+            new Question(2006, "Which number is the smallest?", new[] {"7", "2", "9"}, 1, "2 is smaller than 7 and 9."),
+            new Question(2007, "What is the first letter of the word 'Apple'?", new[] {"A", "P", "L"}, 0, "Apple starts with A."),
+            new Question(2008, "Which one is a fruit?", new[] {"Carrot", "Banana", "Broccoli"}, 1, "Banana is a fruit; the others are vegetables."),
+            new Question(2009, "How many legs does a spider have?", new[] {"6", "8", "10"}, 1, "Spiders have 8 legs."),
+            new Question(2010, "What is 10 − 4?", new[] {"5", "6", "7"}, 1, "10 minus 4 equals 6."),
+            new Question(2011, "Which shape is round?", new[] {"Square", "Circle", "Triangle"}, 1, "A circle is round."),
+            new Question(2012, "Which is a source of light at night in the sky?", new[] {"Moon", "Tree", "Rock"}, 0, "The Moon reflects sunlight and lights the night sky."),
+            new Question(2013, "What do we breathe in to live?", new[] {"Oxygen", "Carbon dioxide", "Helium"}, 0, "We breathe in oxygen."),
+            new Question(2014, "Which season is the coldest (in many places)?", new[] {"Summer", "Winter", "Spring"}, 1, "Winter is usually the coldest season."),
+            new Question(2015, "Which tool is used to cut paper?", new[] {"Scissors", "Ruler", "Glue"}, 0, "Scissors are used for cutting."),
+            new Question(2016, "What is 3 + 4?", new[] {"6", "7", "8"}, 1, "3 plus 4 equals 7."),
+            new Question(2017, "Which is used to tell time?", new[] {"Clock", "Book", "Spoon"}, 0, "A clock tells time."),
+            new Question(2018, "Which animal can fly?", new[] {"Fish", "Bird", "Turtle"}, 1, "Birds can fly."),
+            new Question(2019, "What do plants need to grow?", new[] {"Sunlight & water", "Sand only", "Plastic"}, 0, "Plants need sunlight, water, and nutrients."),
+            new Question(2020, "Which is a primary color?", new[] {"Purple", "Green", "Red"}, 2, "Red is a primary color (along with blue and yellow)."),
+        };
 
-        _all.Add(new Question
-        {
-            Id = 4,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "What shape has 3 sides?",
-            Choices = new[] { "Square", "Triangle", "Circle" },
-            CorrectIndex = 1,
-            Explanation = "A triangle has exactly three sides."
-        });
 
-        _all.Add(new Question
+        _byDiff[LadderDifficulty.Normal] = new List<Question>
         {
-            Id = 5,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Water freezes at what temperature (°C)?",
-            Choices = new[] { "0", "50", "100" },
-            CorrectIndex = 0,
-            Explanation = "Pure water freezes at 0°C."
-        });
+            new Question(2001, "Normal Q1?", new []{"A","B","C"}, 0, "Because A."),
+            // ...
+        };
 
-        _all.Add(new Question
+        _byDiff[LadderDifficulty.Hard] = new List<Question>
         {
-            Id = 6,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Which is the largest land animal?",
-            Choices = new[] { "Elephant", "Tiger", "Horse" },
-            CorrectIndex = 0,
-            Explanation = "The African elephant is the largest land animal."
-        });
+            new Question(3001, "Hard Q1?", new []{"A","B","C"}, 1, "Because B."),
+            // ...
+        };
 
-        _all.Add(new Question
+        _byDiff[LadderDifficulty.Advanced] = new List<Question>
         {
-            Id = 7,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Plants make their own food using…",
-            Choices = new[] { "Photosynthesis", "Breathing", "Digestion" },
-            CorrectIndex = 0,
-            Explanation = "Photosynthesis uses sunlight, water, and carbon dioxide to make food."
-        });
+            new Question(4001, "Advanced Q1?", new []{"A","B","C"}, 2, "Because C."),
+            // ...
+        };
 
-        _all.Add(new Question
+        _byDiff[LadderDifficulty.Expert] = new List<Question>
         {
-            Id = 8,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "How many continents are there on Earth?",
-            Choices = new[] { "5", "6", "7" },
-            CorrectIndex = 2,
-            Explanation = "Most models teach 7 continents."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 9,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Which of these is a primary color of light/paint sets?",
-            Choices = new[] { "Green", "Red", "Purple" },
-            CorrectIndex = 1,
-            Explanation = "Red is a primary color (with blue and yellow in many school sets)."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 10,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "What day comes after Friday?",
-            Choices = new[] { "Saturday", "Sunday", "Monday" },
-            CorrectIndex = 0,
-            Explanation = "Friday is followed by Saturday."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 11,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "10 − 4 = ?",
-            Choices = new[] { "5", "6", "7" },
-            CorrectIndex = 1,
-            Explanation = "10 minus 4 equals 6."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 12,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Which gas makes up most of the air we breathe?",
-            Choices = new[] { "Oxygen", "Nitrogen", "Carbon dioxide" },
-            CorrectIndex = 1,
-            Explanation = "Air is ~78% nitrogen. We breathe oxygen, but nitrogen is most abundant."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 13,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Which shape has 4 equal sides?",
-            Choices = new[] { "Rectangle", "Square", "Trapezoid" },
-            CorrectIndex = 1,
-            Explanation = "A square has four equal sides and four right angles."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 14,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "What is the closest star to Earth?",
-            Choices = new[] { "Sirius", "The Sun", "Polaris" },
-            CorrectIndex = 1,
-            Explanation = "The Sun is our nearest star."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 15,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "A baby frog is called a…",
-            Choices = new[] { "Chick", "Tadpole", "Calf" },
-            CorrectIndex = 1,
-            Explanation = "Frogs hatch into tadpoles before becoming adults."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 16,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Which instrument has keys and is played with both hands?",
-            Choices = new[] { "Guitar", "Piano", "Drum" },
-            CorrectIndex = 1,
-            Explanation = "A piano has keys played with both hands."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 17,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Which word is a noun?",
-            Choices = new[] { "Run", "Happiness", "Quickly" },
-            CorrectIndex = 1,
-            Explanation = "“Happiness” is a thing/idea, so it’s a noun."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 18,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "What do bees make?",
-            Choices = new[] { "Honey", "Milk", "Silk" },
-            CorrectIndex = 0,
-            Explanation = "Bees collect nectar and make honey."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 19,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "How many minutes are in one hour?",
-            Choices = new[] { "30", "45", "60" },
-            CorrectIndex = 2,
-            Explanation = "There are 60 minutes in an hour."
-        });
-
-        _all.Add(new Question
-        {
-            Id = 20,
-            Difficulty = LadderDifficulty.Easy,
-            Text = "Which of these is an island country in Southeast Asia?",
-            Choices = new[] { "Philippines", "Nepal", "Mongolia" },
-            CorrectIndex = 0,
-            Explanation = "The Philippines is an archipelago in Southeast Asia."
-        });
+            new Question(5001, "Expert Q1?", new []{"A","B","C"}, 0, "Because A."),
+            // ...
+        };
     }
 
-    public Question GetNext(LadderDifficulty difficulty, HashSet<int> alreadyAsked)
+    public Question GetNext(LadderDifficulty diff, HashSet<int> excludedIds)
     {
-        // Gather pool by difficulty
-        // (No LINQ to keep it beginner-friendly)
-        var pool = new List<Question>();
-        for (int i = 0; i < _all.Count; i++)
-        {
-            if (_all[i].Difficulty == difficulty) pool.Add(_all[i]);
-        }
-        if (pool.Count == 0) return null;
+        if (!_byDiff.TryGetValue(diff, out var pool) || pool == null || pool.Count == 0)
+            return null;
 
-        // Prefer unasked this run
-        var fresh = new List<Question>();
-        for (int i = 0; i < pool.Count; i++)
-        {
-            if (!alreadyAsked.Contains(pool[i].Id)) fresh.Add(pool[i]);
-        }
-        var list = (fresh.Count > 0) ? fresh : pool;
+        // Filter by excluded
+        IEnumerable<Question> candidates = pool;
+        if (excludedIds != null && excludedIds.Count > 0)
+            candidates = candidates.Where(q => q != null && !excludedIds.Contains(q.Id));
 
-        int idx = Random.Range(0, list.Count);
+        // Pick a random remaining, or null if none
+        var list = candidates as IList<Question> ?? candidates.ToList();
+        if (list.Count == 0) return null;
+
+        int idx = _rng.Next(0, list.Count);
         return list[idx];
     }
 }
