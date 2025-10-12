@@ -37,6 +37,16 @@ public class SmartLadderQuiz : MonoBehaviour
     [Header("Mover Hook")]
     public Gameplay mover;                         // drag the object that has Gameplay
 
+    [Header("Completion")]
+    public GameObject completionPanel;           // drag a simple “Mode Complete!” panel (inactive by default)
+    public bool moveToChestOnComplete = true;
+    public int chestLevel1Based = 11;            // e.g., 11 for Easy (10 levels + chest)
+
+    bool _awaitingChestArrival = false;
+    bool _savedAutoShow;
+    bool _savedCallQuiz;
+
+
     [Header("Difficulty Source")]
     public bool useSessionDifficulty = true;       // if true, override inspector value from session
 
@@ -87,7 +97,17 @@ public class SmartLadderQuiz : MonoBehaviour
             difficulty = SmartLadderSession.SelectedDifficulty;
             ResetRun();
         }
+
+        if (mover != null)
+            mover.onArrived.AddListener(OnMoverArrived);
     }
+
+    void OnDisable()
+    {
+        if (mover != null)
+            mover.onArrived.RemoveListener(OnMoverArrived);
+    }
+
 
     void EnsureInit()
     {
@@ -239,8 +259,25 @@ public class SmartLadderQuiz : MonoBehaviour
             if (ReachedTarget())
             {
                 onRunCompleted?.Invoke();
+
+                if (moveToChestOnComplete && mover != null)
+                {
+                    // Temporarily stop auto-questions during the “walk to chest”
+                    _savedAutoShow = mover.autoShowOnArrive;
+                    _savedCallQuiz = mover.callQuizOnArrive;
+                    mover.autoShowOnArrive = false;
+                    mover.callQuizOnArrive = false;
+
+                    _awaitingChestArrival = true;
+                    mover.MoveToLevel(chestLevel1Based);   // go to chest
+                }
+                else
+                {
+                    ShowCompletionPanel();
+                }
                 return;
             }
+
 
             if (mover != null) mover.MoveNext();
             else Debug.LogWarning("SmartLadderQuiz: mover not assigned.");
@@ -277,4 +314,31 @@ public class SmartLadderQuiz : MonoBehaviour
     // Optional close/reopen
     public void CloseQuestionPanel() { if (questionPanel) questionPanel.SetActive(false); }
     public void ReopenQuestionPanel() { if (questionPanel) questionPanel.SetActive(true); }
+
+    void OnMoverArrived(int arrivedIndex)
+    {
+        if (!_awaitingChestArrival) return;
+
+        int chestIdx = Mathf.Max(0, chestLevel1Based - 1);
+        if (arrivedIndex == chestIdx)
+        {
+            _awaitingChestArrival = false;
+
+            // restore defaults
+            mover.autoShowOnArrive = _savedAutoShow;
+            mover.callQuizOnArrive = _savedCallQuiz;
+
+            ShowCompletionPanel();
+        }
+    }
+
+    void ShowCompletionPanel()
+    {
+        // Hide gameplay panels
+        if (questionPanel) questionPanel.SetActive(false);
+        if (explanationPanel) explanationPanel.SetActive(false);
+
+        if (completionPanel) completionPanel.SetActive(true);
+    }
+
 }
