@@ -52,6 +52,9 @@ public class Gameplay : MonoBehaviour
     [SerializeField] string difficultySceneName = "SmartLadder-DifficultySelection";
     [SerializeField] GameObject explanationPanel;   // optional: drag your ExplanationPanel here
 
+    [Header("Resume")]
+    public bool resumeFromSave = true;
+
 
     public int CurrentIndex { get; private set; } = -1;
 
