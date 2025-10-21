@@ -41,6 +41,7 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+<<<<<<< HEAD
   m_RenderingLayers:
   - Default
   - Light Layer 1
@@ -74,3 +75,5 @@ TagManager:
   - 
   - 
   - 
+=======
+>>>>>>> origin/main

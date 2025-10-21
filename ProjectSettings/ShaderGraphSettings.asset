@@ -2,7 +2,11 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &1
 MonoBehaviour:
+<<<<<<< HEAD
   m_ObjectHideFlags: 61
+=======
+  m_ObjectHideFlags: 53
+>>>>>>> origin/main
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
