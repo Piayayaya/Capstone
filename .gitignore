@@ -1,0 +1,27 @@
+# --- Unity generated ---
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+
+# --- IDE junk ---
+.vs/
+.idea/
+*.csproj
+*.sln
+*.user
+*.pidb
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Keep these in Git (DO NOT ignore) ---
+# Assets/            (your game content)
+# ProjectSettings/   (project config)
+# Packages/manifest.json
+# Packages/packages-lock.json
