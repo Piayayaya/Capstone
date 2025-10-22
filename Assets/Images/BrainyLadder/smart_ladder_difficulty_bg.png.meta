@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      smart_ladder_difficulty_bg_0: 2548222546810677240
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      f-ladder_0: 6218221798727737780
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
