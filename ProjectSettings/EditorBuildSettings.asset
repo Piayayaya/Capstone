@@ -6,7 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-<<<<<<< HEAD
+    path: Assets/Scenes/HomeScreen.unity
+    guid: a8d4d9faf78a27b4f852ddf3e3f03b27
+  - enabled: 1
     path: Assets/Scenes/Dashboard.unity
     guid: e29c486f311bc364d89e8918b105383f
   - enabled: 1
@@ -19,30 +21,31 @@ EditorBuildSettings:
     path: Assets/Scenes/Background_NameTheFlag.unity
     guid: 0655446e6cb186146b0c7d0c9457320b
   - enabled: 1
-    path: Assets/Scenes/Philippines_NameTheFlag.unity
-    guid: 93fc51b7ded6b9d44954921a98945237
+    path: Assets/Scenes/Japan_NameTheFlag.unity
+    guid: b769b4a338aef4044b5315b8650bbba9
   - enabled: 1
     path: Assets/Scenes/JapanBackground.unity
     guid: 7bb2171bda41be540a855d163f91693f
   - enabled: 1
-    path: Assets/Scenes/Japan_NameTheFlag.unity
-    guid: b769b4a338aef4044b5315b8650bbba9
-  m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-=======
-    path: Assets/Scenes/Gameplay.unity
-    guid: 286b03ce5d0160b45b51d8cf9d0eb065
+    path: Assets/Scenes/Philippines_NameTheFlag.unity
+    guid: 93fc51b7ded6b9d44954921a98945237
+  - enabled: 1
+    path: Assets/Scenes/DragAndDrop.unity
+    guid: 337bb9813db5ae646a53410c50c5e40f
+  - enabled: 1
+    path: Assets/Scenes/SmartLadder.unity
+    guid: 37460fcd77041ed4886591959b9eb722
   - enabled: 1
     path: Assets/Scenes/LevelMap.unity
     guid: 7b7629f91e4503c408834c28bfc92951
   - enabled: 1
-    path: Assets/Scenes/HomeScreen.unity
-    guid: a8d4d9faf78a27b4f852ddf3e3f03b27
-  m_configObjects:
-    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 113b588aeb6c32741bfb10fd9e4c871e, type: 2}
-    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 920f56fa9b554ff42add8fae473ef83e, type: 2}
-    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: 3a58a0a8df0e6ec47ab2d42d50fd8ae6, type: 2}
-    com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: a82087f80d3229641acfc7f40861280d, type: 2}
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
->>>>>>> origin/main
+    path: Assets/Scenes/SampleScene.unity
+    guid: 264ab504daefcc843a2349f900821f7b
+  - enabled: 1
+    path: Assets/Scenes/SmartLadder-DifficultySelection.unity
+    guid: 08a27ac73d0258d43b2c568b6dcf9aad
+  - enabled: 1
+    path: Assets/Scenes/SmartLadder-Easy.unity
+    guid: 1867758a850d7194b847ff1d6913230e
+  m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

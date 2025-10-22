@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      humbleicons_arrow-left_0: -1899108566914938081
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
