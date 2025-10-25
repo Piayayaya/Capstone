@@ -1,24 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;   
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Gamemodes : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [SerializeField] string sceneToLoad = "Gamemodes"; // exact scene name as shown in Project
 
     public void ShowGamemode()
     {
-        SceneManager.LoadSceneAsync(1);
+        Debug.Log("[UI] Play clicked → load " + sceneToLoad);
+        SceneManager.LoadSceneAsync(sceneToLoad, LoadSceneMode.Single);
+        // OR, if you prefer index: SceneManager.LoadSceneAsync(1, LoadSceneMode.Single);
     }
 }

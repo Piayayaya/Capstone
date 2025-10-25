@@ -2,36 +2,61 @@ using UnityEngine;
 
 public static class ProgressStore
 {
-    // Namespace saves by difficulty so each mode has independent progress.
-    static string Prefix(LadderDifficulty diff) => $"SL_{diff}_";
+    const string KEY_PREFIX = "SL_";
 
-    public static void SaveLevel(LadderDifficulty diff, int level1Based)
+    static string LevelKey(LadderDifficulty d) => $"{KEY_PREFIX}{d}_Level";
+    static string CorrectKey(LadderDifficulty d) => $"{KEY_PREFIX}{d}_Correct";
+    static string CoinsKey(LadderDifficulty d) => $"{KEY_PREFIX}{d}_Coins"; // NEW
+
+    // --- Level (1-based) ---
+    public static void SaveLevel(LadderDifficulty d, int level1Based)
     {
-        PlayerPrefs.SetInt(Prefix(diff) + "LEVEL", Mathf.Max(1, level1Based));
+        PlayerPrefs.SetInt(LevelKey(d), Mathf.Max(1, level1Based));
         PlayerPrefs.Save();
     }
 
-    public static int LoadLevel(LadderDifficulty diff, int defaultLevel = 1)
+    public static int LoadLevel(LadderDifficulty d, int defaultLevel = 1)
     {
-        return PlayerPrefs.GetInt(Prefix(diff) + "LEVEL", Mathf.Max(1, defaultLevel));
+        return PlayerPrefs.GetInt(LevelKey(d), defaultLevel);
     }
 
-    public static void SaveCoins(LadderDifficulty diff, int coins)
+    // --- Correct count (optional, if you use it) ---
+    public static void SaveCorrectCount(LadderDifficulty d, int correct)
     {
-        PlayerPrefs.SetInt(Prefix(diff) + "COINS", Mathf.Max(0, coins));
+        PlayerPrefs.SetInt(CorrectKey(d), Mathf.Max(0, correct));
         PlayerPrefs.Save();
     }
 
-    public static int LoadCoins(LadderDifficulty diff, int defaultCoins = 0)
+    public static int LoadCorrectCount(LadderDifficulty d, int defaultValue = 0)
     {
-        return PlayerPrefs.GetInt(Prefix(diff) + "COINS", Mathf.Max(0, defaultCoins));
+        return PlayerPrefs.GetInt(CorrectKey(d), defaultValue);
     }
 
-    // Optional: call if you want a “Reset progress” button
-    public static void Clear(LadderDifficulty diff)
+    // --- Coins (NEW) ---
+    public static void SaveCoins(LadderDifficulty d, int coins)
     {
-        PlayerPrefs.DeleteKey(Prefix(diff) + "LEVEL");
-        PlayerPrefs.DeleteKey(Prefix(diff) + "COINS");
+        PlayerPrefs.SetInt(CoinsKey(d), Mathf.Max(0, coins));
+        PlayerPrefs.Save();
+    }
+
+    public static int LoadCoins(LadderDifficulty d, int defaultValue = 0)
+    {
+        return PlayerPrefs.GetInt(CoinsKey(d), defaultValue);
+    }
+
+    // --- Reset helpers (updated to clear coins too) ---
+    public static void ClearDifficulty(LadderDifficulty d)
+    {
+        PlayerPrefs.DeleteKey(LevelKey(d));
+        PlayerPrefs.DeleteKey(CorrectKey(d));
+        PlayerPrefs.DeleteKey(CoinsKey(d)); // clear coins
+        PlayerPrefs.Save();
+    }
+
+    public static void ClearAll()
+    {
+        foreach (LadderDifficulty d in System.Enum.GetValues(typeof(LadderDifficulty)))
+            ClearDifficulty(d);
         PlayerPrefs.Save();
     }
 }

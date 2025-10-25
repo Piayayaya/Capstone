@@ -22,6 +22,11 @@ public class SmartLadderQuiz : MonoBehaviour
     public GameObject explanationPanel;            // active after picking, shows explanation
     public TMP_Text explanationText;
 
+    [Header("Progress UI")]
+    public Slider progressBar;                     // normalized 0..1
+    public TMP_Text progressText;                  // "X/Y" (optional)
+    public bool initProgressFromSavedLevel = true; // read saved level and pre-fill bar
+
     [Header("Reward Popup")]
     public GameObject rewardPanel;                 // small "+10 COINS" bubble
     public TMP_Text rewardText;                    // text inside the bubble
@@ -38,13 +43,14 @@ public class SmartLadderQuiz : MonoBehaviour
     public Gameplay mover;                         // drag the object that has Gameplay
 
     [Header("Completion")]
-    public GameObject completionPanel;           // “Mode Complete!” panel (inactive by default)
+    public GameObject completionPanel;             // “Mode Complete!” panel (inactive by default)
     public bool moveToChestOnComplete = true;
-    public int chestLevel1Based = 11;            // e.g., 11 for Easy (10 levels + chest)
+    public int chestLevel1Based = 11;              // e.g., 11 for Easy (10 levels + chest)
 
     [Header("Resume UI")]
     public GameObject resumeButton;
 
+    // completion move temp flags
     bool _awaitingChestArrival = false;
     bool _savedAutoShow;
     bool _savedCallQuiz;
@@ -58,13 +64,7 @@ public class SmartLadderQuiz : MonoBehaviour
 
     // Data/provider
     IQuestionProvider _provider;
-
-    // Tracking (per run)
-    // _asked            = shown at least once (right OR wrong)
-    // _answeredCorrect  = answered correctly (never ask again this run)
     HashSet<int> _asked = new HashSet<int>();
-    HashSet<int> _answeredCorrect = new HashSet<int>();
-
     Question _current;
 
     // State
@@ -75,10 +75,6 @@ public class SmartLadderQuiz : MonoBehaviour
     int _correctSoFar = 0;                         // total correct answers this run
     Coroutine _rewardCo;
 
-    // Exposed flags
-    public bool HasCurrentQuestion => _current != null;
-    public bool ReadyForManualContinue { get; private set; } = false;
-
     // -------- Lifecycle --------
     void Awake()
     {
@@ -86,18 +82,19 @@ public class SmartLadderQuiz : MonoBehaviour
         if (explanationPanel) explanationPanel.SetActive(false);
         if (rewardPanel) rewardPanel.SetActive(false);
 
-        // --- Guard against bad wiring ---
+        // Guards
         if (explanationText == null) Debug.LogError("[Quiz] explanationText is not assigned.", this);
-        if (coinsText == null) Debug.LogWarning("[Quiz] coinsText is not assigned (OK if you don't display coins).", this);
-        if (rewardText == null) Debug.LogWarning("[Quiz] rewardText is not assigned (OK if you don't show popup).", this);
+        if (coinsText == null) Debug.LogWarning("[Quiz] coinsText not assigned (OK if you don't display coins).", this);
+        if (rewardText == null) Debug.LogWarning("[Quiz] rewardText not assigned (OK if you don't show popup).", this);
 
         if (coinsText != null && explanationText != null && ReferenceEquals(coinsText, explanationText))
         {
             Debug.LogError("[Quiz] coinsText and explanationText reference the SAME TMP object. Fix the Inspector.", this);
-            coinsText = null; // disable coins UI until you fix the binding
+            coinsText = null; // disable coins UI until fixed
         }
 
         UpdateCoinsUI();
+        UpdateProgressUI(); // ensure bar reflects initial state
     }
 
     void OnEnable()
@@ -106,6 +103,18 @@ public class SmartLadderQuiz : MonoBehaviour
         {
             difficulty = SmartLadderSession.SelectedDifficulty;
             ResetRun();
+        }
+
+        _coins = ProgressStore.LoadCoins(EffectiveDifficulty, 0);
+        UpdateCoinsUI();
+
+        // Optionally initialize bar from saved level (resume)
+        if (initProgressFromSavedLevel)
+        {
+            var diff = EffectiveDifficulty;
+            int resumeLevel = ProgressStore.LoadLevel(diff, 1); // defaults to 1
+            _correctSoFar = Mathf.Clamp(resumeLevel - 1, 0, _targetCorrect);
+            UpdateProgressUI();
         }
 
         if (mover != null)
@@ -126,9 +135,19 @@ public class SmartLadderQuiz : MonoBehaviour
         _inited = true;
     }
 
-    // -------- Public API (called by scene setup) --------
-    public void SetDifficulty(LadderDifficulty d) => difficulty = d;
-    public void SetTargetCorrect(int count) => _targetCorrect = Mathf.Max(1, count);
+    // -------- Public API --------
+    public void SetDifficulty(LadderDifficulty d)
+    {
+        difficulty = d;
+        UpdateProgressUI();
+    }
+
+    public void SetTargetCorrect(int count)
+    {
+        _targetCorrect = Mathf.Max(1, count);
+        UpdateProgressUI();
+    }
+
     public bool ReachedTarget() => _correctSoFar >= _targetCorrect;
 
     public void ResetRun()
@@ -137,8 +156,9 @@ public class SmartLadderQuiz : MonoBehaviour
         _wrongStreakThisLevel = 0;
         _correctSoFar = 0;
         _asked.Clear();
-        _answeredCorrect.Clear();
+
         UpdateCoinsUI();
+        UpdateProgressUI();
 
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(false);
@@ -153,21 +173,15 @@ public class SmartLadderQuiz : MonoBehaviour
         EnsureInit();
 
         ReadyForManualContinue = false;
+        _current = _provider.GetNext(EffectiveDifficulty, _asked);
 
-        // 1) Prefer NEVER-SEEN questions: exclude everything in _asked and everything correct
-        var preferNewExclude = new HashSet<int>(_answeredCorrect);
-        foreach (var id in _asked) preferNewExclude.Add(id);
-
-        _current = _provider.GetNext(EffectiveDifficulty, preferNewExclude);
-
-        // 2) If none left, fall back to re-ask previously-wrong ones:
-        //    exclude ONLY the ones already answered correct
+        // If the provider ran out due to all wrong answers shown already,
+        // allow it to recycle any (we exclude nothing). This prevents "No questions" stall.
         if (_current == null)
         {
-            _current = _provider.GetNext(EffectiveDifficulty, _answeredCorrect);
+            _current = _provider.GetNext(EffectiveDifficulty, new HashSet<int>()); // no excludes
         }
 
-        // 3) If still none, truly no questions available right now
         if (_current == null)
         {
             if (questionPanel) questionPanel.SetActive(true);
@@ -176,7 +190,6 @@ public class SmartLadderQuiz : MonoBehaviour
             return;
         }
 
-        // Mark as asked as soon as we pick it
         _asked.Add(_current.Id);
 
         if (explanationPanel) explanationPanel.SetActive(false);
@@ -208,33 +221,26 @@ public class SmartLadderQuiz : MonoBehaviour
 
         _lastAnswerCorrect = (_current != null && choiceIndex == _current.CorrectIndex);
 
-        if (_lastAnswerCorrect && _current != null)
-        {
-            // Permanently exclude this question for the rest of the run
-            _answeredCorrect.Add(_current.Id);
-        }
-
         if (explanationText)
         {
             string prefix = _lastAnswerCorrect ? "Correct! " : "Not quite. ";
             explanationText.text = prefix + (_current?.Explanation ?? "");
-            // (optional) ensure normal color
             explanationText.color = new Color(1f, 1f, 1f, 1f);
         }
 
         if (_lastAnswerCorrect)
         {
-            // Show reward popup ON TOP of the question panel, then go to explanation
             int reward = RewardForCurrentStreak();
             _coins += reward;
             UpdateCoinsUI();
+
+            ProgressStore.SaveCoins(EffectiveDifficulty, _coins);
 
             if (_rewardCo != null) StopCoroutine(_rewardCo);
             _rewardCo = StartCoroutine(CoShowRewardThenExplanation(reward));
         }
         else
         {
-            // Wrong: hide question immediately and show explanation
             if (questionPanel) questionPanel.SetActive(false);
             if (explanationPanel) explanationPanel.SetActive(true);
         }
@@ -246,11 +252,10 @@ public class SmartLadderQuiz : MonoBehaviour
     {
         if (rewardPanel)
         {
-            // make sure the popup is a child of the question panel so it overlaps it
             if (questionPanel && rewardPanel.transform.parent != questionPanel.transform)
                 rewardPanel.transform.SetParent(questionPanel.transform, false);
 
-            rewardPanel.transform.SetAsLastSibling(); // draw on top of question contents
+            rewardPanel.transform.SetAsLastSibling();
             if (rewardText) rewardText.text = $"+{reward} COINS";
             rewardPanel.SetActive(true);
         }
@@ -259,7 +264,6 @@ public class SmartLadderQuiz : MonoBehaviour
 
         if (rewardPanel) rewardPanel.SetActive(false);
 
-        // now swap panels: hide question, show explanation
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(true);
 
@@ -271,16 +275,20 @@ public class SmartLadderQuiz : MonoBehaviour
         if (explanationPanel) explanationPanel.SetActive(false);
     }
 
-    // Hook this to the Explanation panel's "Next" button
+    // Hook this to the Explanation panel's "Next" (Continue) button
     public void NextQuestionButton()
     {
         CloseExplanation();
 
         if (_lastAnswerCorrect)
         {
-            // Finalize this level result
             _wrongStreakThisLevel = 0;
             _correctSoFar++;
+            UpdateProgressUI();
+
+            // Optionally persist coins
+            var diffForSave = EffectiveDifficulty;
+            ProgressStore.SaveCoins(diffForSave, _coins);
 
             if (ReachedTarget())
             {
@@ -288,14 +296,13 @@ public class SmartLadderQuiz : MonoBehaviour
 
                 if (moveToChestOnComplete && mover != null)
                 {
-                    // Temporarily stop auto-questions during the “walk to chest”
                     _savedAutoShow = mover.autoShowOnArrive;
                     _savedCallQuiz = mover.callQuizOnArrive;
                     mover.autoShowOnArrive = false;
                     mover.callQuizOnArrive = false;
 
                     _awaitingChestArrival = true;
-                    mover.MoveToLevel(chestLevel1Based);   // go to chest
+                    mover.MoveToLevel(chestLevel1Based);
                 }
                 else
                 {
@@ -304,12 +311,20 @@ public class SmartLadderQuiz : MonoBehaviour
                 return;
             }
 
-            if (mover != null) mover.MoveNext();
-            else Debug.LogWarning("SmartLadderQuiz: mover not assigned.");
+            // Save resume level = next platform
+            if (mover != null)
+            {
+                int nextLevel1Based = (mover.CurrentIndex + 1) + 1; // current 1-based + 1
+                ProgressStore.SaveLevel(EffectiveDifficulty, nextLevel1Based);
+                mover.MoveNext();
+            }
+            else
+            {
+                Debug.LogWarning("SmartLadderQuiz: mover not assigned.");
+            }
         }
         else
         {
-            // stay on same level; increase streak and ask another (prefer new, fallback to wrong)
             _wrongStreakThisLevel++;
             ShowNextQuestion();
         }
@@ -328,11 +343,20 @@ public class SmartLadderQuiz : MonoBehaviour
     void UpdateCoinsUI()
     {
         if (coinsText != null)
-        {
             coinsText.text = $"{_coins}";
-        }
-        // If you wire listeners, you can emit this:
-        // onCoinsChanged?.Invoke(_coins);
+        onCoinsChanged?.Invoke(_coins);
+    }
+
+    void UpdateProgressUI()
+    {
+        // Clamp to avoid division issues
+        int clampedCorrect = Mathf.Clamp(_correctSoFar, 0, Mathf.Max(1, _targetCorrect));
+
+        if (progressBar)
+            progressBar.value = (float)clampedCorrect / Mathf.Max(1, _targetCorrect);
+
+        if (progressText)
+            progressText.text = $"{clampedCorrect}/{_targetCorrect}";
     }
 
     // Optional close/reopen
@@ -348,23 +372,24 @@ public class SmartLadderQuiz : MonoBehaviour
         {
             _awaitingChestArrival = false;
 
-            // restore defaults
             mover.autoShowOnArrive = _savedAutoShow;
             mover.callQuizOnArrive = _savedCallQuiz;
 
             ShowCompletionPanel();
+
+            // Fill bar just in case
+            _correctSoFar = _targetCorrect;
+            UpdateProgressUI();
         }
     }
 
     void ShowCompletionPanel()
     {
-        // Hide gameplay panels
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(false);
         if (completionPanel) completionPanel.SetActive(true);
     }
 
-    // Reopen the currently loaded question (if any)
     public void ReopenCurrentQuestion()
     {
         if (_current == null) return;
@@ -379,4 +404,7 @@ public class SmartLadderQuiz : MonoBehaviour
 
         if (questionPanel) questionPanel.SetActive(true);
     }
+
+    public bool HasCurrentQuestion => _current != null;
+    public bool ReadyForManualContinue { get; private set; } = false;
 }
