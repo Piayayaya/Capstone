@@ -35,6 +35,15 @@ public class SmartLadderQuiz : MonoBehaviour
     [Header("Coins (optional UI)")]
     public TMP_Text coinsText;                     // optional UI label to show total coins
 
+    [Header("Timer")]
+    public bool useTimer = true;                   // master switch
+    public float timePerQuestion = 60f;            // seconds per question
+    public TMP_Text timerText;                     // "MM:SS"
+    public Image timerFill;                        // optional radial/filled image
+    public Color timerNormalColor = Color.white;
+    public Color timerWarningColor = Color.red;
+    public float warningThreshold = 10f;           // <= this many seconds -> warning color
+
     [Header("Events")]
     public UnityEvent<bool> onAnswered;            // true if correct
     public UnityEvent<int> onCoinsChanged;         // passes new coin total (optional)
@@ -75,6 +84,12 @@ public class SmartLadderQuiz : MonoBehaviour
     int _correctSoFar = 0;                         // total correct answers this run
     Coroutine _rewardCo;
 
+    // Timer state (pause/resume)
+    Coroutine _timerCo;
+    float _timeRemaining = 0f;
+    bool _timerPaused = false;
+    bool _questionAnswered = false;
+
     // -------- Lifecycle --------
     void Awake()
     {
@@ -95,6 +110,7 @@ public class SmartLadderQuiz : MonoBehaviour
 
         UpdateCoinsUI();
         UpdateProgressUI(); // ensure bar reflects initial state
+        ResetTimerUI();     // ensure timer looks clean on boot
     }
 
     void OnEnable()
@@ -125,6 +141,8 @@ public class SmartLadderQuiz : MonoBehaviour
     {
         if (mover != null)
             mover.onArrived.RemoveListener(OnMoverArrived);
+
+        StopQuestionTimer();
     }
 
     void EnsureInit()
@@ -160,6 +178,13 @@ public class SmartLadderQuiz : MonoBehaviour
         UpdateCoinsUI();
         UpdateProgressUI();
 
+        // timer reset
+        StopQuestionTimer();
+        _timeRemaining = 0f;
+        _timerPaused = false;
+        _questionAnswered = false;
+        ResetTimerUI();
+
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(false);
         if (rewardPanel) rewardPanel.SetActive(false);
@@ -173,6 +198,13 @@ public class SmartLadderQuiz : MonoBehaviour
         EnsureInit();
 
         ReadyForManualContinue = false;
+
+        // Fresh timer state for a new question
+        StopQuestionTimer();
+        _questionAnswered = false;
+        _timerPaused = false;
+        _timeRemaining = timePerQuestion;
+
         _current = _provider.GetNext(EffectiveDifficulty, _asked);
 
         // If the provider ran out due to all wrong answers shown already,
@@ -187,6 +219,7 @@ public class SmartLadderQuiz : MonoBehaviour
             if (questionPanel) questionPanel.SetActive(true);
             if (explanationPanel) explanationPanel.SetActive(false);
             if (questionText) questionText.text = "No questions available.";
+            ResetTimerUI();
             return;
         }
 
@@ -212,12 +245,20 @@ public class SmartLadderQuiz : MonoBehaviour
             btn.onClick.AddListener(() => OnOption(idx));
             btn.interactable = true;
         }
+
+        // Start timer for this question
+        if (useTimer) StartQuestionTimer();
+        else ResetTimerUI();
     }
 
     void OnOption(int choiceIndex)
     {
         foreach (var b in optionButtons) if (b) b.interactable = false;
         ReadyForManualContinue = false;
+
+        // mark as answered & stop the timer
+        _questionAnswered = true;
+        StopQuestionTimer();
 
         _lastAnswerCorrect = (_current != null && choiceIndex == _current.CorrectIndex);
 
@@ -330,6 +371,124 @@ public class SmartLadderQuiz : MonoBehaviour
         }
     }
 
+    // -------- TIMER (pause/resume) --------
+    void StartQuestionTimer()
+    {
+        StopQuestionTimer(); // ensure single instance
+        _timerPaused = false;
+
+        // If _timeRemaining hasn't been set by ShowNextQuestion (fresh),
+        // initialize to full time.
+        if (_timeRemaining <= 0f || _timeRemaining > timePerQuestion)
+            _timeRemaining = timePerQuestion;
+
+        UpdateTimerUI(Mathf.Clamp01(_timeRemaining / Mathf.Max(0.0001f, timePerQuestion)), _timeRemaining);
+        _timerCo = StartCoroutine(CoTimer());
+    }
+
+    void PauseQuestionTimer()
+    {
+        if (_timerCo != null)
+        {
+            StopCoroutine(_timerCo);
+            _timerCo = null;
+        }
+        _timerPaused = true; // keep _timeRemaining
+    }
+
+    void ResumeQuestionTimer()
+    {
+        if (_questionAnswered) return;  // don't resume if already answered/timeout
+        if (_timeRemaining <= 0f) return;
+        if (_timerCo != null) return;   // already running
+
+        _timerPaused = false;
+        _timerCo = StartCoroutine(CoTimer());
+    }
+
+    void StopQuestionTimer()
+    {
+        if (_timerCo != null)
+        {
+            StopCoroutine(_timerCo);
+            _timerCo = null;
+        }
+        _timerPaused = false;
+    }
+
+    IEnumerator CoTimer()
+    {
+        float total = Mathf.Max(0.0001f, timePerQuestion);
+
+        while (_timeRemaining > 0f && !_questionAnswered && !_timerPaused)
+        {
+            _timeRemaining -= Time.deltaTime;
+            float norm = Mathf.Clamp01(_timeRemaining / total);
+            UpdateTimerUI(norm, Mathf.Max(0f, _timeRemaining));
+            yield return null;
+        }
+
+        _timerCo = null;
+
+        // Time expired and not answered → handle timeout
+        if (!_questionAnswered && !_timerPaused && _timeRemaining <= 0f)
+        {
+            HandleTimeExpired();
+        }
+    }
+
+    void HandleTimeExpired()
+    {
+        _questionAnswered = true;
+        StopQuestionTimer();
+
+        // Disable buttons (can't answer anymore)
+        foreach (var b in optionButtons) if (b) b.interactable = false;
+
+        _lastAnswerCorrect = false;
+
+        if (explanationText)
+        {
+            // Show explanation to teach the answer
+            string prefix = "Time's up! ";
+            explanationText.text = prefix + (_current?.Explanation ?? "");
+            explanationText.color = new Color(1f, 1f, 1f, 1f);
+        }
+
+        if (questionPanel) questionPanel.SetActive(false);
+        if (explanationPanel) explanationPanel.SetActive(true);
+
+        onAnswered?.Invoke(false);
+    }
+
+    void ResetTimerUI()
+    {
+        if (timerText) timerText.text = useTimer ? FormatTime(timePerQuestion) : "";
+        if (timerText) timerText.color = timerNormalColor;
+        if (timerFill) timerFill.fillAmount = useTimer ? 1f : 0f;
+    }
+
+    void UpdateTimerUI(float normalized, float secondsLeft)
+    {
+        if (timerText)
+        {
+            timerText.text = FormatTime(secondsLeft);
+            timerText.color = (secondsLeft <= warningThreshold) ? timerWarningColor : timerNormalColor;
+        }
+
+        if (timerFill)
+            timerFill.fillAmount = normalized;
+    }
+
+    string FormatTime(float seconds)
+    {
+        seconds = Mathf.Max(0f, seconds);
+        int s = Mathf.CeilToInt(seconds);
+        int m = s / 60;
+        int sec = s % 60;
+        return $"{m:0}:{sec:00}";
+    }
+
     // -------- Helpers --------
     int RewardForCurrentStreak()
     {
@@ -359,9 +518,38 @@ public class SmartLadderQuiz : MonoBehaviour
             progressText.text = $"{clampedCorrect}/{_targetCorrect}";
     }
 
-    // Optional close/reopen
-    public void CloseQuestionPanel() { ReadyForManualContinue = true; if (questionPanel) questionPanel.SetActive(false); }
-    public void ReopenQuestionPanel() { if (questionPanel) questionPanel.SetActive(true); }
+    // ----- Close / Continue (PAUSE / RESUME) -----
+    public void CloseQuestionPanel()
+    {
+        ReadyForManualContinue = true;
+        PauseQuestionTimer(); // <-- PAUSE (keep remaining)
+        if (questionPanel) questionPanel.SetActive(false);
+    }
+
+    // Hook your Continue button to this
+    public void ContinueFromClose()
+    {
+        if (_current == null) return;     // nothing to continue
+
+        if (explanationPanel) explanationPanel.SetActive(false);
+
+        // Re-enable options (still unanswered)
+        if (optionButtons != null)
+            foreach (var b in optionButtons) if (b) b.interactable = true;
+
+        if (questionPanel) questionPanel.SetActive(true);
+
+        // resume the timer from remaining time
+        if (useTimer) ResumeQuestionTimer();
+
+        ReadyForManualContinue = false;
+    }
+
+    public void ReopenQuestionPanel()
+    {
+        if (questionPanel) questionPanel.SetActive(true);
+        // Do not auto-resume here; use ContinueFromClose for explicit resume.
+    }
 
     void OnMoverArrived(int arrivedIndex)
     {
@@ -403,6 +591,8 @@ public class SmartLadderQuiz : MonoBehaviour
         }
 
         if (questionPanel) questionPanel.SetActive(true);
+        // If you prefer this API to also resume the timer, uncomment:
+        if (useTimer) ResumeQuestionTimer();
     }
 
     public bool HasCurrentQuestion => _current != null;
