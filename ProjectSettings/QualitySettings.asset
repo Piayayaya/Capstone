@@ -324,7 +324,6 @@ QualitySettings:
     EmbeddedLinux: 5
     GameCoreScarlett: 5
     GameCoreXboxOne: 5
-    Kepler: 5
     LinuxHeadlessSimulation: 5
     Nintendo Switch: 5
     PS4: 5

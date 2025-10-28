@@ -2,8 +2,7 @@
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections;
-using UnityEngine.SceneManagement;   // <-- add this
-
+using UnityEngine.SceneManagement;
 
 public class Gameplay : MonoBehaviour
 {
@@ -21,7 +20,7 @@ public class Gameplay : MonoBehaviour
 
     [Header("Movement")]
     [Range(0.1f, 2f)] public float moveDuration = 0.7f;
-    public float preMoveDelay = 0.3f;        // NEW: pause BEFORE starting any move
+    public float preMoveDelay = 0.3f;        // pause BEFORE starting any move
     public Vector3 landingOffset = Vector3.zero;
     public AnimationCurve ease = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
@@ -50,11 +49,7 @@ public class Gameplay : MonoBehaviour
 
     [Header("Navigation")]
     [SerializeField] string difficultySceneName = "SmartLadder-DifficultySelection";
-    [SerializeField] GameObject explanationPanel;   // optional: drag your ExplanationPanel here
-
-    [Header("Resume")]
-    public bool resumeFromSave = true;
-
+    [SerializeField] GameObject explanationPanel;   // optional
 
     public int CurrentIndex { get; private set; } = -1;
 
@@ -72,6 +67,7 @@ public class Gameplay : MonoBehaviour
         if (!player) { Debug.LogError("Gameplay: Assign 'player'."); yield break; }
         if (points == null || points.Length == 0) { Debug.LogError("Gameplay: 'points' is empty."); yield break; }
 
+        // let layout settle
         yield return null;
         Canvas.ForceUpdateCanvases();
 
@@ -82,6 +78,17 @@ public class Gameplay : MonoBehaviour
             Canvas.ForceUpdateCanvases();
         }
 
+        // --- Resume logic (takes precedence) ---
+        int savedLevel = ProgressStore.LoadLevel(SmartLadderSession.SelectedDifficulty, 1);
+        if (savedLevel > 1)
+        {
+            // Hide start panel and snap directly to saved level (no start-position walk)
+            if (startPanel) startPanel.SetActive(false);
+            SnapToLevel(savedLevel);   // SnapToLevel -> HandleArrive -> calls quiz if enabled
+            yield break;
+        }
+
+        // --- Normal first-time start behavior ---
         bool blockAuto = startPanel && startPanel.activeSelf;
         if (autoMoveToFirstOnStart && !blockAuto)
             MoveToLevel(startLevel1Based);
@@ -89,12 +96,22 @@ public class Gameplay : MonoBehaviour
             CenterViewportOnPlayer(instant: true);
     }
 
-    // ----- Called by StartPanel’s Start Game button -----
+    // Called by StartPanel’s Start button
     public void BeginGame()
     {
         if (startPanel) startPanel.SetActive(false);
         if (hidePanelDuringMove && questionPanel) questionPanel.SetActive(false);
-        MoveToLevel(startLevel1Based);    // pre-move delay applies here too
+
+        // If there is a resume point, go there; else start normally
+        int savedLevel = ProgressStore.LoadLevel(SmartLadderSession.SelectedDifficulty, 1);
+        if (savedLevel > 1)
+        {
+            SnapToLevel(savedLevel);
+        }
+        else
+        {
+            MoveToLevel(startLevel1Based);  // pre-move delay applies here
+        }
     }
 
     // ---------- Public API ----------
@@ -150,10 +167,9 @@ public class Gameplay : MonoBehaviour
         }
 
         StopAllCoroutines();
-        StartCoroutine(CoMoveWithPreDelay(target, idx));   // <— NEW wrapper
+        StartCoroutine(CoMoveWithPreDelay(target, idx));
     }
 
-    // NEW: simple wrapper that waits before moving
     IEnumerator CoMoveWithPreDelay(Vector3 targetPos, int targetIndex)
     {
         if (preMoveDelay > 0f) yield return new WaitForSeconds(preMoveDelay);
@@ -298,14 +314,8 @@ public class Gameplay : MonoBehaviour
 
     public void GoBack()
     {
-        // Close any open panels (optional)
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(false);
-
-        // If you ever paused time, unpause here
-        // Time.timeScale = 1f;
-
         SceneManager.LoadScene(difficultySceneName);
     }
-
 }

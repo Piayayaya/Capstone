@@ -11,6 +11,12 @@ public static class SmartLadderSession
 public class DifficultySelectUi : MonoBehaviour
 {
     [SerializeField] string gameplaySceneName = "SmartLadder-Easy"; // your gameplay scene
+    [SerializeField] string gamemodeSceneName = "Gamemodes";
+
+    public void GoBack()
+    {
+        SceneManager.LoadScene(gamemodeSceneName);
+    }
 
     public void PickEasy() { Pick(LadderDifficulty.Easy); }
     public void PickNormal() { Pick(LadderDifficulty.Normal); }
@@ -23,4 +29,6 @@ public class DifficultySelectUi : MonoBehaviour
         SmartLadderSession.SelectedDifficulty = diff;
         SceneManager.LoadScene(gameplaySceneName);
     }
+
+   
 }
