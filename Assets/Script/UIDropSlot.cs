@@ -1,51 +1,43 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(RectTransform))]
 public class UIDropSlot : MonoBehaviour, IDropHandler
 {
-    [Header("Accepts")]
-    public char acceptsLetter = 'B';     // set per-slot in the Inspector
-
-    [Header("Snap")]
-    public RectTransform snapPoint;      // optional (defaults to this rect)
-
-    [HideInInspector] public UIDragLetter current;       // who is inside now
+    public RectTransform snapPoint;      // optional
+    [HideInInspector] public UIDragLetter current;
     [HideInInspector] public DragDropGameController controller;
 
-    public bool IsCorrect =>
-        current != null &&
-        char.ToUpperInvariant(current.Letter) == char.ToUpperInvariant(acceptsLetter);
+    void Reset()
+    {
+        snapPoint = GetComponent<RectTransform>();
+    }
 
     public void OnDrop(PointerEventData eventData)
     {
-        if (current != null) return; // already filled
+        if (!UIDragLetter.GlobalAllowDrag) return;
 
-        // get the dragged letter
         var drag = eventData.pointerDrag ? eventData.pointerDrag.GetComponent<UIDragLetter>() : null;
-        if (drag == null) return;
+        if (!drag) return;
 
-        // reject wrong letter
-        if (char.ToUpperInvariant(drag.Letter) != char.ToUpperInvariant(acceptsLetter))
-        {
-            drag.ReturnToStart();
-            controller?.WrongDropFeedback();   // optional visual/audio feedback
-            return;
-        }
+        // free the old slot that was holding this letter
+        if (drag.currentSlot && drag.currentSlot != this)
+            drag.currentSlot.current = null;
 
-        // accept + snap (robust — avoids disappearing)
+        // occupy this slot with the dragged letter
         current = drag;
+        drag.currentSlot = this;
 
-        var target = snapPoint != null ? snapPoint : (RectTransform)transform;
+        var target = snapPoint ? snapPoint : (RectTransform)transform;
+        drag.transform.SetParent(target, false);
 
-        drag.transform.SetParent(target, worldPositionStays: false);
-
-        var dragRect = drag.GetComponent<RectTransform>();
-        dragRect.anchorMin = dragRect.anchorMax = new Vector2(0.5f, 0.5f);
-        dragRect.pivot = new Vector2(0.5f, 0.5f);
-        dragRect.anchoredPosition = Vector2.zero;
-        dragRect.localRotation = Quaternion.identity;
-        dragRect.localScale = Vector3.one;
-        dragRect.SetAsLastSibling();
+        var rt = drag.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.localRotation = Quaternion.identity;
+        rt.localScale = Vector3.one;
+        drag.transform.SetAsLastSibling();
 
         var cg = drag.GetComponent<CanvasGroup>();
         if (cg) { cg.blocksRaycasts = true; cg.alpha = 1f; }

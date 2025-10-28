@@ -5,56 +5,66 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(CanvasGroup))]
 public class UIDragLetter : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [Header("Config")]
-    public string letterId = "B";   // Set per letter in Inspector (e.g., "B", "O", "Y")
-    public Canvas canvas;           // Assign the root Canvas (the one that renders the UI)
+    public char Letter = 'A';
 
-    // Cached
-    RectTransform rect;
-    CanvasGroup group;
+    // gating from controller
+    public static bool GlobalAllowDrag = true;
 
-    // Start state
-    Vector2 startPos;
-    Transform startParent;
+    CanvasGroup cg;
+    RectTransform rt;
+    Transform homeParent;
+    Vector2 homeAnchoredPos;
 
-    public char Letter => string.IsNullOrEmpty(letterId) ? '?' : letterId[0];
+    [HideInInspector] public UIDropSlot currentSlot;
 
     void Awake()
     {
-        rect = GetComponent<RectTransform>();
-        group = GetComponent<CanvasGroup>();
-        if (canvas == null) canvas = GetComponentInParent<Canvas>();
+        rt = GetComponent<RectTransform>();
+        cg = GetComponent<CanvasGroup>();
+        RememberHome();
     }
 
-    public void OnBeginDrag(PointerEventData e)
+    public void RememberHome()
     {
-        startPos = rect.anchoredPosition;
-        startParent = rect.parent;
-
-        group.blocksRaycasts = false;   // let slots receive raycasts
-        group.alpha = 0.9f;
+        homeParent = transform.parent;
+        homeAnchoredPos = rt.anchoredPosition;
     }
 
-    public void OnDrag(PointerEventData e)
+    public void SnapToHome()
     {
-        rect.anchoredPosition += e.delta / (canvas ? canvas.scaleFactor : 1f);
+        currentSlot = null;
+        transform.SetParent(homeParent, false);
+        rt.anchoredPosition = homeAnchoredPos;
+        rt.localRotation = Quaternion.identity;
+        rt.localScale = Vector3.one;
+
+        if (cg) { cg.blocksRaycasts = true; cg.alpha = 1f; }
     }
 
-    public void OnEndDrag(PointerEventData e)
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        // If no slot adopted us, snap back
-        if (rect.parent == startParent)
-            rect.anchoredPosition = startPos;
-
-        group.blocksRaycasts = true;
-        group.alpha = 1f;
+        if (!GlobalAllowDrag) return;
+        if (cg) { cg.blocksRaycasts = false; }
+        transform.SetAsLastSibling();
     }
 
-    public void ReturnToStart()
+    public void OnDrag(PointerEventData eventData)
     {
-        rect.SetParent(startParent as RectTransform, false);
-        rect.anchoredPosition = startPos;
-        group.blocksRaycasts = true;
-        group.alpha = 1f;
+        if (!GlobalAllowDrag) return;
+        rt.anchoredPosition += eventData.delta / GetCanvasScale();
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (cg) cg.blocksRaycasts = true;
+        // if not snapped by a slot, go home
+        if (transform.parent == homeParent)
+            SnapToHome();
+    }
+
+    float GetCanvasScale()
+    {
+        var c = GetComponentInParent<Canvas>();
+        return c ? c.scaleFactor : 1f;
     }
 }
