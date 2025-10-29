@@ -1,31 +1,20 @@
 using UnityEngine;
 
-/// <summary>
 /// Simple UI bounce (and optional wiggle) for a RectTransform.
 /// Call Play() to start animation, Stop() to freeze & reset.
-/// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class CharacterBouncer : MonoBehaviour
 {
     [Header("Bounce")]
-    [Tooltip("Pixels to move up/down from the base position.")]
-    public float amplitude = 12f;
-
-    [Tooltip("Cycles per second.")]
-    public float frequency = 1.2f;
-
-    [Tooltip("Horizontal sway in pixels (optional).")]
-    public float horizontalSway = 0f;
+    public float amplitude = 12f;       // vertical pixels
+    public float frequency = 1.2f;      // cycles/sec
+    public float horizontalSway = 0f;   // horizontal pixels (optional)
 
     [Header("Wiggle (optional)")]
-    [Tooltip("Small rotation wiggle in degrees. 0 = none.")]
     public float wiggleDegrees = 3f;
-
-    [Tooltip("Wiggle cycles per second.")]
     public float wiggleFrequency = 1.6f;
 
     [Header("Misc")]
-    [Tooltip("Use unscaled time so it ignores timescale changes.")]
     public bool useUnscaledTime = true;
 
     RectTransform rt;
@@ -33,23 +22,37 @@ public class CharacterBouncer : MonoBehaviour
     Quaternion baseRotation;
     bool playing;
 
+    void CacheRect()
+    {
+        if (rt == null)
+        {
+            rt = GetComponent<RectTransform>();   // will exist on any UI object
+            if (rt != null)
+            {
+                baseAnchoredPos = rt.anchoredPosition;
+                baseRotation = rt.localRotation;
+            }
+        }
+    }
+
     void Awake()
     {
-        rt = GetComponent<RectTransform>();
-        baseAnchoredPos = rt.anchoredPosition;
-        baseRotation = rt.localRotation;
+        CacheRect();
     }
 
     void OnEnable()
     {
-        // Keep the base position if this object gets enabled/disabled
-        baseAnchoredPos = rt.anchoredPosition;
-        baseRotation = rt.localRotation;
+        CacheRect();
+        if (rt != null)
+        {
+            baseAnchoredPos = rt.anchoredPosition;
+            baseRotation = rt.localRotation;
+        }
     }
 
     void Update()
     {
-        if (!playing) return;
+        if (!playing || rt == null) return;
 
         float t = useUnscaledTime ? Time.unscaledTime : Time.time;
 
@@ -67,7 +70,9 @@ public class CharacterBouncer : MonoBehaviour
 
     public void Play()
     {
-        // Re-sample base in case layout changed
+        CacheRect();
+        if (rt == null) return;
+
         baseAnchoredPos = rt.anchoredPosition;
         baseRotation = rt.localRotation;
         playing = true;
@@ -75,9 +80,13 @@ public class CharacterBouncer : MonoBehaviour
 
     public void Stop()
     {
+        // Be safe even if someone removed components at runtime
+        CacheRect();
         playing = false;
-        // Reset to clean pose
-        rt.anchoredPosition = baseAnchoredPos;
-        rt.localRotation = baseRotation;
+        if (rt != null)
+        {
+            rt.anchoredPosition = baseAnchoredPos;
+            rt.localRotation = baseRotation;
+        }
     }
 }

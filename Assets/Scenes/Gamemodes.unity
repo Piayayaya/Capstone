@@ -377,9 +377,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 665987574}
-        m_TargetAssemblyTypeName: GotoDashboard, Assembly-CSharp
-        m_MethodName: ShowDashboard
+      - m_Target: {fileID: 665987581}
+        m_TargetAssemblyTypeName: ArrowLeftToDashboard, Assembly-CSharp
+        m_MethodName: Go
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -538,6 +538,10 @@ GameObject:
   - component: {fileID: 665987576}
   - component: {fileID: 665987575}
   - component: {fileID: 665987574}
+  - component: {fileID: 665987579}
+  - component: {fileID: 665987580}
+  - component: {fileID: 665987581}
+  - component: {fileID: 665987582}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -612,6 +616,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &665987579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 665987573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bf14751029cc3946b73ecf84a290efd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: DragAndDrop
+--- !u!114 &665987580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 665987573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28b2674d2f5c17d40b72670ecc439059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: TuneYourTongue
+--- !u!114 &665987581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 665987573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e59687a677de0142af91ac791579f82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: Dashboard
+--- !u!114 &665987582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 665987573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c59e5640c0b043340bfdd6239994a683, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: SeeItorLoseIt
 --- !u!1 &718974590
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,7 +750,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 718974593}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 665987579}
+        m_TargetAssemblyTypeName: DragAndDropLoader, Assembly-CSharp
+        m_MethodName: LoadDragAndDrop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &718974593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1030,7 +1098,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 938608917}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 665987582}
+        m_TargetAssemblyTypeName: GotoSeeItOrLoseIt, Assembly-CSharp
+        m_MethodName: LoadScene
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &938608917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1151,7 +1231,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1108567682}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 665987580}
+        m_TargetAssemblyTypeName: GotoTuneYourTongue, Assembly-CSharp
+        m_MethodName: Go
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1108567682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2207,13 +2299,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11500000, guid: 9d2ba34206b7f8f488fe5c4a8674e014, type: 3}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 665987577}
+        m_TargetAssemblyTypeName: GotoNameTheFlag, Assembly-CSharp
+        m_MethodName: Go
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
