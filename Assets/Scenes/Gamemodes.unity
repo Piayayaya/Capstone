@@ -1683,11 +1683,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-<<<<<<< HEAD
-      - m_Target: {fileID: 737718495}
-=======
       - m_Target: {fileID: 1348518762}
->>>>>>> a58e8d4662148f6adc87237712cb2123ccee4aa9
         m_TargetAssemblyTypeName: DragAndDropLoader, Assembly-CSharp
         m_MethodName: LoadDragAndDrop
         m_Mode: 1
@@ -1746,10 +1742,6 @@ SceneRoots:
   - {fileID: 500788280}
   - {fileID: 682986964}
   - {fileID: 130835235}
-<<<<<<< HEAD
-  - {fileID: 737718496}
-=======
   - {fileID: 70196824}
   - {fileID: 1240231374}
   - {fileID: 1348518763}
->>>>>>> a58e8d4662148f6adc87237712cb2123ccee4aa9

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7517174bc7449c4cbeb09ce2b24c9b4, type: 3}
+  m_Name: SmartLadderQuest
+  m_EditorClassIdentifier: 
+  questId: quest_01
+  title: Start of Journey
+  description: Answer a smart ladder question
+  goalType: 0
+  progressTag: answer_smartladder
+  target: 1
+  coinReward: 50
+  eligibleForDaily: 1

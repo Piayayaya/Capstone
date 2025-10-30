@@ -262,6 +262,12 @@ public class SmartLadderQuiz : MonoBehaviour
 
         _lastAnswerCorrect = (_current != null && choiceIndex == _current.CorrectIndex);
 
+        Debug.LogWarning("Before Sent");
+        DailyQuestSimple.Report("answer_smartladder", 1);
+        Debug.LogWarning("Sent");
+        if (_lastAnswerCorrect)
+            DailyQuestSimple.Report("correct_smartladder", 1);
+
         if (explanationText)
         {
             string prefix = _lastAnswerCorrect ? "Correct! " : "Not quite. ";
