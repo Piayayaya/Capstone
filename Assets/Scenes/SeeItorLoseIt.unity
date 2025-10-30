@@ -966,6 +966,7 @@ GameObject:
   m_Component:
   - component: {fileID: 559591481}
   - component: {fileID: 559591482}
+  - component: {fileID: 559591483}
   m_Layer: 0
   m_Name: SeeItCoinPopup
   m_TagString: Untagged
@@ -1004,7 +1005,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   root: {fileID: 0}
-  group: {fileID: 0}
+  group: {fileID: 559591483}
   amountText: {fileID: 927259396}
   icon: {fileID: 1778673806}
   label: COINS
@@ -1015,6 +1016,18 @@ MonoBehaviour:
   startScale: 0.8
   popScale: 1.08
   sfx: {fileID: 0}
+--- !u!225 &559591483
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559591480}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &621135684
 GameObject:
   m_ObjectHideFlags: 0
@@ -1064,7 +1077,11 @@ MonoBehaviour:
   playAgainPanel: {fileID: 1630339506}
   startSeconds: 90
   autoStart: 0
+  useUnscaledTime: 1
   characterBouncer: {fileID: 1043356328}
+  OnTimeout:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &685126429
 GameObject:
   m_ObjectHideFlags: 0
@@ -1422,6 +1439,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1377703210}
+        m_TargetAssemblyTypeName: SeeItWinFlow, Assembly-CSharp
+        m_MethodName: HandleWin
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &905217371
 Transform:
   m_ObjectHideFlags: 0
@@ -1734,7 +1763,11 @@ MonoBehaviour:
   playAgainPanel: {fileID: 0}
   startSeconds: 90
   autoStart: 0
+  useUnscaledTime: 1
   characterBouncer: {fileID: 0}
+  OnTimeout:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1137255439
 GameObject:
   m_ObjectHideFlags: 0
@@ -2700,6 +2733,55 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &1377703209
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1377703211}
+  - component: {fileID: 1377703210}
+  m_Layer: 0
+  m_Name: SeeIt Win Flow
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1377703210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377703209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa15580a4600dde48a02c10f5f0b00f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timer: {fileID: 621135687}
+  character: {fileID: 1043356328}
+  coinPopup: {fileID: 559591482}
+  playAgainPanel: {fileID: 1630339506}
+  delayBeforePlayAgain: 0.7
+--- !u!4 &1377703211
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377703209}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 626.0972, y: 898.5871, z: 2.1711354}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1467835686
 GameObject:
   m_ObjectHideFlags: 0
@@ -2901,7 +2983,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1630339504}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -4416,3 +4498,4 @@ SceneRoots:
   - {fileID: 1171060928}
   - {fileID: 905217371}
   - {fileID: 621135686}
+  - {fileID: 1377703211}

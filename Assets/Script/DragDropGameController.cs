@@ -54,7 +54,7 @@ public class DragDropGameController : MonoBehaviour
 
     // -------------------- Restart Panel --------------------
     [Header("Restart Panel (play again)")]
-    public CanvasGroup restartPanel;
+    public CanvasGroup restartPanel;                 // << assign CanvasGroup on RESTARTPANEL
     public TextMeshProUGUI restartQuestionText;
     public RectTransform restartPanelRect;
     [SerializeField] string restartQuestion = "DO YOU WANT TO PLAY AGAIN?";
@@ -95,10 +95,22 @@ public class DragDropGameController : MonoBehaviour
         foreach (var s in slots) if (s) s.controller = this;
 
         HideConfirm();
-        HideRestart();
+        RestartPanelInit();   // ensure panel is active+hidden at start
 
         SetGameplayLocked(true);
         StartCoroutine(BeginAfterSmallDelay());
+    }
+
+    void RestartPanelInit()
+    {
+        if (!restartPanel) return;
+        // RESTARTPANEL GameObject should stay active so we can toggle via CanvasGroup
+        if (!restartPanel.gameObject.activeSelf)
+            restartPanel.gameObject.SetActive(true);
+
+        restartPanel.alpha = 0f;
+        restartPanel.interactable = false;
+        restartPanel.blocksRaycasts = false;
     }
 
     IEnumerator BeginAfterSmallDelay()
@@ -152,7 +164,7 @@ public class DragDropGameController : MonoBehaviour
             // >>> STOP bounce when time is up
             characterBouncer?.Stop();
 
-            StartCoroutine(ShowRestartAfterDelay());
+            StartCoroutine(ShowRestartAfterDelay());   // TIME'S UP path
             return; // prevent overwriting with 0:00
         }
 
@@ -174,6 +186,22 @@ public class DragDropGameController : MonoBehaviour
         ShowRestart();
     }
 
+    // >>> NEW: wait for coin popup to finish, then show restart (success path)
+    IEnumerator ShowRestartAfterCoins()
+    {
+        // If no popup assigned, just use the same delay as time's up
+        float wait = delayBeforePlayAgain;
+
+        if (coinPopup)
+        {
+            // total time of the coin popup animation in your CoinPopup_DragDrop
+            wait = coinPopup.appearDuration + coinPopup.holdTime + coinPopup.fadeOutDuration;
+        }
+
+        yield return new WaitForSecondsRealtime(wait);
+        ShowRestart();
+    }
+
     // -------------------- Play-again confirm --------------------
     void ShowRestart()
     {
@@ -188,10 +216,10 @@ public class DragDropGameController : MonoBehaviour
                 restartPanelRect.anchoredPosition = Vector2.zero;
             }
 
-            restartPanel.gameObject.SetActive(true);
             restartPanel.alpha = 1f;
             restartPanel.interactable = true;
             restartPanel.blocksRaycasts = true;
+            restartPanel.gameObject.SetActive(true);
         }
         else
         {
@@ -207,7 +235,7 @@ public class DragDropGameController : MonoBehaviour
         restartPanel.alpha = 0f;
         restartPanel.interactable = false;
         restartPanel.blocksRaycasts = false;
-        restartPanel.gameObject.SetActive(false);
+        restartPanel.gameObject.SetActive(true); // keep active; we control via CanvasGroup
     }
 
     public void RestartYes()
@@ -245,10 +273,14 @@ public class DragDropGameController : MonoBehaviour
                 coinPopup?.Show(rewardAmount);
                 awardedOnce = true;
 
+                // lock gameplay + stop bounce
                 SetGameplayLocked(true);
-
-                // >>> STOP bounce on success
                 characterBouncer?.Stop();
+                // stop timer so it freezes at current text
+                timerRunning = false;
+
+                // >>> show restart AFTER coins finish animating
+                StartCoroutine(ShowRestartAfterCoins());
             }
         }
         else
