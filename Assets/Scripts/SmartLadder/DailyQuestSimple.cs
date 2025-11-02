@@ -15,16 +15,23 @@ public class DailyQuestSimple : MonoBehaviour
     [Header("EITHER fill Inline OR assign a ScriptableObject (SO)")]
     [Tooltip("Use this if you want to type quests directly in the Inspector.")]
     public List<QuestDef> catalogInline = new List<QuestDef>();
-
     [Tooltip("Or drag a QuestCatalog asset here.")]
     public QuestCatalog catalogSO;
 
-    public bool logVerbose = true;
+    [Header("Catalog Auto-Load (Resources)")]
+    [SerializeField] bool autoLoadCatalogFromResources = true;
+    [SerializeField] string catalogResourcePath = "Quests/QuestCatalog";
 
-    // ---------- Optional hooks ----------
-    [Header("Optional")]
-    public CoinWallet coinWallet;          // your existing wallet; optional
-    public RewardToast rewardToast;        // your toast; optional
+    [Header("Optional Services")]
+    public CoinWallet coinWallet;                  // existing wallet (optional)
+    public RewardToast rewardToast;                // if present in scene, you can assign (optional)
+
+    [Header("Toast (auto-find/spawn, optional)")]
+    public RewardToast rewardToastPrefab;          // prefab to instantiate if none found
+    public Transform toastParent;                  // parent for spawned toast (usually your top Canvas)
+
+    [Header("Debug")]
+    public bool logVerbose = true;
 
     // ---------- Internals ----------
     const string SAVE_KEY = "BM_DailyQuestSimple_v1";
@@ -49,7 +56,7 @@ public class DailyQuestSimple : MonoBehaviour
         public TMP_Text title;             // Quest/Title text
         public TMP_Text description;       // Quest/Description text
         public Button actionButton;        // Right-side button
-        public TMP_Text actionLabel;       // TMP on the button (optional)
+        public TMP_Text actionLabel;       // TMP on the button
     }
 
     [Serializable]
@@ -78,9 +85,17 @@ public class DailyQuestSimple : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        EnsureCatalog();
         LoadOrRollToday();
         BindAll();
         WireButtons();
+
+        if (logVerbose) Debug.Log("[DailyQuest] Manager alive in scene: " + gameObject.scene.name);
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;  // clear stale reference
     }
 
     void OnEnable()
@@ -96,19 +111,15 @@ public class DailyQuestSimple : MonoBehaviour
     /// </summary>
     public static void Report(string progressTag, int amount = 1)
     {
-        // Try current singleton, else find one in scene, else auto-create a headless manager.
-        var inst = Instance ?? FindObjectOfType<DailyQuestSimple>() ?? CreateHeadlessManager();
-        if (!inst)
-        {
-            Debug.LogError("DailyQuest.Report: NO INSTANCE FOUND (and failed to create).");
-            return;
-        }
+        // Resolve instance with Unity-style null checks (handles destroyed objects)
+        DailyQuestSimple inst = Instance;
+        if (inst == null) inst = FindObjectOfType<DailyQuestSimple>();
+        if (inst == null) inst = CreateHeadlessManager();   // last resort
+
+        if (inst == null) { Debug.LogError("DailyQuest.Report: no instance and auto-create failed."); return; }
         if (amount <= 0) return;
 
         bool changed = false, anyMatch = false;
-
-        // Safety: ensure initialized (in case we just created it)
-        //inst.InitializeIfNeeded();
 
         for (int i = 0; i < inst._todayDefs.Length; i++)
         {
@@ -119,17 +130,18 @@ public class DailyQuestSimple : MonoBehaviour
             if (def.progressTag == progressTag && !e.complete && !e.claimed)
             {
                 anyMatch = true;
+                int before = e.current;
                 e.current = Mathf.Clamp(e.current + amount, 0, def.target);
                 if (e.current >= def.target) e.complete = true;
                 changed = true;
+
+                if (inst.logVerbose)
+                    Debug.Log($"[DailyQuest] MATCH '{def.title}': {before}->{e.current}/{def.target}");
             }
         }
 
-        if (!anyMatch)
-        {
-            // Not an error—just means today's 5 don't include this tag or it's already complete/claimed.
-            // Debug.LogWarning($"DailyQuest.Report: No quests matched tag '{progressTag}'.");
-        }
+        if (!anyMatch && inst.logVerbose)
+            Debug.Log($"[DailyQuest] No quest matched tag '{progressTag}' (not in today's 5, or already complete/claimed).");
 
         if (changed)
         {
@@ -137,28 +149,6 @@ public class DailyQuestSimple : MonoBehaviour
             inst.BindAll(); // updates UI if a view is attached
         }
     }
-
-    [ContextMenu("DEBUG: Print Today Quests")]
-    public void DebugPrintToday()
-    {
-        if (_todayDefs == null) { Debug.Log("No today defs."); return; }
-        for (int i = 0; i < _todayDefs.Length; i++)
-        {
-            var def = _todayDefs[i];
-            if (def == null) { Debug.Log($"[{i}] <empty>"); continue; }
-            var e = _state.entries[i];
-            Debug.Log($"[{i}] id='{def.id}', tag='{def.progressTag}', progress={e.current}/{def.target}, complete={e.complete}, claimed={e.claimed}");
-        }
-    }
-
-    static DailyQuestSimple CreateHeadlessManager()
-    {
-        var go = new GameObject("DailyQuestManager (Auto)");
-        var inst = go.AddComponent<DailyQuestSimple>();
-        DontDestroyOnLoad(go);
-        return inst;
-    }
-
 
     // ----------------- UI wiring -----------------
     void WireButtons()
@@ -185,14 +175,29 @@ public class DailyQuestSimple : MonoBehaviour
             // Claim reward
             e.claimed = true;
             Save();
-            if (coinWallet) coinWallet.Add(def.coinReward);
-            if (rewardToast) rewardToast.Show(def.coinReward, null); // adapt to your signature
+
+            // Coins
+            var wallet = GetWallet();
+            if (wallet != null) wallet.Add(def.coinReward);
+
+            // Toast (auto-find or spawn)
+            var toast = GetToast();
+            if (toast != null)
+            {
+                // Adjust this call if your RewardToast signature differs
+                toast.Show(def.coinReward, null);
+            }
+            else
+            {
+                Debug.LogWarning("[DailyQuest] No RewardToast found or prefab not assigned; skipping toast.");
+            }
+
             BindRow(i);
         }
         else
         {
             // Not complete; do nothing or navigate to a relevant mode if you want.
-            Debug.Log($"DailyQuest: '{def.title}' not complete yet. Progress {e.current}/{def.target}");
+            if (logVerbose) Debug.Log($"[DailyQuest] '{def.title}' not complete yet. Progress {e.current}/{def.target}");
         }
     }
 
@@ -277,7 +282,7 @@ public class DailyQuestSimple : MonoBehaviour
         var pool = BuildPool();
         if (pool.Count == 0)
         {
-            Debug.LogWarning("DailyQuestSimple: No quests found in Inline or SO catalog.");
+            Debug.LogWarning("[DailyQuest] No quests found in Inline or SO catalog.");
             _state = new SavedState { yyyymmdd = yyyymmdd, entries = new List<SavedEntry>() };
             for (int i = 0; i < _todayDefs.Length; i++)
             {
@@ -307,6 +312,8 @@ public class DailyQuestSimple : MonoBehaviour
 
     List<QuestDef> BuildPool()
     {
+        EnsureCatalog();
+
         var pool = new List<QuestDef>();
 
         // Prefer ScriptableObject if assigned and has content
@@ -347,6 +354,55 @@ public class DailyQuestSimple : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    // ----------------- Catalog & Services helpers -----------------
+    void EnsureCatalog()
+    {
+        if (catalogSO == null && autoLoadCatalogFromResources)
+        {
+            catalogSO = Resources.Load<QuestCatalog>(catalogResourcePath);
+            if (catalogSO == null)
+                Debug.LogWarning($"[DailyQuest] Could not load catalog at Resources/{catalogResourcePath}.asset");
+        }
+    }
+
+    CoinWallet GetWallet()
+    {
+        if (coinWallet == null) coinWallet = FindObjectOfType<CoinWallet>(true);
+        return coinWallet;
+    }
+
+    RewardToast GetToast()
+    {
+        if (rewardToast != null) return rewardToast;
+
+        // Try to find one in the active scene (even if inactive)
+        rewardToast = FindObjectOfType<RewardToast>(true);
+        if (rewardToast != null) return rewardToast;
+
+        // Spawn from prefab if assigned
+        if (rewardToastPrefab != null)
+        {
+            Transform parent = toastParent != null ? toastParent : GetTopCanvasTransform();
+            rewardToast = Instantiate(rewardToastPrefab, parent, false);
+            return rewardToast;
+        }
+        return null;
+    }
+
+    Transform GetTopCanvasTransform()
+    {
+        Canvas[] canvases = GameObject.FindObjectsOfType<Canvas>(true);
+        if (canvases != null && canvases.Length > 0)
+        {
+            Canvas best = canvases[0];
+            for (int i = 1; i < canvases.Length; i++)
+                if (canvases[i].sortingOrder > best.sortingOrder) best = canvases[i];
+            return best.transform;
+        }
+        return this.transform;
+    }
+
+    // ----------------- View attach/detach (panel binder calls these) -----------------
     public void AttachView(QuestRow[] newRows)
     {
         rows = newRows ?? Array.Empty<QuestRow>();
@@ -359,4 +415,41 @@ public class DailyQuestSimple : MonoBehaviour
         rows = Array.Empty<QuestRow>();   // drop UI refs when panel closes
     }
 
+    // ----------------- Debug helpers -----------------
+    [ContextMenu("DEBUG: Print Today Quests")]
+    public void DebugPrintToday()
+    {
+        if (_todayDefs == null) { Debug.Log("No today defs."); return; }
+        for (int i = 0; i < _todayDefs.Length; i++)
+        {
+            var def = _todayDefs[i];
+            if (def == null) { Debug.Log($"[{i}] <empty>"); continue; }
+            var e = _state.entries[i];
+            Debug.Log($"[{i}] id='{def.id}', tag='{def.progressTag}', progress={e.current}/{def.target}, complete={e.complete}, claimed={e.claimed}");
+        }
+    }
+
+    [ContextMenu("DEBUG: Reset Daily State")]
+    public void DebugResetDaily()
+    {
+        PlayerPrefs.DeleteKey(SAVE_KEY);
+        PlayerPrefs.Save();
+        LoadOrRollToday();
+        BindAll();
+        Debug.Log("[DailyQuest] Daily state reset and re-rolled.");
+    }
+
+    // ----------------- Auto-creator -----------------
+    static DailyQuestSimple CreateHeadlessManager()
+    {
+        var go = new GameObject("DailyQuestManager (Auto)");
+        var inst = go.AddComponent<DailyQuestSimple>();
+        DontDestroyOnLoad(go);
+
+        // Make sure a real catalog exists even if spawned mid-game
+        inst.EnsureCatalog();
+        inst.LoadOrRollToday();
+
+        return inst;
+    }
 }

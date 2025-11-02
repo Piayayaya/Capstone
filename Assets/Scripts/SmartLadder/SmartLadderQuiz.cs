@@ -111,6 +111,9 @@ public class SmartLadderQuiz : MonoBehaviour
         UpdateCoinsUI();
         UpdateProgressUI(); // ensure bar reflects initial state
         ResetTimerUI();     // ensure timer looks clean on boot
+
+        Debug.Log("[DailyQuest] Manager alive in scene: " + gameObject.scene.name);
+
     }
 
     void OnEnable()
