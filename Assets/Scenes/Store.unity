@@ -479,7 +479,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -531.5, y: 951.5}
+  m_AnchoredPosition: {x: -531.5, y: 951.49994}
   m_SizeDelta: {x: 1064, y: 2421.372}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &146938429
@@ -1838,6 +1838,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &526430967
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 526430969}
+  - component: {fileID: 526430970}
+  m_Layer: 0
+  m_Name: ShopController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &526430969
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 526430967}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 499.58698, y: 967.9423, z: 1.2035854}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &526430970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 526430967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e59687a677de0142af91ac791579f82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: Dashboard
 --- !u!224 &529827946 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1784603436093925024, guid: ba7e1152641c5874fb99d19060c317e6, type: 3}
@@ -3048,7 +3093,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 887735088}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.78591806
+  m_Size: 0.78585976
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4273,7 +4318,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1663758607}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 526430970}
+        m_TargetAssemblyTypeName: ArrowLeftToDashboard, Assembly-CSharp
+        m_MethodName: Go
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1663758607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5554,3 +5611,4 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 321832591}
   - {fileID: 2020057634}
+  - {fileID: 526430969}
