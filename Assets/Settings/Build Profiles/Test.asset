@@ -33,6 +33,8 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/JapanBackground.unity
   - m_enabled: 1
+    m_path: Assets/Scenes/Store.unity
+  - m_enabled: 1
     m_path: Assets/Scenes/SmartLadder-Easy.unity
   - m_enabled: 1
     m_path: Assets/Scenes/SmartLadder-DifficultySelection.unity
@@ -42,6 +44,8 @@ MonoBehaviour:
     m_path: Assets/Scenes/Background_NameTheFlag.unity
   - m_enabled: 1
     m_path: Assets/Scenes/TuneYourTongue.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/SeeItorLoseIt.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings: []

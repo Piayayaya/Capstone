@@ -111,6 +111,9 @@ public class SmartLadderQuiz : MonoBehaviour
         UpdateCoinsUI();
         UpdateProgressUI(); // ensure bar reflects initial state
         ResetTimerUI();     // ensure timer looks clean on boot
+
+        Debug.Log("[DailyQuest] Manager alive in scene: " + gameObject.scene.name);
+
     }
 
     void OnEnable()
@@ -261,6 +264,12 @@ public class SmartLadderQuiz : MonoBehaviour
         StopQuestionTimer();
 
         _lastAnswerCorrect = (_current != null && choiceIndex == _current.CorrectIndex);
+
+        Debug.LogWarning("Before Sent");
+        DailyQuestSimple.Report("answer_smartladder", 1);
+        Debug.LogWarning("Sent");
+        if (_lastAnswerCorrect)
+            DailyQuestSimple.Report("correct_smartladder", 1);
 
         if (explanationText)
         {
