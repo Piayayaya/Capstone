@@ -2954,6 +2954,9 @@ GameObject:
   - component: {fileID: 1009046690}
   - component: {fileID: 1009046689}
   - component: {fileID: 1009046688}
+  - component: {fileID: 1009046691}
+  - component: {fileID: 1009046692}
+  - component: {fileID: 1009046693}
   m_Layer: 5
   m_Name: Restart Panel
   m_TagString: Untagged
@@ -2992,7 +2995,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1009046686}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -3034,6 +3037,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1009046686}
   m_CullTransparentMesh: 1
+--- !u!114 &1009046691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009046686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f187b9856ca30af4faa2117e43cf87ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  yesScene: Background_NameTheFlag
+  noScene: Gamemodes
+  panel: {fileID: 0}
+  fadeOutDelay: 0.15
+--- !u!114 &1009046692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009046686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdc7d99b66685d6418a653a7588914ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPopup: {fileID: 105143512}
+  restartPanel: {fileID: 1009046688}
+  coinsFirstTry: 10
+  coinsSecondTry: 5
+  coinsOtherTries: 3
+  delayAfterPopup: 0.2
+--- !u!114 &1009046693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009046686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 699a1ac38fda86647a14828fe6f67504, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fade: 0.2
 --- !u!1 &1034765246
 GameObject:
   m_ObjectHideFlags: 0
@@ -5335,6 +5385,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1930908051}
   m_CullTransparentMesh: 1
+--- !u!1 &2006560817
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2006560819}
+  - component: {fileID: 2006560818}
+  m_Layer: 0
+  m_Name: DD_WinFlow
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2006560818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2006560817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdc7d99b66685d6418a653a7588914ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPopup: {fileID: 105143512}
+  restartPanel: {fileID: 1009046688}
+  coinsFirstTry: 10
+  coinsSecondTry: 5
+  coinsOtherTries: 3
+  delayAfterPopup: 0.2
+--- !u!4 &2006560819
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2006560817}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 893.1507, y: 891.3234, z: -6.452392}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2047776460
 GameObject:
   m_ObjectHideFlags: 0
@@ -5347,6 +5447,7 @@ GameObject:
   - component: {fileID: 2047776463}
   - component: {fileID: 2047776461}
   - component: {fileID: 2047776464}
+  - component: {fileID: 2047776465}
   m_Layer: 0
   m_Name: DragDropGame
   m_TagString: Untagged
@@ -5444,6 +5545,24 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &2047776465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2047776460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdc7d99b66685d6418a653a7588914ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPopup: {fileID: 105143512}
+  restartPanel: {fileID: 1009046688}
+  coinsFirstTry: 10
+  coinsSecondTry: 5
+  coinsOtherTries: 3
+  delayAfterPopup: 0.2
 --- !u!1 &2120221953
 GameObject:
   m_ObjectHideFlags: 0
@@ -5661,3 +5780,4 @@ SceneRoots:
   - {fileID: 1824597686}
   - {fileID: 2047776462}
   - {fileID: 655857718}
+  - {fileID: 2006560819}
