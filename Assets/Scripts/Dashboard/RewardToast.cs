@@ -11,6 +11,7 @@ public class RewardToast : MonoBehaviour
     [Header("Timing")] public float showSeconds = 2f;
     public float fadeIn = 0.18f;
     public float fadeOut = 0.18f;
+    public float hold = 1.25f;
 
     Coroutine routine;
     Action onDone; // <-- NEW
@@ -35,6 +36,49 @@ public class RewardToast : MonoBehaviour
 
         this.onDone = onDone;                 // <-- NEW
         routine = StartCoroutine(CoShow());
+    }
+
+    public void Show(string message, Action onDone = null)
+    {
+        if (string.IsNullOrEmpty(message)) message = "";
+        StopAllCoroutines();
+        StartCoroutine(PlayToast(message, onDone));
+    }
+
+    private IEnumerator PlayToast(string label, Action onDone)
+    {
+        if (!amountText || !canvasGroup) yield break;
+
+        amountText.text = label;
+
+        canvasGroup.blocksRaycasts = true;
+
+        // fade in
+        canvasGroup.alpha = 0f;
+        float t = 0f;
+        while (t < fadeIn)
+        {
+            t += Time.unscaledDeltaTime;
+            canvasGroup.alpha = Mathf.Lerp(0f, 1f, t / fadeIn);
+            yield return null;
+        }
+        canvasGroup.alpha = 1f;
+
+        // hold
+        yield return new WaitForSecondsRealtime(hold);
+
+        // fade out
+        t = 0f;
+        while (t < fadeOut)
+        {
+            t += Time.unscaledDeltaTime;
+            canvasGroup.alpha = Mathf.Lerp(1f, 0f, t / fadeOut);
+            yield return null;
+        }
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = false;
+
+        onDone?.Invoke();
     }
 
     IEnumerator CoShow()
