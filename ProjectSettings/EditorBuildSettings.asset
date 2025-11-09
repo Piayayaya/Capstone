@@ -48,6 +48,9 @@ EditorBuildSettings:
     path: Assets/Scenes/SmartLadder.unity
     guid: 37460fcd77041ed4886591959b9eb722
   - enabled: 1
+    path: Assets/Scenes/Store.unity
+    guid: e3db513b9d4f9a944b0f3cd0a08588e1
+  - enabled: 1
     path: Assets/Scenes/SmartLadder-DifficultySelection.unity
     guid: 08a27ac73d0258d43b2c568b6dcf9aad
   - enabled: 1
