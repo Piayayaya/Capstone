@@ -270,6 +270,9 @@ public class SmartLadderQuiz : MonoBehaviour
         Debug.LogWarning("Sent");
         if (_lastAnswerCorrect)
             DailyQuestSimple.Report("correct_smartladder", 1);
+            AchievementManager.I?.Report("achievements_01", 1);
+            AchievementManager.I?.Report("achievements_02", 1);
+
 
         if (explanationText)
         {
@@ -585,6 +588,7 @@ public class SmartLadderQuiz : MonoBehaviour
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(false);
         if (completionPanel) completionPanel.SetActive(true);
+        AchievementManager.I?.Report("achievements_03", 1);
     }
 
     public void ReopenCurrentQuestion()

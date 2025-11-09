@@ -41,6 +41,8 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/Scenes/NameTheFlag_start.unity
   - m_enabled: 1
+    m_path: Assets/Scenes/Achievements.unity
+  - m_enabled: 1
     m_path: Assets/Scenes/Background_NameTheFlag.unity
   - m_enabled: 1
     m_path: Assets/Scenes/TuneYourTongue.unity

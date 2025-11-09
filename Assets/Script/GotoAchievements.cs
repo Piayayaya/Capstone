@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 
-public class GotoNameTheFlag : MonoBehaviour 
+public class GotoAchievements : MonoBehaviour 
 {
     [Tooltip("Scene to load when the arrow is clicked.")]
-    public string sceneName = "NameTheFlag_start";
+    public string sceneName = "Achievements";
 
     public void Go()
     {
