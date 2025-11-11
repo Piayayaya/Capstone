@@ -2,47 +2,48 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 #if UNITY_EDITOR || UNITY_STANDALONE
-using UnityEditor;   // for file picker in Editor/PC
+using UnityEditor;
 #endif
 
 public class ProfileAvatarUI : MonoBehaviour
 {
     [Header("Wiring")]
-    public Image avatarImage;                 // the circular UI Image showing the avatar
-    public Sprite defaultAvatar;              // optional fallback
+    public Image avatarImage;
+    public Sprite defaultAvatar;
 
     [Header("Generate Picture")]
-    public Sprite[] randomSprites;            // assign your random avatar sprites here (or leave empty to load from Resources/Avatars)
+    public Sprite[] randomSprites; // or use Resources/Avatars
 
     [Header("Navigation")]
-    public string nextScene = "Dashboard";    // used by Let's Learn
+    public string nextScene = "Dashboard";
 
-    // -----------------------
-    // Buttons
-    // -----------------------
-
-    // Generate Picture
     public void OnGeneratePicture()
     {
-        // Allow Resources fallback if you prefer folder-based setup
-        if ((randomSprites == null || randomSprites.Length == 0))
+        Debug.Log("[ProfileAvatarUI] Generate clicked");
+        if (randomSprites == null || randomSprites.Length == 0)
         {
-            var loaded = Resources.LoadAll<Sprite>("Avatars"); // put images under Assets/Resources/Avatars
+            var loaded = Resources.LoadAll<Sprite>("Avatars");
             if (loaded != null && loaded.Length > 0) randomSprites = loaded;
         }
 
-        if (randomSprites == null || randomSprites.Length == 0)
-        {
-            Debug.LogWarning("[ProfileAvatarUI] No randomSprites assigned (or none in Resources/Avatars).");
-            if (defaultAvatar) SetAvatarSprite(defaultAvatar);
-            return;
-        }
+        Sprite pick = null;
+        if (randomSprites != null && randomSprites.Length > 0)
+            pick = randomSprites[Random.Range(0, randomSprites.Length)];
+        else
+            pick = defaultAvatar;
 
-        var pick = randomSprites[Random.Range(0, randomSprites.Length)];
-        SetAvatarSprite(pick);
+        if (pick != null)
+        {
+            SetAvatarSprite(pick);
+            if (AvatarService.Instance)
+                AvatarService.Instance.SetAvatarFromSprite(pick, true);
+        }
+        else
+        {
+            Debug.LogWarning("[ProfileAvatarUI] No sprite to set (no randomSprites and no defaultAvatar)");
+        }
     }
 
-    // Attach File
     public void OnAttachFile()
     {
 #if UNITY_EDITOR || UNITY_STANDALONE
@@ -53,59 +54,43 @@ public class ProfileAvatarUI : MonoBehaviour
             var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
             if (tex.LoadImage(bytes))
             {
-                SetAvatarSprite(SpriteFromTexture(tex));
-            }
-            else
-            {
-                Debug.LogError("[ProfileAvatarUI] Failed to load image.");
+                var sq = CropSquare(tex);
+                var sprite = Sprite.Create(sq, new Rect(0, 0, sq.width, sq.height), new Vector2(0.5f, 0.5f), 100f);
+                Debug.Log("[ProfileAvatarUI] Attach loaded -> setting avatar");
+                SetAvatarSprite(sprite);
+                if (AvatarService.Instance)
+                    AvatarService.Instance.SetAvatarFromTexture(tex, true);
             }
         }
-#elif UNITY_ANDROID || UNITY_IOS
-        // Requires: https://github.com/yasirkula/UnityNativeGallery (free)
-        // Import the NativeGallery plugin, then uncomment the block below.
-
-        /* NativeGallery.Permission perm = NativeGallery.GetImageFromGallery((path) =>
-        {
-            if (path == null) return;
-            var tex = NativeGallery.LoadImageAtPath(path, 1024, false, false, true);
-            if (tex != null) SetAvatarSprite(SpriteFromTexture(tex));
-            else Debug.LogError("[ProfileAvatarUI] Couldn't load texture from: " + path);
-        }, "Select a profile picture", "image/*");
-        if (perm == NativeGallery.Permission.Denied) Debug.LogWarning("Gallery permission denied."); */
 #else
-        Debug.LogWarning("[ProfileAvatarUI] File picker not implemented on this platform.");
+        Debug.LogWarning("[ProfileAvatarUI] Implement gallery picker for mobile (e.g., NativeGallery).");
 #endif
     }
 
-    // Let's Learn
     public void OnLetsLearn()
     {
+        Debug.Log("[ProfileAvatarUI] Let's Learn -> " + nextScene);
         if (!string.IsNullOrEmpty(nextScene))
             SceneManager.LoadScene(nextScene, LoadSceneMode.Single);
     }
 
-    // -----------------------
-    // Helpers
-    // -----------------------
-
-    void SetAvatarSprite(Sprite s)
+    public void SetAvatarSprite(Sprite s)
     {
-        if (!avatarImage) return;
+        if (!avatarImage) { Debug.LogError("[ProfileAvatarUI] avatarImage not assigned"); return; }
         avatarImage.sprite = s;
         avatarImage.preserveAspect = true;
         avatarImage.enabled = true;
+        Debug.Log("[ProfileAvatarUI] avatarImage set to: " + (s ? s.name : "null"));
     }
 
-    Sprite SpriteFromTexture(Texture2D tex)
+    Texture2D CropSquare(Texture2D src)
     {
-        // center-crop to square so it fits a circular mask nicely
-        int size = Mathf.Min(tex.width, tex.height);
-        int x = (tex.width - size) / 2;
-        int y = (tex.height - size) / 2;
-        var cropped = new Texture2D(size, size, TextureFormat.RGBA32, false);
-        cropped.SetPixels(tex.GetPixels(x, y, size, size));
-        cropped.Apply();
-
-        return Sprite.Create(cropped, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+        int size = Mathf.Min(src.width, src.height);
+        int x = (src.width - size) / 2;
+        int y = (src.height - size) / 2;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.SetPixels(src.GetPixels(x, y, size, size));
+        tex.Apply();
+        return tex;
     }
 }

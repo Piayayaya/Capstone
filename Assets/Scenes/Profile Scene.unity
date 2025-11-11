@@ -154,7 +154,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8.148495, y: -74.124146}
+  m_AnchoredPosition: {x: 8.148495, y: 0}
   m_SizeDelta: {x: 525.7, y: 103.7517}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &308891253
@@ -239,7 +239,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1947138037}
+      - m_Target: {fileID: 1947138039}
         m_TargetAssemblyTypeName: ProfileAvatarUI, Assembly-CSharp
         m_MethodName: OnAttachFile
         m_Mode: 1
@@ -436,7 +436,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8.148499, y: -205.24829}
+  m_AnchoredPosition: {x: 8.148499, y: -138}
   m_SizeDelta: {x: 525.7, y: 107.5034}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &677701657
@@ -521,7 +521,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1947138037}
+      - m_Target: {fileID: 1947138039}
         m_TargetAssemblyTypeName: ProfileAvatarUI, Assembly-CSharp
         m_MethodName: OnGeneratePicture
         m_Mode: 1
@@ -920,8 +920,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -16.886108, y: 284.42798}
-  m_SizeDelta: {x: 575.7722, y: 415.144}
+  m_AnchoredPosition: {x: 0.6451, y: 331.5493}
+  m_SizeDelta: {x: 759.5151, y: 474.8115}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1271471469
 MonoBehaviour:
@@ -995,8 +995,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -376.42688, y: -340.56732}
-  m_SizeDelta: {x: 289.124, y: 230.6654}
+  m_AnchoredPosition: {x: -376.42688, y: -323.83}
+  m_SizeDelta: {x: 289.124, y: 264.15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1358530765
 MonoBehaviour:
@@ -1036,6 +1036,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1358530763}
   m_CullTransparentMesh: 1
+--- !u!1 &1374329210
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1374329212}
+  - component: {fileID: 1374329211}
+  m_Layer: 0
+  m_Name: AppServices
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1374329211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1374329210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 300e41a802e61804a81e611f7087a42b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultAvatar: {fileID: 21300000, guid: b5ed3784643a3bc478e57a72fbf41eee, type: 3}
+--- !u!4 &1374329212
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1374329210}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 144.613, y: 939.1525, z: -17.096062}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1385108970
 GameObject:
   m_ObjectHideFlags: 0
@@ -1250,7 +1295,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1947138037}
+      - m_Target: {fileID: 1947138039}
         m_TargetAssemblyTypeName: ProfileAvatarUI, Assembly-CSharp
         m_MethodName: OnLetsLearn
         m_Mode: 1
@@ -1469,7 +1514,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1947138038}
-  - component: {fileID: 1947138037}
+  - component: {fileID: 1947138039}
   m_Layer: 0
   m_Name: ProfileController
   m_TagString: Untagged
@@ -1477,22 +1522,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1947138037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1947138036}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63f877c894618a94989d16908f197204, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  avatarImage: {fileID: 1271471469}
-  defaultAvatar: {fileID: 0}
-  randomSprites: []
-  nextScene: Dashboard
 --- !u!4 &1947138038
 Transform:
   m_ObjectHideFlags: 0
@@ -1508,6 +1537,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1947138039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1947138036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63f877c894618a94989d16908f197204, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  avatarImage: {fileID: 1271471469}
+  defaultAvatar: {fileID: 0}
+  randomSprites:
+  - {fileID: 21300000, guid: ef4bb1c79d49d1e4ea4205e2a2aa00d5, type: 3}
+  - {fileID: 21300000, guid: 87973784616da3145a7fcda2765de8e3, type: 3}
+  - {fileID: 21300000, guid: c13ec7a1fbbecc54a827d88620e99563, type: 3}
+  nextScene: Dashboard
 --- !u!1 &1955328979
 GameObject:
   m_ObjectHideFlags: 0
@@ -1765,3 +1813,4 @@ SceneRoots:
   - {fileID: 1820637340}
   - {fileID: 1245323808}
   - {fileID: 1947138038}
+  - {fileID: 1374329212}
