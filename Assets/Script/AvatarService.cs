@@ -17,15 +17,26 @@ public class AvatarService : MonoBehaviour
 
     void Awake()
     {
-        if (Instance && Instance != this) { Debug.Log("[AvatarService] Duplicate, destroying self"); Destroy(gameObject); return; }
+        if (Instance && Instance != this)
+        {
+            Debug.Log("[AvatarService] Duplicate, destroying self");
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
         DontDestroyOnLoad(gameObject);
         Debug.Log("[AvatarService] Awake, loading disk...");
         LoadFromDiskIfAny();
-        Debug.Log("[AvatarService] Awake done. Current=" + (_current ? _current.name : "null") + " | Default=" + (defaultAvatar ? defaultAvatar.name : "null"));
+        Debug.Log("[AvatarService] Awake done. Current=" + (_current ? _current.name : "null") +
+                  " | Default=" + (defaultAvatar ? defaultAvatar.name : "null"));
     }
 
+    // Existing public accessor
     public Sprite CurrentAvatar => _current ? _current : defaultAvatar;
+
+    // ADDED: simple alias if you prefer to call it CurrentSprite from other scripts
+    public Sprite CurrentSprite => CurrentAvatar;  // <-- new
 
     public void SetAvatarFromSprite(Sprite s, bool persist = true)
     {
@@ -41,14 +52,22 @@ public class AvatarService : MonoBehaviour
                 File.WriteAllBytes(SavePath, sq.EncodeToPNG());
                 Debug.Log("[AvatarService] Saved to " + SavePath);
             }
-            catch (Exception e) { Debug.LogWarning("[AvatarService] Save failed: " + e.Message); }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[AvatarService] Save failed: " + e.Message);
+            }
         }
     }
 
     public void SetAvatarFromTexture(Texture2D tex, bool persist = true)
     {
         var sq = CropSquare(tex);
-        _current = Sprite.Create(sq, new Rect(0, 0, sq.width, sq.height), new Vector2(0.5f, 0.5f), 100f);
+        _current = Sprite.Create(
+            sq,
+            new Rect(0, 0, sq.width, sq.height),
+            new Vector2(0.5f, 0.5f),
+            100f
+        );
         Debug.Log("[AvatarService] SetAvatarFromTexture -> sprite created");
         OnAvatarChanged?.Invoke(_current);
 
@@ -59,7 +78,10 @@ public class AvatarService : MonoBehaviour
                 File.WriteAllBytes(SavePath, sq.EncodeToPNG());
                 Debug.Log("[AvatarService] Saved to " + SavePath);
             }
-            catch (Exception e) { Debug.LogWarning("[AvatarService] Save failed: " + e.Message); }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[AvatarService] Save failed: " + e.Message);
+            }
         }
     }
 
@@ -78,15 +100,28 @@ public class AvatarService : MonoBehaviour
     {
         try
         {
-            if (!File.Exists(SavePath)) { Debug.Log("[AvatarService] No saved avatar on disk"); return; }
+            if (!File.Exists(SavePath))
+            {
+                Debug.Log("[AvatarService] No saved avatar on disk");
+                return;
+            }
+
             var bytes = File.ReadAllBytes(SavePath);
             var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
             if (tex.LoadImage(bytes))
             {
-                _current = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+                _current = Sprite.Create(
+                    tex,
+                    new Rect(0, 0, tex.width, tex.height),
+                    new Vector2(0.5f, 0.5f),
+                    100f
+                );
                 Debug.Log("[AvatarService] Loaded avatar from disk");
             }
         }
-        catch (Exception e) { Debug.LogWarning("[AvatarService] Load failed: " + e.Message); }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[AvatarService] Load failed: " + e.Message);
+        }
     }
 }

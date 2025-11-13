@@ -7,12 +7,12 @@ using UnityEngine.UI;
 public class DrawerMenu : MonoBehaviour
 {
     [Header("Wiring")]
-    public RectTransform drawer;      // assign ProfileDrawer/Drawer
-    public CanvasGroup drawerCg;      // optional (fade + interact)
-    public GameObject blocker;        // assign ProfileDrawer/Blocker (has Button)
+    public RectTransform drawer;      // assign ProfileDrawer/Panel (the sliding white panel)
+    public CanvasGroup drawerCg;      // CanvasGroup on the same object as 'drawer'
+    public GameObject blocker;        // assign ProfileDrawer/Blocker (has Button + Image)
 
     [Header("Motion")]
-    public float openX = 0f;          // opened X (0 when pivot is at left)
+    public float openX = 0f;          // opened X
     public float tweenSeconds = 0.25f;
     public AnimationCurve curve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
@@ -20,16 +20,24 @@ public class DrawerMenu : MonoBehaviour
     public UnityEvent onOpened;
     public UnityEvent onClosed;
 
-    float _closedX;                    // computed from width
+    float _closedX;
     bool _isOpen;
     bool _isAnimating;
 
     void Awake()
     {
-        if (!drawer) drawer = GetComponentInChildren<RectTransform>(true);
-        if (!drawerCg) drawerCg = drawer.GetComponent<CanvasGroup>();
+        if (!drawer)
+        {
+            Debug.LogError("[DrawerMenu] Drawer is not assigned!", this);
+            return;
+        }
+
+        if (!drawerCg)
+            drawerCg = drawer.GetComponent<CanvasGroup>();
+
         // compute closed position based on current width
         _closedX = -drawer.rect.width;
+
         // start closed
         CloseImmediate();
     }
@@ -40,10 +48,12 @@ public class DrawerMenu : MonoBehaviour
         transform.SetAsLastSibling();
     }
 
+    // === called by profile button ===
     public void Toggle()
     {
         if (_isAnimating) return;
-        if (_isOpen) Close(); else Open();
+        if (_isOpen) Close();
+        else Open();
     }
 
     public void Open()
@@ -60,10 +70,19 @@ public class DrawerMenu : MonoBehaviour
         StartCoroutine(Slide(false));
     }
 
+    // === called by Blocker button ===
+    public void OnBlockerClicked()
+    {
+        // so clicking the transparent area closes the drawer
+        if (!_isAnimating && _isOpen)
+            Close();
+    }
+
     void CloseImmediate()
     {
         _isOpen = false;
         _isAnimating = false;
+
         Vector2 p = drawer.anchoredPosition;
         p.x = _closedX;
         drawer.anchoredPosition = p;
@@ -74,14 +93,18 @@ public class DrawerMenu : MonoBehaviour
             drawerCg.interactable = false;
             drawerCg.blocksRaycasts = false;
         }
-        if (blocker) blocker.SetActive(false);
+
+        if (blocker)
+            blocker.SetActive(false);
     }
 
     IEnumerator Slide(bool show)
     {
         _isAnimating = true;
         transform.SetAsLastSibling();               // keep on top
-        if (blocker) blocker.SetActive(true);
+
+        if (blocker)
+            blocker.SetActive(true);
 
         float startX = drawer.anchoredPosition.x;
         float endX = show ? openX : _closedX;
@@ -102,7 +125,9 @@ public class DrawerMenu : MonoBehaviour
             p.x = Mathf.Lerp(startX, endX, k);
             drawer.anchoredPosition = p;
 
-            if (drawerCg) drawerCg.alpha = Mathf.Lerp(show ? 0f : 1f, show ? 1f : 0f, k);
+            if (drawerCg)
+                drawerCg.alpha = Mathf.Lerp(show ? 0f : 1f, show ? 1f : 0f, k);
+
             yield return null;
         }
 
@@ -114,9 +139,14 @@ public class DrawerMenu : MonoBehaviour
             drawerCg.interactable = show;
             drawerCg.blocksRaycasts = show;
         }
-        if (blocker) blocker.SetActive(show);
 
-        if (show) onOpened?.Invoke(); else onClosed?.Invoke();
-        if (!show) drawer.gameObject.SetActive(true); // keeps layout intact
+        if (blocker)
+            blocker.SetActive(show);
+
+        if (show) onOpened?.Invoke();
+        else onClosed?.Invoke();
+
+        // we keep drawer active always so layout stays fine
+        drawer.gameObject.SetActive(true);
     }
 }
