@@ -16,7 +16,7 @@ public class ShopAPI : MonoBehaviour
         if (item.type == ItemType.Character)
             ShopSave.UnlockCharacter(item.id);
 
-        CharacterInventory.Instance.AddOwned("<char_01>");
+        CharacterInventory.Instance.AddOwned(itemId);
 
 
         Debug.Log($"Purchased (coins): {item.displayName}");

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d882b9d04e0f9141883c54ba4b77c87, type: 3}
   m_Name: CharacterDef
   m_EditorClassIdentifier: 
-  id: char_01
+  id: char_hootie
   displayName: Hootie
   previewSprite: {fileID: 21300000, guid: f7401e28273ace845874158e7a8b6f92, type: 3}
   originalPrice: 100

@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d882b9d04e0f9141883c54ba4b77c87, type: 3}
   m_Name: CharacterDef 1
   m_EditorClassIdentifier: 
-  id: char_02
+  id: char_poppi
   displayName: Poppi
-  previewSprite: {fileID: 21300000, guid: f7401e28273ace845874158e7a8b6f92, type: 3}
-  originalPrice: 100
+  previewSprite: {fileID: -5382528236147686675, guid: 0ac9f4b37ce50874499b4f6b72e7bd69, type: 3}
+  originalPrice: 200
   refundPercent: 0.9
   overrideSellPrice: 0

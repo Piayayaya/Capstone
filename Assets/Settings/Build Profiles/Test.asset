@@ -48,6 +48,8 @@ MonoBehaviour:
     m_path: Assets/Scenes/TuneYourTongue.unity
   - m_enabled: 1
     m_path: Assets/Scenes/SeeItorLoseIt.unity
+  - m_enabled: 1
+    m_path: Assets/Characters.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings: []

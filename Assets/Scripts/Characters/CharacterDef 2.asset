@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d882b9d04e0f9141883c54ba4b77c87, type: 3}
   m_Name: CharacterDef 2
   m_EditorClassIdentifier: 
-  id: char_03
+  id: char_mimi
   displayName: Mimi
   previewSprite: {fileID: 21300000, guid: fded4f31a8bf3b042b1e9a177852787d, type: 3}
-  originalPrice: 100
+  originalPrice: 300
   refundPercent: 0.9
   overrideSellPrice: 0
