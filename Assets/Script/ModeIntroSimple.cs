@@ -51,6 +51,8 @@ public class ModeIntroSimple : MonoBehaviour
         if (messageText) messageText.text = message ?? "";
         _onProceed = onProceed;
 
+        TTSManager.Speak(message);
+
         if (panelRoot) panelRoot.SetActive(true);
         if (canvasGroup)
         {

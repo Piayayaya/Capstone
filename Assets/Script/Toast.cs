@@ -48,7 +48,11 @@ public class Toast : MonoBehaviour
     IEnumerator CoShow(string msg)
     {
         label.text = msg;
-        label.textWrappingMode = TextWrappingModes.Normal; // replaces obsolete enableWordWrapping
+
+        // NEW TMP API (2022+)
+        label.enableWordWrapping = true;
+        label.overflowMode = TextOverflowModes.Overflow;
+
         label.enableAutoSizing = true;
         label.ForceMeshUpdate();
 
@@ -56,6 +60,7 @@ public class Toast : MonoBehaviour
         Vector2 pref = label.GetPreferredValues(msg, maxWidth, 0f);
         float w = Mathf.Min(pref.x, maxWidth) + padding.x;
         float h = pref.y + padding.y;
+
         if (background)
         {
             background.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, w);
@@ -67,14 +72,24 @@ public class Toast : MonoBehaviour
         group.interactable = false;
 
         float t = 0f;
-        while (t < fadeIn) { t += Time.unscaledDeltaTime; group.alpha = Mathf.Lerp(0f, 1f, t / fadeIn); yield return null; }
+        while (t < fadeIn)
+        {
+            t += Time.unscaledDeltaTime;
+            group.alpha = Mathf.Lerp(0f, 1f, t / fadeIn);
+            yield return null;
+        }
         group.alpha = 1f;
 
         yield return new WaitForSecondsRealtime(showForSeconds);
 
         // fade out
         t = 0f;
-        while (t < fadeOut) { t += Time.unscaledDeltaTime; group.alpha = Mathf.Lerp(1f, 0f, t / fadeOut); yield return null; }
+        while (t < fadeOut)
+        {
+            t += Time.unscaledDeltaTime;
+            group.alpha = Mathf.Lerp(1f, 0f, t / fadeOut);
+            yield return null;
+        }
         group.alpha = 0f;
 
         running = null;

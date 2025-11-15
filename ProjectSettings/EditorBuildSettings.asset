@@ -24,6 +24,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Background_NameTheFlag.unity
     guid: 0655446e6cb186146b0c7d0c9457320b
   - enabled: 1
+    path: Assets/Scenes/Achievements.unity
+    guid: 4e3ab5e9bb77e0844997391cc7b2b34c
+  - enabled: 1
     path: Assets/Scenes/HomeScreen.unity
     guid: a8d4d9faf78a27b4f852ddf3e3f03b27
   - enabled: 1
@@ -68,4 +71,3 @@ EditorBuildSettings:
   m_configObjects:
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 920f56fa9b554ff42add8fae473ef83e, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: a82087f80d3229641acfc7f40861280d, type: 2}
-  m_UseUCBPForAssetBundles: 0
