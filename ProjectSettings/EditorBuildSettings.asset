@@ -24,6 +24,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Background_NameTheFlag.unity
     guid: 0655446e6cb186146b0c7d0c9457320b
   - enabled: 1
+    path: Assets/Scenes/Settings.unity
+    guid: d31fe15fe255f0b4fa3940a0a19f5917
+  - enabled: 1
     path: Assets/Scenes/Achievements.unity
     guid: 4e3ab5e9bb77e0844997391cc7b2b34c
   - enabled: 1
@@ -65,6 +68,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TuneYourTongue - Copy.unity
     guid: 528755fae3183e14a8492c1304394130
+  - enabled: 1
+    path: Assets/Scenes/Notification.unity
+    guid: a6a32bec0b879a44fab5d635cc63f6a5
   - enabled: 1
     path: Assets/Scenes/SeeItorLoseIt.unity
     guid: c74a3e884a24953468da0a69728aab70
