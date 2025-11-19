@@ -80,6 +80,7 @@ public class ModeIntroSimple : MonoBehaviour
         var cb = _onProceed;
         Close();
         cb?.Invoke();
+        TTSManager.Stop();
     }
 
     void OnCancel()
@@ -88,6 +89,7 @@ public class ModeIntroSimple : MonoBehaviour
         if (!string.IsNullOrEmpty(cancelSceneName))
             SceneManager.LoadScene(cancelSceneName);
         else
-            Close();
+            Close(); TTSManager.Stop();
+
     }
 }

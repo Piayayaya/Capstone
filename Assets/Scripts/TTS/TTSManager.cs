@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 #if UNITY_ANDROID && !UNITY_EDITOR
 using UnityEngine.Android;
@@ -8,8 +8,8 @@ using UnityEngine.Android;
 /// Simple cross-platform TTS facade:
 ///   TTSManager.Speak("Hello!");
 ///   TTSManager.Stop();
-///   TTSManager.SetRate(1.0f);  // 0.5�2.0
-///   TTSManager.SetPitch(1.0f); // 0.5�2.0
+///   TTSManager.SetRate(1.0f);  // 0.5–2.0
+///   TTSManager.SetPitch(1.0f); // 0.5–2.0
 /// </summary>
 public class TTSManager : MonoBehaviour
 {
@@ -134,6 +134,71 @@ public class TTSManager : MonoBehaviour
     }
 
 #if UNITY_ANDROID && !UNITY_EDITOR
+    void TrySelectMaleVoice()
+    {
+        try
+        {
+            if (tts == null) return;
+
+            // Get all available voices from the current TTS engine
+            using (var voices = tts.Call<AndroidJavaObject>("getVoices"))
+            {
+                if (voices == null) return;
+
+                using (var iterator = voices.Call<AndroidJavaObject>("iterator"))
+                {
+                    AndroidJavaObject chosen = null;
+
+                    while (iterator.Call<bool>("hasNext"))
+                    {
+                        using (var v = iterator.Call<AndroidJavaObject>("next"))
+                        {
+                            if (v == null) continue;
+
+                            string name = v.Call<string>("getName");
+                            using (var locale = v.Call<AndroidJavaObject>("getLocale"))
+                            {
+                                string localeTag = locale.Call<string>("toLanguageTag"); // e.g. "en-US"
+
+                                bool hasMaleInName = !string.IsNullOrEmpty(name) &&
+                                                     name.ToLower().Contains("male");
+
+                                bool matchesLanguage =
+                                    string.IsNullOrEmpty(languageTag) ||
+                                    (!string.IsNullOrEmpty(localeTag) &&
+                                     localeTag.StartsWith(languageTag.Substring(0, 2),
+                                                          StringComparison.OrdinalIgnoreCase));
+
+                                if (hasMaleInName && matchesLanguage)
+                                {
+                                    chosen = v;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (chosen != null)
+                    {
+                        tts.Call<int>("setVoice", chosen);
+                        string chosenName = chosen.Call<string>("getName");
+                        Debug.Log("[TTS] Selected male voice: " + chosenName);
+                    }
+                    else
+                    {
+                        Debug.Log("[TTS] No explicit male voice found; using default.");
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[TTS] Failed to select male voice: " + e.Message);
+        }
+    }
+#endif
+
+#if UNITY_ANDROID && !UNITY_EDITOR
     void OnTTSReady(int status)
     {
         ready = status == 0; // SUCCESS
@@ -145,6 +210,9 @@ public class TTSManager : MonoBehaviour
 
         // Language
         _ApplyAndroidLanguage();
+
+        // 🔊 Try to select a male voice that matches our language
+        TrySelectMaleVoice();
 
         // Optional: install missing voice data
         int avail = tts.Call<int>("isLanguageAvailable", MakeLocale(languageTag));

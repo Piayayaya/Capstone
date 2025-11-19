@@ -60,6 +60,7 @@ public class Gameplay : MonoBehaviour
     {
         if (questionPanel) questionPanel.SetActive(false);
         if (startPanel) startPanel.SetActive(true);
+        TTSManager.Speak("kroo kroo, welcome to brainy ladder. complete the ladder and claim the Mystery gift!");
     }
 
     IEnumerator Start()

@@ -1,199 +1,183 @@
-﻿using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class TuneYourTongue : MonoBehaviour
 {
     [Header("UI")]
-    public TMP_Text wordText;
-    public Button hearButton;
-    public Button micButton;
-    public TMP_Text coinsText;
-    public Animator micButtonAnimator;
+    public TMP_Text wordLabel;
 
-    [Header("Result Panels")]
     public GameObject successPanel;
+    public TMP_Text successMessage;
+
     public GameObject tryAgainPanel;
-    public TMP_Text successHeardText;
-    public TMP_Text tryAgainHeardText;
-    public float panelAutoHide = 1.2f;
-    public bool autoAdvanceOnSuccess = true;
+    public TMP_Text tryAgainMessage;
 
-    [Header("Game")]
-    [TextArea] public string[] wordList = { "hippopotamus", "elephant", "giraffe", "rhinoceros", "caterpillar", "astronaut", "dictionary" };
-    [Range(0.5f, 1f)] public float passThreshold = 0.85f;
-    public int coinsPerPass = 10;
-    public float listenTimeout = 6f; // not used by Vosk but we keep it
-    public int minHeardLength = 3;
+    [Header("GAME COMPLETE UI")]
+    public GameObject sessionCompletePanel;
+    public TMP_Text sessionCompleteCoinsText;
 
-    [Header("Debug")]
-    public TMP_Text debugText;
+    [Header("Words")]
+    public string[] words;
 
-    [Header("Audio (optional)")]
-    public AudioSource sfx;
-    public AudioClip passSfx;
-    public AudioClip failSfx;
+    [Header("Systems")]
+    public CoinWallet coinWallet;
 
-    int _index, _coins;
-    bool _listening;
+    [Header("Progress (SLIDER)")]
+    public Slider progressSlider;    // 🔥 NEW
+    public int wordsPerSession = 5;
+    private int wordsCompleted = 0;
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-    VoskRecognizerAndroid _vosk;
-#endif
+    private string currentWord;
 
-    // Simple Vosk JSON structs
-    [System.Serializable] class VoskPartial { public string partial; }
-    [System.Serializable] class VoskFinal { public string text; }
 
-    void Awake()
+    void OnEnable()
     {
-        HideAllPanels();
-        _index = 0; _coins = 0;
-        RefreshCoins();
-        SetWord(wordList[_index]);
+        wordsCompleted = 0;
+        SetupProgressBar();   // 🔥 NEW
+        sessionCompletePanel.SetActive(false);
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-        // 1) Ensure model is extracted
-        string modelPath = VoskModelInstaller.EnsureExtracted("vosk-model-small-en-us-0.15");
-        if (string.IsNullOrEmpty(modelPath))
-            Log("Model not ready (first boot?).");
-
-        // 2) Init Vosk bridge and load model
-        _vosk = new VoskRecognizerAndroid(gameObject.name, nameof(OnVoskMessage), nameof(OnSpeechError));
-        if (!string.IsNullOrEmpty(modelPath))
-            _vosk.LoadModel(modelPath);
-#else
-        Log("Editor mode: Vosk only runs on device in this setup.");
-#endif
-        if (hearButton) hearButton.onClick.AddListener(SpeakCurrent);
-        if (micButton) micButton.onClick.AddListener(ToggleMic);
-        Log("Ready.");
+        SpeechRecognizer.OnResult += OnSpeechResult;
+        NextWord();
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        try { _vosk?.Dispose(); } catch { }
-#endif
+        SpeechRecognizer.OnResult -= OnSpeechResult;
     }
 
-    void HideAllPanels() { if (successPanel) successPanel.SetActive(false); if (tryAgainPanel) tryAgainPanel.SetActive(false); }
-    void SetWord(string w) => wordText.text = w.ToUpperInvariant();
-    void NextWord() { _index = (_index + 1) % wordList.Length; SetWord(wordList[_index]); }
-    void RefreshCoins() => coinsText.text = $"Coins: {_coins}";
 
-    void SpeakCurrent() { Debug.Log($"[TTS stub] {wordList[_index]}"); } // keep or hook to your TTS
+    // -----------------------
+    //  WORD HANDLING
+    // -----------------------
 
-    void ToggleMic() { if (_listening) StopListening(); else StartListening(); }
-
-    void StartListening()
+    void NextWord()
     {
-        if (_listening) return;
-        _listening = true; HideAllPanels();
+        successPanel.SetActive(false);
+        tryAgainPanel.SetActive(false);
 
-        if (micButtonAnimator) micButtonAnimator.SetBool("isListening", true);
-        if (micButton) micButton.interactable = false;
+        currentWord = words[Random.Range(0, words.Length)];
+        wordLabel.text = currentWord.ToUpper();
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-        Log("Mic pressed → Vosk start");
-        _vosk?.StartListening();
-#else
-        Log("Build to Android to test Vosk.");
-#endif
+        TTSManager.Speak("Say " + currentWord);
     }
 
-    void StopListening()
-    {
-        if (!_listening) return;
-        _listening = false;
-        if (micButtonAnimator) micButtonAnimator.SetBool("isListening", false);
-        if (micButton) micButton.interactable = true;
 
-#if UNITY_ANDROID && !UNITY_EDITOR
-        _vosk?.StopListening();
-#endif
+    public void StartListening()
+    {
+        FindObjectOfType<SpeechRecognizer>().StartListening();
+        Debug.Log("[UI] Mic button pressed");
     }
 
-    // ====== Vosk → Unity messages ======
-    public void OnVoskMessage(string json)
-    {
-        // Called frequently (partials) and once (final)
-        if (string.IsNullOrEmpty(json)) return;
 
-        if (json.Contains("\"text\"")) // final
+    void OnSpeechResult(string text)
+    {
+        bool correct = text.Trim().ToLower() == currentWord.ToLower();
+
+        if (correct)
+            HandleCorrect(text);
+        else
+            HandleIncorrect(text);
+    }
+
+
+    // -----------------------
+    //  CORRECT / WRONG HANDLERS
+    // -----------------------
+
+    void HandleCorrect(string text)
+    {
+        coinWallet.Add(5);
+
+        TTSManager.Speak("Good job!");
+
+        successMessage.text = "Good job!";
+        successPanel.SetActive(true);
+
+        wordsCompleted++;
+        UpdateProgressBar();      // 🔥 NEW
+
+        if (wordsCompleted >= wordsPerSession)
         {
-            var f = JsonUtility.FromJson<VoskFinal>(json);
-            string said = (f?.text ?? "").Trim().ToLowerInvariant();
-            Log($"Final: {said}");
-            OnSpeechFinalResult(said);
-        }
-        else if (json.Contains("\"partial\"") || json.Contains("\"Partial\""))
-        {
-            var p = JsonUtility.FromJson<VoskPartial>(json);
-            string part = (p?.partial ?? "");
-            if (debugText) debugText.text = "… " + part;
+            ShowSessionComplete();
         }
     }
 
-    // Keep your evaluation code
-    void OnSpeechFinalResult(string said)
-    {
-        StopListening();
 
-        string target = wordList[_index].Trim().ToLowerInvariant();
-        if (string.IsNullOrWhiteSpace(said) || said.Length < minHeardLength)
+    void HandleIncorrect(string text)
+    {
+        TTSManager.Speak("Try again");
+
+        tryAgainMessage.text = "Too bad!";
+        tryAgainPanel.SetActive(true);
+    }
+
+
+    // -----------------------
+    //  PROGRESS BAR
+    // -----------------------
+
+    void SetupProgressBar()
+    {
+        if (progressSlider != null)
         {
-            ShowTryAgain("I didn't catch anything.");
-            return;
+            progressSlider.minValue = 0;
+            progressSlider.maxValue = wordsPerSession;
+            progressSlider.value = 0;
         }
-
-        float score = Similarity(target, said);
-        bool pass = score >= passThreshold;
-
-        if (pass) OnPass(said);
-        else OnFail(said);
     }
 
-    public void OnSpeechError(string message)
+    void UpdateProgressBar()
     {
-        StopListening();
-        Log($"ASR error: {message}");
-        ShowTryAgain("Recognizer error.");
+        if (progressSlider != null)
+        {
+            progressSlider.value = wordsCompleted;
+        }
     }
 
-    // ====== UI helpers ======
-    void OnPass(string said)
+
+    // -----------------------
+    //  ADVANCE / RETRY
+    // -----------------------
+
+    public void OnNextQuestion()
     {
-        HideAllPanels();
-        _coins += coinsPerPass; RefreshCoins();
-        if (successHeardText) successHeardText.text = $"You said: {said}";
-        if (successPanel) successPanel.SetActive(true);
-        if (sfx && passSfx) sfx.PlayOneShot(passSfx);
-        if (autoAdvanceOnSuccess) StartCoroutine(HideThenNext(panelAutoHide));
+        NextWord();
     }
-    void OnFail(string said)
+
+    public void OnRetry()
     {
-        HideAllPanels();
-        if (tryAgainHeardText) tryAgainHeardText.text = $"I heard: {said}";
-        if (tryAgainPanel) tryAgainPanel.SetActive(true);
-        if (sfx && failSfx) sfx.PlayOneShot(failSfx);
-        if (panelAutoHide > 0f) StartCoroutine(HidePanelAfter(tryAgainPanel, panelAutoHide));
+        TTSManager.Speak("Say " + currentWord);
+        StartListening();
+        tryAgainPanel.SetActive(false);
     }
-    void ShowTryAgain(string msg)
+
+
+    // -----------------------
+    //  SESSION COMPLETE
+    // -----------------------
+
+    void ShowSessionComplete()
     {
-        HideAllPanels();
-        if (tryAgainHeardText) tryAgainHeardText.text = msg;
-        if (tryAgainPanel) tryAgainPanel.SetActive(true);
-        if (panelAutoHide > 0f) StartCoroutine(HidePanelAfter(tryAgainPanel, panelAutoHide));
+        successPanel.SetActive(false);
+        tryAgainPanel.SetActive(false);
+
+        int totalCoinsEarned = wordsCompleted * 5;
+        sessionCompleteCoinsText.text = "You earned " + totalCoinsEarned + " coins!";
+
+        sessionCompletePanel.SetActive(true);
+
+        TTSManager.Speak("Great job! You finished the session");
     }
 
-    IEnumerator HideThenNext(float t) { yield return new WaitForSeconds(t); if (successPanel) successPanel.SetActive(false); NextWord(); }
-    IEnumerator HidePanelAfter(GameObject panel, float t) { if (!panel) yield break; yield return new WaitForSeconds(t); panel.SetActive(false); }
+    public void OnPlayAgain()
+    {
+        sessionCompletePanel.SetActive(false);
+        OnEnable();
+    }
 
-    // ====== Similarity ======
-    static float Similarity(string a, string b) { if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b)) return 0f; int dist = Levenshtein(a, b); int max = Mathf.Max(a.Length, b.Length); return 1f - (float)dist / Mathf.Max(1, max); }
-    static int Levenshtein(string s, string t) { int n = s.Length, m = t.Length; int[,] d = new int[n + 1, m + 1]; for (int i = 0; i <= n; i++) d[i, 0] = i; for (int j = 0; j <= m; j++) d[0, j] = j; for (int i = 1; i <= n; i++) for (int j = 1; j <= m; j++) { int cost = (s[i - 1] == t[j - 1]) ? 0 : 1; d[i, j] = Mathf.Min(d[i - 1, j] + 1, Mathf.Min(d[i, j - 1] + 1, d[i - 1, j - 1] + cost)); } return d[n, m]; }
-
-    void Log(string msg) { Debug.Log($"[TuneYourTongue] {msg}"); if (debugText) debugText.text = msg; }
+    public void OnExitToDashboard()
+    {
+        // SceneManager.LoadScene("Dashboard");
+    }
 }

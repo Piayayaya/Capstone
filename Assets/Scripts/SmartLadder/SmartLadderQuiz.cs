@@ -146,6 +146,8 @@ public class SmartLadderQuiz : MonoBehaviour
             mover.onArrived.RemoveListener(OnMoverArrived);
 
         StopQuestionTimer();
+
+        TTSManager.Stop();
     }
 
     void EnsureInit()
@@ -192,6 +194,8 @@ public class SmartLadderQuiz : MonoBehaviour
         if (explanationPanel) explanationPanel.SetActive(false);
         if (rewardPanel) rewardPanel.SetActive(false);
         if (_rewardCo != null) { StopCoroutine(_rewardCo); _rewardCo = null; }
+
+        TTSManager.Stop();
     }
 
     // -------- Gameplay flow --------
@@ -249,6 +253,8 @@ public class SmartLadderQuiz : MonoBehaviour
             btn.interactable = true;
         }
 
+        SpeakCurrentQuestion();
+
         // Start timer for this question
         if (useTimer) StartQuestionTimer();
         else ResetTimerUI();
@@ -256,6 +262,7 @@ public class SmartLadderQuiz : MonoBehaviour
 
     void OnOption(int choiceIndex)
     {
+        TTSManager.Stop();
         foreach (var b in optionButtons) if (b) b.interactable = false;
         ReadyForManualContinue = false;
 
@@ -296,6 +303,7 @@ public class SmartLadderQuiz : MonoBehaviour
         {
             if (questionPanel) questionPanel.SetActive(false);
             if (explanationPanel) explanationPanel.SetActive(true);
+            SpeakCurrentExplanation();
         }
 
         onAnswered?.Invoke(_lastAnswerCorrect);
@@ -320,17 +328,21 @@ public class SmartLadderQuiz : MonoBehaviour
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(true);
 
+        SpeakCurrentExplanation();
+
         _rewardCo = null;
     }
 
     public void CloseExplanation()
     {
+        TTSManager.Stop();
         if (explanationPanel) explanationPanel.SetActive(false);
     }
 
     // Hook this to the Explanation panel's "Next" (Continue) button
     public void NextQuestionButton()
     {
+        TTSManager.Stop();
         CloseExplanation();
 
         if (_lastAnswerCorrect)
@@ -470,6 +482,8 @@ public class SmartLadderQuiz : MonoBehaviour
         if (questionPanel) questionPanel.SetActive(false);
         if (explanationPanel) explanationPanel.SetActive(true);
 
+        SpeakCurrentExplanation();
+
         onAnswered?.Invoke(false);
     }
 
@@ -535,6 +549,9 @@ public class SmartLadderQuiz : MonoBehaviour
     {
         ReadyForManualContinue = true;
         PauseQuestionTimer(); // <-- PAUSE (keep remaining)
+
+        TTSManager.Stop();
+
         if (questionPanel) questionPanel.SetActive(false);
     }
 
@@ -610,4 +627,20 @@ public class SmartLadderQuiz : MonoBehaviour
 
     public bool HasCurrentQuestion => _current != null;
     public bool ReadyForManualContinue { get; private set; } = false;
+
+    void SpeakCurrentQuestion()
+    {
+        if (questionText == null) return;
+
+        TTSManager.Stop();                 // stop anything currently talking
+        TTSManager.Speak(questionText.text);
+    }
+
+    void SpeakCurrentExplanation()
+    {
+        if (explanationText == null) return;
+
+        TTSManager.Stop();
+        TTSManager.Speak(explanationText.text);
+    }
 }

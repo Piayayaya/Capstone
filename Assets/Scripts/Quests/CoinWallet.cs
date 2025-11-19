@@ -6,7 +6,8 @@ public class CoinWallet : MonoBehaviour
     public static CoinWallet I { get; private set; }
     const string KEY = "BM_Coins_v1";
     public int Coins { get; private set; }
-    public event Action<int> OnCoinsChanged;
+    public System.Action OnCoinsChanged;
+
 
     void Awake()
     {
@@ -21,6 +22,7 @@ public class CoinWallet : MonoBehaviour
         Coins += amount;
         PlayerPrefs.SetInt(KEY, Coins);
         PlayerPrefs.Save();
-        OnCoinsChanged?.Invoke(Coins);
+        OnCoinsChanged?.Invoke();
+
     }
 }

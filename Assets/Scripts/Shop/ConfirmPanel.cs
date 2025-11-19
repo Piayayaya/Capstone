@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +20,7 @@ public class ConfirmPanel : MonoBehaviour
     [SerializeField] private GameObject notEnoughPanel; // OPTIONAL
 
     private ItemDefinition _current;
+    public TimedPanel timedPanel;
 
     void Awake()
     {
@@ -66,6 +67,7 @@ public class ConfirmPanel : MonoBehaviour
         else
         {
             shopAPI.BuyPesoProductMock(_current.id);
+            timedPanel.ShowPanel();
         }
 
         gameObject.SetActive(false);
@@ -73,8 +75,7 @@ public class ConfirmPanel : MonoBehaviour
         // refresh UI
         foreach (var b in FindObjectsByType<ShopCardBinder>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             b.Refresh();
-        var hud = FindFirstHud();
-        if (hud) hud.Refresh();
+        var hud = FindFirstObjectByType<CoinHudBinder>(); if (hud) hud.Refresh();
     }
 
     public void OnGetCoins() { gameObject.SetActive(false); /* navigate to Coins section here */ }

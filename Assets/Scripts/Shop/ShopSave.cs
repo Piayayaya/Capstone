@@ -74,4 +74,30 @@ public static class ShopSave
         PlayerPrefs.DeleteKey(Key);
         PlayerPrefs.Save();
     }
+
+    public static int RemainingDays()
+    {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        long remaining = Data.noAdsUntilUnix - now;
+        if (remaining <= 0) return 0;
+        return Mathf.CeilToInt(remaining / 86400f);
+    }
+
+    public static DateTimeOffset? ExpiryUtc()
+    {
+        if (Data.noAdsUntilUnix <= 0) return null;
+        return DateTimeOffset.FromUnixTimeSeconds(Data.noAdsUntilUnix);
+    }
+
+    // Optional dev helpers
+    public static void ExpireNow()
+    {
+        Data.noAdsUntilUnix = 0;
+        Save();
+    }
+
+    public static void ExtendDays(int days)
+    {
+        GrantNoAdsForDays(days);
+    }
 }

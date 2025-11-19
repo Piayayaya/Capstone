@@ -40,6 +40,18 @@ public class AchievementManager : MonoBehaviour
         Load();
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            save = new AchievementsSave();
+            Save();
+            if (logVerbose) Debug.Log("[Achievements] ResetAll");
+            foreach (var kv in defs)
+                OnProgressChanged?.Invoke(kv.Key, save.GetOrCreate(kv.Key));
+        }
+    }
+
     void Load()
     {
         var json = PlayerPrefs.GetString(PREFS_KEY, "");
@@ -95,15 +107,6 @@ public class AchievementManager : MonoBehaviour
     }
 
     public bool IsCompleted(string id) => save.GetOrCreate(id).completed;
-
-    public void ResetAll()
-    {
-        save = new AchievementsSave();
-        Save();
-        if (logVerbose) Debug.Log("[Achievements] ResetAll");
-        foreach (var kv in defs)
-            OnProgressChanged?.Invoke(kv.Key, save.GetOrCreate(kv.Key));
-    }
 
     public AchievementDef GetDef(string id)
     {
