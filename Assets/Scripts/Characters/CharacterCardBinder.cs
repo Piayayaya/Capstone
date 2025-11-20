@@ -80,8 +80,10 @@ public class CharacterCardBinder : MonoBehaviour
 
     void OnSellClicked()
     {
+        
         if (def == null) return;
         var price = def.GetSellPrice();
+        Debug.Log("[SELL CLICKED] " + (def ? def.displayName : "def null"));
 
         // Prompt via tiny popup
         ConfirmSellPopup.Show(
