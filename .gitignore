@@ -74,3 +74,4 @@ Thumbs.db
 # ProjectSettings/       (project config)
 # Packages/manifest.json (package list)
 # Packages/packages-lock.json (lockfile; okay to commit once stable)
+ProjectSettings/GvhProjectSettings.xml
