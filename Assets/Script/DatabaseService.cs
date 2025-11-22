@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Collections.Generic;   // ✅ ADD THIS
 using UnityEngine;
 using Firebase.Database;
 
@@ -26,7 +27,7 @@ public class DatabaseService : MonoBehaviour
     }
 
     // ======================================================
-    // CREATE USER
+    // CREATE USER (manual/guest)
     // ======================================================
     public async Task CreateUser(string userId, string username)
     {
@@ -35,13 +36,35 @@ public class DatabaseService : MonoBehaviour
         var data = new UserModel
         {
             name = username,
-            createdAt = System.DateTime.Now.ToString()
+            createdAt = System.DateTime.Now.ToString("o")
         };
 
         string json = JsonUtility.ToJson(data);
         await db.Child("users").Child(userId).SetRawJsonValueAsync(json);
 
         Debug.Log("✔ User saved to Firebase");
+    }
+
+    // ======================================================
+    // CREATE OR UPDATE GOOGLE USER (safe update)
+    // ======================================================
+    public async Task CreateOrUpdateGoogleUser(string userId, string username, string email)
+    {
+        if (db == null) return;
+
+        var userRef = db.Child("users").Child(userId);
+
+        // ✅ Only update these fields (won't delete others)
+        var updates = new Dictionary<string, object>
+        {
+            { "name", username },
+            { "email", email },
+            { "lastLoginAt", System.DateTime.Now.ToString("o") }
+        };
+
+        await userRef.UpdateChildrenAsync(updates);
+
+        Debug.Log("✔ Google user saved/updated to Firebase");
     }
 
     // ======================================================

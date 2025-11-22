@@ -1,4 +1,4 @@
-// RegisterUI.cs
+﻿// RegisterUI.cs
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,29 +8,32 @@ public class RegisterUI : MonoBehaviour
     public TMP_InputField nameInput;
     public string nextScene = "Profile Scene";
 
-    const string NameKey = "profile_name";
+    const string NameKeyBase = "profile_name";
 
-    public void OnClickCreate()
+    public async void OnClickCreate()
     {
-        if (!nameInput)
-        {
-            Debug.LogError("RegisterUI.nameInput not assigned.");
-            return;
-        }
-
-        var rawName = nameInput.text.Trim();
+        string rawName = nameInput.text.Trim();
         if (string.IsNullOrEmpty(rawName))
             rawName = "PLAYER";
 
-        // 1) Store in your ProfileService (for the current session)
-        if (ProfileService.Instance != null)
-        {
-            ProfileService.Instance.SetName(rawName);
-        }
+        // ✅ Use stable guest id for this device
+        string userId = UserIdProvider.GetOrCreateGuestId();
 
-        // 2) Store in PlayerPrefs (for next sessions / other scenes)
-        PlayerPrefs.SetString(NameKey, rawName);
+        // Save in ProfileService
+        if (ProfileService.Instance != null)
+            ProfileService.Instance.SetName(rawName);
+
+        // ✅ Save locally per user
+        string perUserNameKey = $"{NameKeyBase}_{userId}";
+        PlayerPrefs.SetString(perUserNameKey, rawName);
+        PlayerPrefs.SetString(NameKeyBase, rawName); // backward compat
         PlayerPrefs.Save();
+
+        // Save to Firebase
+        if (DatabaseService.Instance != null)
+            await DatabaseService.Instance.CreateUser(userId, rawName);
+
+        Debug.Log("🔥 User saved + UI registered");
 
         SceneManager.LoadScene(nextScene);
     }

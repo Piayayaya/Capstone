@@ -7,82 +7,115 @@ public class GoogleWebLogin : MonoBehaviour
     private WebViewObject webView;
     private TaskCompletionSource<string> loginResult;
 
-    private const string CLIENT_ID =
+    [Header("WEB OAuth Client ID")]
+    [SerializeField]
+    private string clientId =
         "397904065396-71kqualnlvfa6sh17qf7h1hckjf780l0.apps.googleusercontent.com";
 
-    private string GOOGLE_AUTH_URL =
-        "https://accounts.google.com/o/oauth2/v2/auth" +
-        "?client_id=" + CLIENT_ID +
-        "&redirect_uri=https://localhost" +
-        "&response_type=id_token" +
-        "&scope=profile%20email" +
-        "&nonce=unity_nonce";
+    [Header("Redirect URI (must be whitelisted in WEB client)")]
+    [SerializeField] private string redirectUri = "https://localhost";
 
-    // This method appears in the Button
+    private string BuildAuthUrl()
+    {
+        string scope = "openid email profile";
+
+        return
+            "https://accounts.google.com/o/oauth2/v2/auth" +
+            "?client_id=" + clientId +
+            "&redirect_uri=" + System.Uri.EscapeDataString(redirectUri) +
+            "&response_type=id_token" +
+            "&scope=" + System.Uri.EscapeDataString(scope) +
+            "&nonce=unity_nonce" +
+            "&prompt=select_account" +
+            "&state=" + System.Guid.NewGuid().ToString("N");
+    }
+
     public void StartGoogleLogin()
     {
-        Debug.Log("Google Login Started");
+        Debug.Log("[GoogleWebLogin] BUTTON CLICKED");
+
+#if UNITY_EDITOR
+        Application.OpenURL(BuildAuthUrl());
+#else
         StartCoroutine(LoginFlow());
+#endif
     }
 
     private IEnumerator LoginFlow()
     {
         var tokenTask = GetIdToken();
-
-        while (!tokenTask.IsCompleted)
-            yield return null;
+        while (!tokenTask.IsCompleted) yield return null;
 
         string idToken = tokenTask.Result;
 
-        Debug.Log("Google Login Success. Token: " + idToken);
+        if (string.IsNullOrEmpty(idToken))
+        {
+            Debug.LogError("[GoogleWebLogin] Login failed: idToken null/empty.");
+            yield break;
+        }
 
-        // TODO: Validate token with Firebase
-        // TODO: Load profile scene
+        Debug.Log("[GoogleWebLogin] Login Success. idToken length=" + idToken.Length);
+        // You can now use idToken with Firebase Auth if you want.
     }
 
     public Task<string> GetIdToken()
     {
         loginResult = new TaskCompletionSource<string>();
 
+        string authUrl = BuildAuthUrl();
+        Debug.Log("[GoogleWebLogin] Auth URL: " + authUrl);
+
         webView = (new GameObject("WebView")).AddComponent<WebViewObject>();
         webView.Init(
-            cb: url => OnURLChanged(url),
-            err: err => Debug.Log("WebView Error: " + err),
-            ld: msg => Debug.Log("WebView Loaded")
+            cb: OnURLChanged,
+            err: (err) =>
+            {
+                Debug.LogError("[GoogleWebLogin] WebView Error: " + err);
+                loginResult.TrySetResult(null);
+            },
+            ld: (msg) => Debug.Log("[GoogleWebLogin] WebView Loaded: " + msg)
         );
 
-        webView.SetMargins(0, 200, 0, 200);
+        webView.SetMargins(0, 120, 0, 120);
         webView.SetVisibility(true);
-
-        webView.LoadURL(GOOGLE_AUTH_URL);
+        webView.LoadURL(authUrl);
 
         return loginResult.Task;
     }
 
     private void OnURLChanged(string url)
     {
-        Debug.Log("URL: " + url);
+        Debug.Log("[GoogleWebLogin] URL Changed: " + url);
 
-        if (url.StartsWith("https://localhost"))
+        // normalize trailing slash
+        string normRedirect = redirectUri.TrimEnd('/');
+
+        if (url.StartsWith(normRedirect))
         {
             string idToken = ExtractIdToken(url);
+
+            Debug.Log("[GoogleWebLogin] Extracted idToken: " +
+                      (string.IsNullOrEmpty(idToken) ? "NULL" : "OK"));
+
             loginResult.TrySetResult(idToken);
 
-            Destroy(webView.gameObject);
+            if (webView != null)
+                Destroy(webView.gameObject);
         }
     }
 
     private string ExtractIdToken(string url)
     {
-        if (!url.Contains("#")) return null;
+        int hashIndex = url.IndexOf('#');
+        if (hashIndex < 0) return null;
 
-        string[] parts = url.Split('#');
-        string[] fragment = parts[1].Split('&');
+        string fragment = url.Substring(hashIndex + 1);
+        string[] parts = fragment.Split('&');
 
-        foreach (var item in fragment)
+        foreach (var p in parts)
         {
-            if (item.StartsWith("id_token="))
-                return item.Substring("id_token=".Length);
+            if (p.StartsWith("id_token="))
+                return System.Uri.UnescapeDataString(p.Substring("id_token=".Length));
         }
 
         return null;

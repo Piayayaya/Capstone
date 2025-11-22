@@ -1,3 +1,4 @@
+﻿// ProfileAvatarUI.cs
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -12,36 +13,30 @@ public class ProfileAvatarUI : MonoBehaviour
     public Sprite defaultAvatar;
 
     [Header("Generate Picture")]
-    public Sprite[] randomSprites; // or use Resources/Avatars
+    public Sprite[] randomSprites;
 
     [Header("Navigation")]
     public string nextScene = "Dashboard";
 
     public void OnGeneratePicture()
     {
-        Debug.Log("[ProfileAvatarUI] Generate clicked");
         if (randomSprites == null || randomSprites.Length == 0)
         {
             var loaded = Resources.LoadAll<Sprite>("Avatars");
-            if (loaded != null && loaded.Length > 0) randomSprites = loaded;
+            if (loaded != null && loaded.Length > 0)
+                randomSprites = loaded;
         }
 
-        Sprite pick = null;
-        if (randomSprites != null && randomSprites.Length > 0)
-            pick = randomSprites[Random.Range(0, randomSprites.Length)];
-        else
-            pick = defaultAvatar;
+        Sprite pick = (randomSprites != null && randomSprites.Length > 0)
+            ? randomSprites[Random.Range(0, randomSprites.Length)]
+            : defaultAvatar;
 
-        if (pick != null)
-        {
-            SetAvatarSprite(pick);
-            if (AvatarService.Instance)
-                AvatarService.Instance.SetAvatarFromSprite(pick, true);
-        }
-        else
-        {
-            Debug.LogWarning("[ProfileAvatarUI] No sprite to set (no randomSprites and no defaultAvatar)");
-        }
+        if (pick == null) return;
+
+        SetAvatarSprite(pick);
+
+        if (AvatarService.Instance != null)
+            AvatarService.Instance.SetAvatarFromSprite(pick, true);
     }
 
     public void OnAttachFile()
@@ -49,38 +44,61 @@ public class ProfileAvatarUI : MonoBehaviour
 #if UNITY_EDITOR || UNITY_STANDALONE
         string path = EditorUtility.OpenFilePanel("Select image", "", "png,jpg,jpeg");
         if (!string.IsNullOrEmpty(path))
+            LoadAvatarFromPath(path);
+
+#elif UNITY_ANDROID
+        NativeGallery.GetImageFromGallery((path) =>
+        {
+            if (string.IsNullOrEmpty(path)) return;
+            LoadAvatarFromPath(path);
+
+        }, "Select a profile picture", "image/*");
+#else
+        Debug.LogWarning("AttachFile not implemented on this platform.");
+#endif
+    }
+
+    void LoadAvatarFromPath(string path)
+    {
+        try
         {
             var bytes = System.IO.File.ReadAllBytes(path);
             var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-            if (tex.LoadImage(bytes))
-            {
-                var sq = CropSquare(tex);
-                var sprite = Sprite.Create(sq, new Rect(0, 0, sq.width, sq.height), new Vector2(0.5f, 0.5f), 100f);
-                Debug.Log("[ProfileAvatarUI] Attach loaded -> setting avatar");
-                SetAvatarSprite(sprite);
-                if (AvatarService.Instance)
-                    AvatarService.Instance.SetAvatarFromTexture(tex, true);
-            }
+
+            if (!tex.LoadImage(bytes)) return;
+
+            var sq = CropSquare(tex);
+
+            var sprite = Sprite.Create(
+                sq,
+                new Rect(0, 0, sq.width, sq.height),
+                new Vector2(0.5f, 0.5f),
+                100f
+            );
+
+            SetAvatarSprite(sprite);
+
+            if (AvatarService.Instance != null)
+                AvatarService.Instance.SetAvatarFromTexture(sq, true);
         }
-#else
-        Debug.LogWarning("[ProfileAvatarUI] Implement gallery picker for mobile (e.g., NativeGallery).");
-#endif
+        catch (System.Exception e)
+        {
+            Debug.LogError("Failed to load avatar: " + e.Message);
+        }
     }
 
     public void OnLetsLearn()
     {
-        Debug.Log("[ProfileAvatarUI] Let's Learn -> " + nextScene);
         if (!string.IsNullOrEmpty(nextScene))
             SceneManager.LoadScene(nextScene, LoadSceneMode.Single);
     }
 
     public void SetAvatarSprite(Sprite s)
     {
-        if (!avatarImage) { Debug.LogError("[ProfileAvatarUI] avatarImage not assigned"); return; }
+        if (!avatarImage) return;
         avatarImage.sprite = s;
         avatarImage.preserveAspect = true;
         avatarImage.enabled = true;
-        Debug.Log("[ProfileAvatarUI] avatarImage set to: " + (s ? s.name : "null"));
     }
 
     Texture2D CropSquare(Texture2D src)
@@ -88,6 +106,7 @@ public class ProfileAvatarUI : MonoBehaviour
         int size = Mathf.Min(src.width, src.height);
         int x = (src.width - size) / 2;
         int y = (src.height - size) / 2;
+
         var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         tex.SetPixels(src.GetPixels(x, y, size, size));
         tex.Apply();

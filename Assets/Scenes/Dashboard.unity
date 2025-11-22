@@ -3244,7 +3244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c4b5fba2161a7d43ac90cd67cd4c6d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 510431812}
   listenToChanges: 1
 --- !u!1 &533142569
 GameObject:
@@ -5562,8 +5562,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1762.4}
-  m_SizeDelta: {x: 610.6787, y: 2162.4}
+  m_AnchoredPosition: {x: 0, y: 1789.06}
+  m_SizeDelta: {x: 610.6787, y: 2215.7202}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &945800253
 MonoBehaviour:
@@ -6472,8 +6472,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4438363c080581642aedd268d1c1b5e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  prefsKey: profile_name
+  target: {fileID: 1063883320}
   format: '{0}'
   defaultName: PLAYER
 --- !u!1 &1077055767
@@ -9661,6 +9660,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1745392296}
   - component: {fileID: 1745392295}
+  - component: {fileID: 1745392298}
+  - component: {fileID: 1745392297}
   m_Layer: 0
   m_Name: AppServices
   m_TagString: Untagged
@@ -9696,6 +9697,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1745392297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1745392294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 896af49eb42274043926df15d723d376, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1745392298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1745392294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 526dd15bc7e131545b82be7d8a5fb5ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefsKey: profile_name
+  defaultName: PLAYER
 --- !u!1 &1797731368
 GameObject:
   m_ObjectHideFlags: 0
@@ -9869,7 +9896,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c4b5fba2161a7d43ac90cd67cd4c6d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 1797731371}
   listenToChanges: 1
 --- !u!1 &1799657974
 GameObject:

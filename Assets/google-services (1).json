@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "397904065396",
+    "firebase_url": "https://brainyme-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "brainyme-firebase",
+    "storage_bucket": "brainyme-firebase.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397904065396:android:0acb52b0134c4d68837221",
+        "android_client_info": {
+          "package_name": "brainyme.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "397904065396-b445eo5ktopgpq04qq562mnsq29459jc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "brainyme.com",
+            "certificate_hash": "31012699eb70c3b3c06b4f1f691e592d53f7d449"
+          }
+        },
+        {
+          "client_id": "397904065396-71kqualnlvfa6sh17qf7h1hckjf780l0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmGgwSu4BKNOB2bPZnH6qwlq3OWkMLe-U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "397904065396-71kqualnlvfa6sh17qf7h1hckjf780l0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "397904065396-hfej6tfc9f0i4f6gq5i5go8ddbpjprjh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.brainyme.desktop"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
