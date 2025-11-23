@@ -1,53 +1,64 @@
-﻿// UserIdProvider.cs
+﻿using System;
 using UnityEngine;
-#if FIREBASE_AUTH
-using Firebase.Auth;
-#endif
 
 public static class UserIdProvider
 {
-    const string GuestIdKey = "guest_userId";
-    const string LoginTypeKey = "login_type"; // "guest" or "google"
+    // Stable per-device guest id (saved locally)
+    private const string GuestIdKey = "guestId_v1";
 
-    /// Guest id per device (created once)
+    // Current "active" user (guest or google uid)
+    private const string ActiveUserIdKey = "activeUserId_v1";
+
+    // "guest" or "google"
+    private const string LoginTypeKey = "loginType_v1";
+
     public static string GetOrCreateGuestId()
     {
-        if (PlayerPrefs.HasKey(GuestIdKey))
-            return PlayerPrefs.GetString(GuestIdKey);
-
-        string id = System.Guid.NewGuid().ToString();
-        PlayerPrefs.SetString(GuestIdKey, id);
-        PlayerPrefs.SetString(LoginTypeKey, "guest");
-        PlayerPrefs.Save();
-        return id;
+        if (!PlayerPrefs.HasKey(GuestIdKey) || string.IsNullOrEmpty(PlayerPrefs.GetString(GuestIdKey)))
+        {
+            string id = Guid.NewGuid().ToString();
+            PlayerPrefs.SetString(GuestIdKey, id);
+            PlayerPrefs.Save();
+        }
+        return PlayerPrefs.GetString(GuestIdKey);
     }
 
-    /// Active user id: google uid if logged in, else guest id
     public static string ActiveUserId
     {
         get
         {
-#if FIREBASE_AUTH
-            var auth = FirebaseAuth.DefaultInstance;
-            if (auth != null && auth.CurrentUser != null)
-                return auth.CurrentUser.UserId;
-#endif
-            return GetOrCreateGuestId();
+            // If not set yet, default to guest
+            if (!PlayerPrefs.HasKey(ActiveUserIdKey) || string.IsNullOrEmpty(PlayerPrefs.GetString(ActiveUserIdKey)))
+                SetActiveUserId(GetOrCreateGuestId());
+
+            return PlayerPrefs.GetString(ActiveUserIdKey);
         }
     }
 
-    public static bool IsGoogleLogin()
-        => PlayerPrefs.GetString(LoginTypeKey, "guest") == "google";
-
-    public static void MarkGoogleLogin()
+    public static void SetActiveUserId(string uid)
     {
-        PlayerPrefs.SetString(LoginTypeKey, "google");
+        if (string.IsNullOrEmpty(uid))
+            uid = GetOrCreateGuestId();
+
+        PlayerPrefs.SetString(ActiveUserIdKey, uid);
         PlayerPrefs.Save();
     }
 
     public static void MarkGuestLogin()
     {
+        SetActiveUserId(GetOrCreateGuestId());
         PlayerPrefs.SetString(LoginTypeKey, "guest");
         PlayerPrefs.Save();
     }
+
+    // ✅ this fixes your overload error
+    public static void MarkGoogleLogin(string googleUid)
+    {
+        SetActiveUserId(googleUid);
+        PlayerPrefs.SetString(LoginTypeKey, "google");
+        PlayerPrefs.Save();
+    }
+
+    public static bool IsGoogleLogin()
+        => PlayerPrefs.GetString(LoginTypeKey, "guest") == "google";
 }

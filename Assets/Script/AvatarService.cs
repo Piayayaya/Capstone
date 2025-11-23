@@ -1,15 +1,14 @@
-﻿// AvatarService.cs
-using UnityEngine;
+﻿using UnityEngine;
 
 public class AvatarService : MonoBehaviour
 {
     public static AvatarService Instance { get; private set; }
 
     [Header("Default (shown when none chosen yet)")]
-    public Sprite defaultAvatar;   // drag profile1 here
+    public Sprite defaultAvatar;
 
-    const string SpriteKeyBase = "profile_avatar_sprite"; // stores sprite name
-    const string PathKeyBase = "profile_avatar_path";   // stores custom png path
+    const string SpriteKeyBase = "profile_avatar_sprite";
+    const string PathKeyBase = "profile_avatar_path";
 
     public Sprite CurrentAvatar { get; private set; }
 
@@ -34,7 +33,6 @@ public class AvatarService : MonoBehaviour
         string pathKey = PathKeyFor(uid);
         string spriteKey = SpriteKeyFor(uid);
 
-        // 1) try custom image path
         if (PlayerPrefs.HasKey(pathKey))
         {
             string path = PlayerPrefs.GetString(pathKey, "");
@@ -46,7 +44,6 @@ public class AvatarService : MonoBehaviour
             }
         }
 
-        // 2) try sprite name from Resources/Avatars
         if (PlayerPrefs.HasKey(spriteKey))
         {
             string spriteName = PlayerPrefs.GetString(spriteKey, "");
@@ -61,7 +58,6 @@ public class AvatarService : MonoBehaviour
             }
         }
 
-        // 3) fallback
         CurrentAvatar = defaultAvatar;
     }
 
@@ -78,7 +74,7 @@ public class AvatarService : MonoBehaviour
         {
             string uid = UserIdProvider.ActiveUserId;
             PlayerPrefs.SetString(SpriteKeyFor(uid), s ? s.name : "");
-            PlayerPrefs.DeleteKey(PathKeyFor(uid)); // clear custom path
+            PlayerPrefs.DeleteKey(PathKeyFor(uid));
             PlayerPrefs.Save();
         }
 
@@ -89,7 +85,6 @@ public class AvatarService : MonoBehaviour
     {
         if (tex == null) return;
 
-        // save png to disk
         string uid = UserIdProvider.ActiveUserId;
         string file = $"{uid}_avatar.png";
         string path = System.IO.Path.Combine(Application.persistentDataPath, file);
@@ -102,7 +97,7 @@ public class AvatarService : MonoBehaviour
         if (save)
         {
             PlayerPrefs.SetString(PathKeyFor(uid), path);
-            PlayerPrefs.DeleteKey(SpriteKeyFor(uid)); // clear sprite name
+            PlayerPrefs.DeleteKey(SpriteKeyFor(uid));
             PlayerPrefs.Save();
         }
 
@@ -120,8 +115,17 @@ public class AvatarService : MonoBehaviour
             var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
             if (!tex.LoadImage(bytes)) return null;
 
-            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f), 100f);
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
+                new Vector2(.5f, .5f), 100f);
         }
         catch { return null; }
+    }
+
+    public void ClearForUser(string uid)
+    {
+        PlayerPrefs.DeleteKey(SpriteKeyFor(uid));
+        PlayerPrefs.DeleteKey(PathKeyFor(uid));
+        PlayerPrefs.Save();
+        CurrentAvatar = defaultAvatar;
     }
 }

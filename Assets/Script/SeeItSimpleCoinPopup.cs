@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
@@ -6,10 +6,10 @@ using System.Linq;
 public class SeeItSimpleCoinPopup : MonoBehaviour
 {
     [Header("Wire these in Inspector")]
-    [SerializeField] RectTransform root;     // SeeItCoinPopup RectTransform
-    [SerializeField] CanvasGroup group;      // CanvasGroup on SeeItCoinPopup
-    [SerializeField] TMP_Text amountText;    // "Amount Coins" TMP
-    [SerializeField] Image icon;             // "Icon" Image (optional)
+    [SerializeField] RectTransform root;
+    [SerializeField] CanvasGroup group;
+    [SerializeField] TMP_Text amountText;
+    [SerializeField] Image icon;
 
     [Header("Text")]
     [SerializeField] string label = "COINS";
@@ -29,9 +29,11 @@ public class SeeItSimpleCoinPopup : MonoBehaviour
 
     Coroutine _playing;
 
+    // ✅ NEW: win flow reads this
+    public float TotalDuration => fadeIn + hold + fadeOut;
+
     void Awake()
     {
-        // Auto-wire if left empty
         if (!root) root = GetComponent<RectTransform>();
         if (!group) group = GetComponent<CanvasGroup>();
         if (!amountText) amountText = GetComponentsInChildren<TMP_Text>(true)
@@ -70,7 +72,6 @@ public class SeeItSimpleCoinPopup : MonoBehaviour
         group.interactable = false;
         group.blocksRaycasts = false;
 
-        // fade in + pop
         float t = 0f;
         if (root) root.localScale = Vector3.one * startScale;
         while (t < fadeIn)
@@ -85,7 +86,6 @@ public class SeeItSimpleCoinPopup : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(hold);
 
-        // fade out
         t = 0f;
         while (t < fadeOut)
         {

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -11,9 +11,7 @@ public class CanvasGroupFader : MonoBehaviour
     {
         cg = GetComponent<CanvasGroup>();
         // Start hidden
-        cg.alpha = 0;
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
+        HideInstant();
     }
 
     public void Show()
@@ -26,6 +24,23 @@ public class CanvasGroupFader : MonoBehaviour
     {
         StopAllCoroutines();
         StartCoroutine(FadeTo(0f, false));
+    }
+
+    // ✅ NEW: instant show/hide (no coroutine)
+    public void ShowInstant()
+    {
+        if (cg == null) cg = GetComponent<CanvasGroup>();
+        cg.alpha = 1f;
+        cg.interactable = true;
+        cg.blocksRaycasts = true;
+    }
+
+    public void HideInstant()
+    {
+        if (cg == null) cg = GetComponent<CanvasGroup>();
+        cg.alpha = 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
     }
 
     IEnumerator FadeTo(float target, bool enableInput)

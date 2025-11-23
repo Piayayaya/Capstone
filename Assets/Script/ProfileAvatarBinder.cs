@@ -1,4 +1,4 @@
-// ProfileAvatarBinder.cs
+﻿// ProfileAvatarBinder.cs
 using UnityEngine;
 using UnityEngine.UI;
 

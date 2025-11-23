@@ -1,5 +1,4 @@
-﻿// AutoLoginRouter.cs
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class AutoLoginRouter : MonoBehaviour
@@ -9,14 +8,21 @@ public class AutoLoginRouter : MonoBehaviour
     public string profileScene = "Profile Scene";
     public string dashboardScene = "Dashboard";
 
+    public static bool SkipAutoRouteOnce = false;
+
     static bool hasRouted = false;
 
     void Start()
     {
+        if (SkipAutoRouteOnce)
+        {
+            SkipAutoRouteOnce = false;
+            return;
+        }
+
         if (hasRouted) return;
         hasRouted = true;
 
-        // Make sure guest id exists even for new devices
         UserIdProvider.GetOrCreateGuestId();
 
         if (ProfileService.Instance != null) ProfileService.Instance.LoadFromPrefs();

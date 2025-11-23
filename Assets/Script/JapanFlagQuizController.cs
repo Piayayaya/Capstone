@@ -12,13 +12,28 @@ public class JapanFlagQuizController : MonoBehaviour
     [Header("Colors")]
     public Color normalColor = Color.white;
     public Color correctColor = new Color32(120, 245, 180, 255); // green
-    public Color wrongColor = new Color32(220, 60, 60, 255);   // red
+    public Color wrongColor = new Color32(220, 60, 60, 255);     // red
 
     [Header("Popups")]
-    public WrongPopup wrongPopup;      // your existing WrongPopup
-    public JapanCoinPopup coinPopup;   // the script above
+    public WrongPopup wrongPopup;      // existing WrongPopup
+    public CoinPopup coinPopup;        // ✅ SAME type as other scenes
+    public NameTheFlagWinFlow winFlow; // ✅ coins + PLAY AGAIN flow
 
-    int wrongTries = 0;
+    private int wrongTries = 0;
+    private bool roundDone = false;
+
+    void Awake()
+    {
+        // Auto-find if not wired (safe for any NTF scene)
+        if (wrongPopup == null)
+            wrongPopup = FindObjectOfType<WrongPopup>(true);
+
+        if (coinPopup == null)
+            coinPopup = FindObjectOfType<CoinPopup>(true);
+
+        if (winFlow == null)
+            winFlow = FindObjectOfType<NameTheFlagWinFlow>(true);
+    }
 
     void Start() => ResetRound();
 
@@ -30,6 +45,8 @@ public class JapanFlagQuizController : MonoBehaviour
     public void ResetRound()
     {
         wrongTries = 0;
+        roundDone = false;
+
         SetButtonVisual(finlandButton, normalColor, true);
         SetButtonVisual(canadaButton, normalColor, true);
         SetButtonVisual(japanButton, normalColor, true);
@@ -37,16 +54,29 @@ public class JapanFlagQuizController : MonoBehaviour
 
     void Evaluate(Button pressed, bool isCorrect)
     {
+        if (roundDone) return;
+
         if (isCorrect)
         {
-            int award = wrongTries == 0 ? 10 : (wrongTries == 1 ? 5 : 3);
+            roundDone = true;
 
-            // lock the other buttons and paint the correct one green
+            int attempts = wrongTries + 1; // 1=first try, 2=second, 3+=later
+
+            // paint correct one green + lock all buttons
             SetButtonVisual(japanButton, correctColor, false);
-            if (pressed != japanButton) SetButtonVisual(pressed, wrongColor, false); // safety
             LockOthers(japanButton);
 
-            coinPopup?.Show(award);
+            // ✅ Show coins + then PlayAgain panel through WinFlow
+            if (winFlow != null)
+            {
+                winFlow.HandleWin(attempts);
+            }
+            else
+            {
+                // fallback if winFlow missing
+                int award = attempts <= 1 ? 10 : (attempts == 2 ? 5 : 3);
+                coinPopup?.Show(award);
+            }
         }
         else
         {
@@ -81,7 +111,7 @@ public class JapanFlagQuizController : MonoBehaviour
         cb.highlightedColor = normalColor;
         cb.pressedColor = normalColor;
         cb.selectedColor = normalColor;
-        cb.disabledColor = color;   // how it looks when disabled
+        cb.disabledColor = color;
         b.colors = cb;
 
         b.interactable = interactable;

@@ -1,5 +1,4 @@
-﻿// ProfileService.cs
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ProfileService : MonoBehaviour
 {
@@ -28,12 +27,10 @@ public class ProfileService : MonoBehaviour
         string uid = UserIdProvider.ActiveUserId;
         string perUserKey = KeyFor(uid);
 
-        // 1) per-user key
         if (PlayerPrefs.HasKey(perUserKey))
-            DisplayName = PlayerPrefs.GetString(perUserKey, defaultName).Trim();
-        // 2) backward compat global key
+            DisplayName = PlayerPrefs.GetString(perUserKey, "").Trim();
         else if (PlayerPrefs.HasKey(prefsKey))
-            DisplayName = PlayerPrefs.GetString(prefsKey, defaultName).Trim();
+            DisplayName = PlayerPrefs.GetString(prefsKey, "").Trim();
         else
             DisplayName = "";
 
@@ -52,6 +49,16 @@ public class ProfileService : MonoBehaviour
         DisplayName = string.IsNullOrWhiteSpace(name) ? defaultName : name.Trim();
 
         PlayerPrefs.SetString(perUserKey, DisplayName);
+        PlayerPrefs.SetString(prefsKey, DisplayName); // backward compat
         PlayerPrefs.Save();
+    }
+
+    // ✅ called when Firebase says this device has no user anymore
+    public void ClearForUser(string uid)
+    {
+        PlayerPrefs.DeleteKey(KeyFor(uid));
+        PlayerPrefs.DeleteKey(prefsKey);
+        PlayerPrefs.Save();
+        DisplayName = "";
     }
 }

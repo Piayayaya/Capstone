@@ -10,14 +10,14 @@ using Google;
 public class GoogleNativeLogin : MonoBehaviour
 {
     [Header("Google OAuth (WEB Client ID)")]
-    [SerializeField] private string webClientId;  // WEB client id from Google Cloud / Firebase
+    [SerializeField] private string webClientId;
 
     [Header("Next Scene")]
     [SerializeField] private string nextScene = "Profile Scene";
 
     [Header("Optional")]
     [SerializeField] private bool forceAccountPicker = true;
-    [SerializeField] private bool autoWriteUserToRTDB = true; // turn off if you don't want auto-write
+    [SerializeField] private bool autoWriteUserToRTDB = true;
 
     private GoogleSignInConfiguration config;
     private bool signingIn;
@@ -25,9 +25,7 @@ public class GoogleNativeLogin : MonoBehaviour
     void Awake()
     {
         if (string.IsNullOrWhiteSpace(webClientId))
-        {
             Debug.LogWarning("[GoogleNativeLogin] webClientId is EMPTY. Paste your WEB client ID in Inspector.");
-        }
 
         config = new GoogleSignInConfiguration
         {
@@ -36,21 +34,12 @@ public class GoogleNativeLogin : MonoBehaviour
             RequestIdToken = true,
             UseGameSignIn = false
         };
-
-        Debug.Log("[GoogleNativeLogin] Config prepared. WebClientId=" + webClientId);
     }
 
     public void SignInWithGoogle()
     {
-        Debug.Log("[GoogleNativeLogin] Button pressed!");
-
 #if UNITY_ANDROID && !UNITY_EDITOR
-        if (signingIn)
-        {
-            Debug.Log("[GoogleNativeLogin] Already signing in.");
-            return;
-        }
-
+        if (signingIn) return;
         signingIn = true;
 
         try
@@ -60,7 +49,6 @@ public class GoogleNativeLogin : MonoBehaviour
             if (forceAccountPicker)
                 GoogleSignIn.DefaultInstance.SignOut();
 
-            Debug.Log("[GoogleNativeLogin] Starting Google Sign-In...");
             GoogleSignIn.DefaultInstance.SignIn()
                 .ContinueWithOnMainThread(OnGoogleSignedIn);
         }
@@ -78,52 +66,33 @@ public class GoogleNativeLogin : MonoBehaviour
     {
         signingIn = false;
 
-        if (task.IsCanceled)
-        {
-            Debug.LogWarning("[GoogleNativeLogin] Google Sign-In canceled.");
-            return;
-        }
-
-        if (task.IsFaulted)
+        if (task.IsCanceled || task.IsFaulted)
         {
             Debug.LogError("[GoogleNativeLogin] Google Sign-In failed: " + task.Exception);
             return;
         }
 
         var gUser = task.Result;
-        Debug.Log("[GoogleNativeLogin] Google signed in: " + gUser.Email);
-        Debug.Log("[GoogleNativeLogin] ID Token length: " + (gUser.IdToken?.Length ?? 0));
-
-        // Exchange Google token for Firebase credential
         var cred = GoogleAuthProvider.GetCredential(gUser.IdToken, null);
 
         FirebaseAuth.DefaultInstance.SignInWithCredentialAsync(cred)
-            .ContinueWithOnMainThread(async authTask =>
+            .ContinueWithOnMainThread(async (Task<FirebaseUser> authTask) =>
             {
-                if (authTask.IsCanceled)
-                {
-                    Debug.LogWarning("[GoogleNativeLogin] Firebase sign-in canceled.");
-                    return;
-                }
-
-                if (authTask.IsFaulted)
+                if (authTask.IsCanceled || authTask.IsFaulted)
                 {
                     Debug.LogError("[GoogleNativeLogin] Firebase sign-in failed: " + authTask.Exception);
                     return;
                 }
 
-                var fUser = authTask.Result;
-                Debug.Log("[GoogleNativeLogin] Firebase signed in UID=" + fUser.UserId);
+                FirebaseUser fUser = authTask.Result;
+                string displayName = string.IsNullOrEmpty(gUser.DisplayName) ? "PLAYER" : gUser.DisplayName.Trim();
 
-                // ✅ compute display name once
-                string displayName = string.IsNullOrEmpty(gUser.DisplayName) ? "PLAYER" : gUser.DisplayName;
+                // ✅ track google login + active uid
+                UserIdProvider.MarkGoogleLogin(fUser.UserId);
 
-                // ✅ NEW: mark login type + save local per-user name
-                UserIdProvider.MarkGoogleLogin();
                 if (ProfileService.Instance != null)
                     ProfileService.Instance.SetName(displayName);
 
-                // Optional write to RTDB
                 if (autoWriteUserToRTDB && DatabaseService.Instance != null)
                 {
                     await DatabaseService.Instance.CreateOrUpdateGoogleUser(
@@ -131,6 +100,10 @@ public class GoogleNativeLogin : MonoBehaviour
                         displayName,
                         gUser.Email
                     );
+
+                    // also map device -> this google user
+                    string deviceKey = UserIdProvider.GetOrCreateGuestId();
+                    await DatabaseService.Instance.ClaimDevice(deviceKey, fUser.UserId);
                 }
 
                 SceneManager.LoadScene(nextScene);
