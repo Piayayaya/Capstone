@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 
+
 public class CoinTextBinder : MonoBehaviour
 {
     public TMP_Text coinText;

@@ -520,8 +520,7 @@ public class SmartLadderQuiz : MonoBehaviour
     {
         // 0 wrong so far -> 10; 1 -> 7; 2 -> 5; 3+ -> 3
         if (_wrongStreakThisLevel <= 0) return 10;
-        if (_wrongStreakThisLevel == 1) return 7;
-        if (_wrongStreakThisLevel == 2) return 5;
+        if (_wrongStreakThisLevel == 1) return 5;
         return 3;
     }
 
