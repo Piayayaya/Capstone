@@ -36,6 +36,7 @@ public class SpeechRecognizer : MonoBehaviour
 
 
 
+
     // Called by Java
     public void OnSpeechResult(string recognizedText)
     {
