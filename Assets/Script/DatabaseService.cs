@@ -82,6 +82,8 @@ public class DatabaseService : MonoBehaviour
     {
         if (db == null) return;
         await db.Child("deviceUsers").Child(deviceKey).RemoveValueAsync();
+
+        // ✅ FIX: removed userId in log (it doesn't exist here)
         Debug.Log($"✔ Device released: {deviceKey}");
     }
 
@@ -111,6 +113,25 @@ public class DatabaseService : MonoBehaviour
         if (!snap.Exists || snap.Value == null) return null;
 
         return snap.Value.ToString();
+    }
+
+    // ======================================================
+    // UPDATE USERNAME ONLY (no new user created)
+    // ======================================================
+    public async Task UpdateUserName(string userId, string newUsername)
+    {
+        if (db == null) return;
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(newUsername)) return;
+
+        var updates = new Dictionary<string, object>
+        {
+            { "name", newUsername.Trim() },
+            { "updatedAt", System.DateTime.Now.ToString("o") }
+        };
+
+        await db.Child("users").Child(userId).UpdateChildrenAsync(updates);
+
+        Debug.Log("✔ Username updated in Firebase");
     }
 
     // ======================================================
