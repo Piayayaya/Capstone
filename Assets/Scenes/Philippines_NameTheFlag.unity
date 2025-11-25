@@ -242,7 +242,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 979220951}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: NameTheFlagController, Assembly-CSharp
         m_MethodName: ChooseCanada
         m_Mode: 1
@@ -529,7 +529,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 979220951}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: NameTheFlagController, Assembly-CSharp
         m_MethodName: ChoosePhilippines
         m_Mode: 1
@@ -1577,7 +1577,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 979220951}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: NameTheFlagController, Assembly-CSharp
         m_MethodName: ChooseCanada
         m_Mode: 1
@@ -1622,7 +1622,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 979220952}
-  - component: {fileID: 979220951}
   m_Layer: 0
   m_Name: AnswerController
   m_TagString: Untagged
@@ -1630,30 +1629,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &979220951
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 979220950}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 507d335819187874fac340f0afccb55c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  japanButton: {fileID: 1696997036}
-  philippinesButton: {fileID: 216148812}
-  canadaButton: {fileID: 941861932}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  correctColor: {r: 0.47058824, g: 0.9607843, b: 0.7058824, a: 1}
-  wrongColor: {r: 0.8627451, g: 0.23529412, b: 0.23529412, a: 1}
-  sfx: {fileID: 0}
-  correctSfx: {fileID: 0}
-  wrongSfx: {fileID: 0}
-  wrongPopup: {fileID: 0}
-  coinPopup: {fileID: 0}
-  winFlow: {fileID: 0}
 --- !u!4 &979220952
 Transform:
   m_ObjectHideFlags: 0
@@ -2513,7 +2488,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 979220951}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: NameTheFlagController, Assembly-CSharp
         m_MethodName: ChooseJapan
         m_Mode: 1
@@ -2866,7 +2841,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 979220951}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: NameTheFlagController, Assembly-CSharp
         m_MethodName: ChooseJapan
         m_Mode: 1
@@ -3915,7 +3890,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 979220951}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: NameTheFlagController, Assembly-CSharp
         m_MethodName: ChoosePhilippines
         m_Mode: 1

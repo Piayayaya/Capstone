@@ -123,6 +123,12 @@ public class CoinService : MonoBehaviour
     {
         if (amount <= 0) return;
 
+        // DEBUG: log whenever NameTheFlag adds coins (helps catch any double-awards)
+        if (mode == GameModeId.NameTheFlag)
+        {
+            Debug.Log($"[CoinService] AddCoins NAME THE FLAG +{amount}, total BEFORE={TotalCoins}");
+        }
+
         // update local immediately
         TotalCoins += amount;
         byMode[mode] = GetModeCoins(mode) + amount;

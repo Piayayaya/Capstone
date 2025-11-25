@@ -12,11 +12,21 @@ public class EditProfileController : MonoBehaviour
     public TMP_Text currentUsernameText; // Current Username Text (TMP_Text)
     public TMP_InputField newUsernameIF; // New Username Input Field (TMP_InputField)
 
+    // 🔹 NEW: hook to the same ProfileAvatarUI you use in CreateAccount/Profile Scene
+    [Header("Avatar Editing")]
+    [SerializeField] private ProfileAvatarUI avatarUI;
+
     [Header("Scenes")]
     public string backScene = "View Profile";
 
     private async void Start()
     {
+        // 🔹 NEW: make sure ProfileAvatarUI uses THIS avatar image
+        if (avatarUI != null && avatarImage != null && avatarUI.avatarImage != avatarImage)
+        {
+            avatarUI.avatarImage = avatarImage;
+        }
+
         // center new username input + placeholder
         CenterInput(newUsernameIF);
 
@@ -102,6 +112,10 @@ public class EditProfileController : MonoBehaviour
         if (currentUsernameText != null)
             currentUsernameText.text = newName;
 
+        // 🔹 OPTIONAL: if you want to be 100% sure avatar is saved at this moment,
+        // ProfileAvatarUI should already have pushed it to AvatarService when
+        // Attach/Generate was pressed – so usually nothing else is needed here.
+
         // 4) go back
         if (!string.IsNullOrEmpty(backScene))
             SceneManager.LoadScene(backScene);
@@ -112,5 +126,31 @@ public class EditProfileController : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(backScene))
             SceneManager.LoadScene(backScene);
+    }
+
+    
+    public void OnAttachFile()
+    {
+        if (avatarUI != null)
+        {
+            avatarUI.OnAttachFile();
+        }
+        else
+        {
+            Debug.LogWarning("[EditProfileController] avatarUI is not assigned – AttachFile clicked.");
+        }
+    }
+
+    // Hook this to GENERATE PICTURE button OnClick()
+    public void OnGeneratePicture()
+    {
+        if (avatarUI != null)
+        {
+            avatarUI.OnGeneratePicture();
+        }
+        else
+        {
+            Debug.LogWarning("[EditProfileController] avatarUI is not assigned – GeneratePicture clicked.");
+        }
     }
 }

@@ -87,7 +87,18 @@ public class TuneYourTongue : MonoBehaviour
 
     void HandleCorrect(string text)
     {
+        // existing local wallet
         coinWallet.Add(5);
+
+        // 🔹 NEW: also record in global CoinService (for Firebase + TotalCoins screen)
+        if (CoinService.Instance != null)
+        {
+            CoinService.Instance.AddCoins(5, GameModeId.TuneYourTongue);
+        }
+        else
+        {
+            Debug.LogWarning("[TuneYourTongue] CoinService.Instance is null – coins not recorded in global wallet.");
+        }
 
         TTSManager.Speak("Good job!");
 
