@@ -479,6 +479,7 @@ GameObject:
   - component: {fileID: 538753299}
   - component: {fileID: 538753298}
   - component: {fileID: 538753300}
+  - component: {fileID: 538753301}
   m_Layer: 5
   m_Name: left arrow
   m_TagString: Untagged
@@ -599,6 +600,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &538753301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 538753296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &597605974
 GameObject:
   m_ObjectHideFlags: 0
@@ -961,6 +974,7 @@ GameObject:
   - component: {fileID: 718974594}
   - component: {fileID: 718974593}
   - component: {fileID: 718974592}
+  - component: {fileID: 718974595}
   m_Layer: 5
   m_Name: DragAndDrop Button
   m_TagString: Untagged
@@ -1082,6 +1096,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 718974590}
   m_CullTransparentMesh: 1
+--- !u!114 &718974595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718974590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &883270783
 GameObject:
   m_ObjectHideFlags: 0
@@ -1095,6 +1121,7 @@ GameObject:
   - component: {fileID: 883270786}
   - component: {fileID: 883270785}
   - component: {fileID: 883270788}
+  - component: {fileID: 883270789}
   m_Layer: 5
   m_Name: SmartLadder button
   m_TagString: Untagged
@@ -1239,6 +1266,18 @@ MonoBehaviour:
     \u2014 10 coins if you get it right on your first try, 5 coins on your second,
     and 3 coins on your last try. The goal is to answer as many questions correctly
     and climb all the way to the top of the Smart Ladder!\r\n"
+--- !u!114 &883270789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883270783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &918395692
 GameObject:
   m_ObjectHideFlags: 0
@@ -1319,6 +1358,7 @@ GameObject:
   - component: {fileID: 938608918}
   - component: {fileID: 938608917}
   - component: {fileID: 938608916}
+  - component: {fileID: 938608919}
   m_Layer: 5
   m_Name: SeeitorLoseIt Button
   m_TagString: Untagged
@@ -1440,6 +1480,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 938608914}
   m_CullTransparentMesh: 1
+--- !u!114 &938608919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938608914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1108567679
 GameObject:
   m_ObjectHideFlags: 0
@@ -1452,6 +1504,7 @@ GameObject:
   - component: {fileID: 1108567683}
   - component: {fileID: 1108567682}
   - component: {fileID: 1108567681}
+  - component: {fileID: 1108567684}
   m_Layer: 5
   m_Name: TuneYourTongue Button
   m_TagString: Untagged
@@ -1573,6 +1626,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1108567679}
   m_CullTransparentMesh: 1
+--- !u!114 &1108567684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108567679}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1185626799
 GameObject:
   m_ObjectHideFlags: 0
@@ -2207,7 +2272,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1550816895}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -3133,6 +3198,7 @@ GameObject:
   - component: {fileID: 2061964488}
   - component: {fileID: 2061964487}
   - component: {fileID: 2061964486}
+  - component: {fileID: 2061964489}
   m_Layer: 5
   m_Name: NameTheFlag Button
   m_TagString: Untagged
@@ -3254,6 +3320,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2061964484}
   m_CullTransparentMesh: 1
+--- !u!114 &2061964489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061964484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2075117935
 GameObject:
   m_ObjectHideFlags: 0

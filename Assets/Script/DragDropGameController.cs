@@ -186,7 +186,7 @@ public class DragDropGameController : MonoBehaviour
         ShowRestart();
     }
 
-    // >>> NEW: wait for coin popup to finish, then show restart (success path)
+    // >>> wait for coin popup to finish, then show restart (success path)
     IEnumerator ShowRestartAfterCoins()
     {
         // If no popup assigned, just use the same delay as time's up
@@ -269,7 +269,21 @@ public class DragDropGameController : MonoBehaviour
                     bubbleText.text = congratsMessage;
                 }
 
+                // Old local wallet (keep for compatibility)
                 CoinWallet_DragDrop.Add(rewardAmount);
+
+                // 🔹 NEW: tell CoinService so TotalCoins + Firebase update
+                if (CoinService.Instance != null)
+                {
+                    CoinService.Instance.AddCoins(rewardAmount, GameModeId.DragAndDrop);
+                    Debug.Log($"[DragDropGameController] Awarded {rewardAmount} coins via CoinService for DragAndDrop.");
+                }
+                else
+                {
+                    Debug.LogWarning("[DragDropGameController] CoinService.Instance is NULL – coins will not sync to TotalCoins/Firebase.");
+                }
+
+                // Existing popup
                 coinPopup?.Show(rewardAmount);
                 awardedOnce = true;
 

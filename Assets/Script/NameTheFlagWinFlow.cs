@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class NameTheFlagWinFlow : MonoBehaviour
@@ -43,7 +43,18 @@ public class NameTheFlagWinFlow : MonoBehaviour
                   : attempts == 2 ? secondTryCoins
                   : laterTryCoins;
 
+        // show old popup
         if (coinPopup) coinPopup.Show(award);
+
+        // ✅ record coins for Name The Flag (works for ALL NTF scenes)
+        if (CoinService.Instance != null)
+        {
+            CoinService.Instance.AddCoins(award, GameModeId.NameTheFlag);
+        }
+        else
+        {
+            Debug.LogWarning("[NameTheFlagWinFlow] CoinService.Instance is null – coins not recorded.");
+        }
 
         StartCoroutine(ShowPlayAgainAfterCoins());
     }

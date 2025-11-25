@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -57,12 +57,22 @@ public class NameTheFlagController : MonoBehaviour
             // Prefer the centralized flow (will show coins, then PLAY AGAIN)
             if (winFlow)
             {
-                winFlow.HandleWin(attempts);
+                winFlow.HandleWin(attempts);   // NameTheFlagWinFlow will also call CoinService
             }
             else
             {
                 // Fallback: show coins only (no PLAY AGAIN automation)
                 if (coinPopup) coinPopup.Show(award);
+
+                // 🔹 NEW: still record coins in CoinService even without winFlow
+                if (CoinService.Instance != null)
+                {
+                    CoinService.Instance.AddCoins(award, GameModeId.NameTheFlag);
+                }
+                else
+                {
+                    Debug.LogWarning("[NameTheFlagController] CoinService.Instance is null; coins not recorded.");
+                }
             }
         }
         else

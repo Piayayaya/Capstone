@@ -278,6 +278,7 @@ GameObject:
   - component: {fileID: 115215739}
   - component: {fileID: 115215738}
   - component: {fileID: 115215740}
+  - component: {fileID: 115215741}
   m_Layer: 5
   m_Name: Save button
   m_TagString: Untagged
@@ -398,6 +399,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &115215741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 115215736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &452489865
 GameObject:
   m_ObjectHideFlags: 0
@@ -1669,6 +1682,7 @@ GameObject:
   - component: {fileID: 1869988508}
   - component: {fileID: 1869988507}
   - component: {fileID: 1869988509}
+  - component: {fileID: 1869988510}
   m_Layer: 5
   m_Name: Profile
   m_TagString: Untagged
@@ -1777,6 +1791,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1869988510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869988505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1947889063
 GameObject:
   m_ObjectHideFlags: 0

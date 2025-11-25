@@ -1,6 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;   // ✅ for async helper
 
 public class RegisterUI : MonoBehaviour
 {
@@ -55,6 +56,10 @@ public class RegisterUI : MonoBehaviour
                     }
                 }
 
+                // 🔹 NEW: tell CoinService which player we are
+                if (CoinService.Instance != null)
+                    await CoinService.Instance.SetPlayer(mappedUserId);
+
                 SetLoginMode(localName);
                 return;
             }
@@ -107,6 +112,7 @@ public class RegisterUI : MonoBehaviour
     {
         if (_mode == Mode.LoginExisting)
         {
+            // existing user, just go dashboard (CoinService already set in Start)
             SceneManager.LoadScene(dashboardScene);
             return;
         }
@@ -132,6 +138,10 @@ public class RegisterUI : MonoBehaviour
             await DatabaseService.Instance.CreateUser(userId, rawName);
             await DatabaseService.Instance.ClaimDevice(deviceKey, userId);
         }
+
+        // 🔹 NEW: now coins belong to this new user
+        if (CoinService.Instance != null)
+            await CoinService.Instance.SetPlayer(userId);
 
         SceneManager.LoadScene(profileScene);
     }

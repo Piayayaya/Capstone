@@ -106,6 +106,12 @@ public class GoogleNativeLogin : MonoBehaviour
                     await DatabaseService.Instance.ClaimDevice(deviceKey, fUser.UserId);
                 }
 
+                // ✅ connect CoinService to this Google player
+                if (CoinService.Instance != null)
+                {
+                    await CoinService.Instance.SetPlayer(fUser.UserId);
+                }
+
                 SceneManager.LoadScene(nextScene);
             });
     }
