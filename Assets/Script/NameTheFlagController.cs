@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,6 +27,9 @@ public class NameTheFlagController : MonoBehaviour
 
     int wrongAttemptsThisRound = 0;
 
+    // NEW: prevents extra awards in the same round
+    bool roundFinished = false;   // NEW
+
     void Start() => ResetRound();
 
     // Hook these in Button OnClick
@@ -37,6 +40,8 @@ public class NameTheFlagController : MonoBehaviour
     public void ResetRound()
     {
         wrongAttemptsThisRound = 0;
+        roundFinished = false;   // NEW: reset when starting a new round
+
         SetButtonVisual(japanButton, normalColor, true);
         SetButtonVisual(philippinesButton, normalColor, true);
         SetButtonVisual(canadaButton, normalColor, true);
@@ -44,6 +49,12 @@ public class NameTheFlagController : MonoBehaviour
 
     void Evaluate(Button selected, bool isCorrect)
     {
+        // NEW: ignore any clicks after the round is finished
+        if (roundFinished)
+        {
+            return;
+        }
+
         if (isCorrect)
         {
             int attempts = wrongAttemptsThisRound + 1; // 1=first try, 2=second, 3+=later
@@ -54,15 +65,27 @@ public class NameTheFlagController : MonoBehaviour
 
             if (sfx && correctSfx) sfx.PlayOneShot(correctSfx);
 
+            roundFinished = true;   // NEW: mark round as finished once we are correct
+
             // Prefer the centralized flow (will show coins, then PLAY AGAIN)
             if (winFlow)
             {
-                winFlow.HandleWin(attempts);
+                winFlow.HandleWin(attempts);   // NameTheFlagWinFlow will also call CoinService
             }
             else
             {
                 // Fallback: show coins only (no PLAY AGAIN automation)
                 if (coinPopup) coinPopup.Show(award);
+
+                // 🔹 NEW: still record coins in CoinService even without winFlow
+                if (CoinService.Instance != null)
+                {
+                    CoinService.Instance.AddCoins(award, GameModeId.NameTheFlag);
+                }
+                else
+                {
+                    Debug.LogWarning("[NameTheFlagController] CoinService.Instance is null; coins not recorded.");
+                }
             }
         }
         else

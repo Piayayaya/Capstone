@@ -124,8 +124,17 @@ public class SmartLadderQuiz : MonoBehaviour
             ResetRun();
         }
 
+        // existing local coins per difficulty
         _coins = ProgressStore.LoadCoins(EffectiveDifficulty, 0);
         UpdateCoinsUI();
+
+        // 🔹 NEW: sync coins from global CoinService SmartLadder bucket (so UI matches TotalCoins)
+        if (CoinService.Instance != null)
+        {
+            int globalSmartLadderCoins = CoinService.Instance.GetModeCoins(GameModeId.SmartLadder);
+            _coins = globalSmartLadderCoins;
+            UpdateCoinsUI();
+        }
 
         // Optionally initialize bar from saved level (resume)
         if (initProgressFromSavedLevel)
@@ -277,8 +286,8 @@ public class SmartLadderQuiz : MonoBehaviour
         Debug.LogWarning("Sent");
         if (_lastAnswerCorrect)
             DailyQuestSimple.Report("correct_smartladder", 1);
-            AchievementManager.I?.Report("achievements_01", 1);
-            AchievementManager.I?.Report("achievements_02", 1);
+        AchievementManager.I?.Report("achievements_01", 1);
+        AchievementManager.I?.Report("achievements_02", 1);
 
 
         if (explanationText)
@@ -295,6 +304,16 @@ public class SmartLadderQuiz : MonoBehaviour
             UpdateCoinsUI();
 
             ProgressStore.SaveCoins(EffectiveDifficulty, _coins);
+
+            // 🔹 NEW: also add to global CoinService so TotalCoins scene updates
+            if (CoinService.Instance != null)
+            {
+                CoinService.Instance.AddCoins(reward, GameModeId.SmartLadder);
+            }
+            else
+            {
+                Debug.LogWarning("[SmartLadderQuiz] CoinService.Instance is null – SmartLadder coins not recorded in global wallet.");
+            }
 
             if (_rewardCo != null) StopCoroutine(_rewardCo);
             _rewardCo = StartCoroutine(CoShowRewardThenExplanation(reward));
@@ -518,7 +537,7 @@ public class SmartLadderQuiz : MonoBehaviour
     // -------- Helpers --------
     int RewardForCurrentStreak()
     {
-        // 0 wrong so far -> 10; 1 -> 7; 2 -> 5; 3+ -> 3
+        // 0 wrong so far -> 10; 1 -> 5; 2+ -> 3
         if (_wrongStreakThisLevel <= 0) return 10;
         if (_wrongStreakThisLevel == 1) return 5;
         return 3;

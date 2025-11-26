@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class NameTheFlagWinFlow : MonoBehaviour
@@ -18,6 +18,9 @@ public class NameTheFlagWinFlow : MonoBehaviour
 
     private bool _showing;
 
+    // NEW: make sure we only ever award once per round
+    private bool _coinsAwarded = false;   // NEW
+
     void Awake()
     {
         // Auto-find if not wired
@@ -36,6 +39,14 @@ public class NameTheFlagWinFlow : MonoBehaviour
     // attempts: 1 = first try, 2 = second, 3+ = later
     public void HandleWin(int attempts = 1)
     {
+        // NEW: if something tries to call this again, ignore it
+        if (_coinsAwarded)
+        {
+            Debug.LogWarning("[NameTheFlagWinFlow] HandleWin called again – ignoring to avoid double coins.");
+            return;
+        }
+        _coinsAwarded = true; // NEW
+
         if (_showing) return;
         _showing = true;
 
@@ -43,7 +54,19 @@ public class NameTheFlagWinFlow : MonoBehaviour
                   : attempts == 2 ? secondTryCoins
                   : laterTryCoins;
 
+        // show old popup
         if (coinPopup) coinPopup.Show(award);
+
+        // ✅ record coins for Name The Flag (works for ALL NTF scenes)
+        if (CoinService.Instance != null)
+        {
+            Debug.Log($"[NameTheFlagWinFlow] Awarding {award} coins, attempts={attempts}"); // helpful log
+            CoinService.Instance.AddCoins(award, GameModeId.NameTheFlag);
+        }
+        else
+        {
+            Debug.LogWarning("[NameTheFlagWinFlow] CoinService.Instance is null – coins not recorded.");
+        }
 
         StartCoroutine(ShowPlayAgainAfterCoins());
     }
@@ -59,5 +82,6 @@ public class NameTheFlagWinFlow : MonoBehaviour
         if (playAgainPanel) playAgainPanel.Show();
 
         _showing = false;
+        // NOTE: _coinsAwarded stays true for this round, which is what we want
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -62,7 +62,7 @@ public class DailyQuestService : MonoBehaviour
             if (_state != null && _state.yyyymmdd == today)
             {
                 OnDailyListChanged?.Invoke();
-                return; // already today�s list
+                return; // already today’s list
             }
         }
         GenerateNewDailyList(today);
@@ -159,8 +159,21 @@ public class DailyQuestService : MonoBehaviour
         Save();
         OnDailyListChanged?.Invoke();
 
-        // Give coins
+        // Give coins to local wallet
         if (coinWallet != null) coinWallet.Add(e.coinReward);
+
+        // 🔹 NEW: also record in global CoinService under DailyQuests
+        if (e.coinReward > 0)
+        {
+            if (CoinService.Instance != null)
+            {
+                CoinService.Instance.AddDailyQuestCoins(e.coinReward);
+            }
+            else
+            {
+                Debug.LogWarning("[DailyQuestService] CoinService.Instance is null – daily quest coins not recorded in global wallet.");
+            }
+        }
 
         // Optional toast integration
         if (rewardToast != null)

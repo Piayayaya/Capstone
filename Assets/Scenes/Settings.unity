@@ -871,6 +871,7 @@ GameObject:
   - component: {fileID: 455432188}
   - component: {fileID: 455432191}
   - component: {fileID: 455432192}
+  - component: {fileID: 455432193}
   m_Layer: 5
   m_Name: Sounds White Toggle
   m_TagString: Untagged
@@ -1001,6 +1002,20 @@ MonoBehaviour:
   offAnchor: {fileID: 251445805}
   animate: 1
   animDuration: 0.12
+--- !u!114 &455432193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 455432185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2957db42578f048bf0037af3dd7fd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
+  toggle: {fileID: 455432191}
 --- !u!1 &477369771
 GameObject:
   m_ObjectHideFlags: 0
@@ -2843,6 +2858,7 @@ GameObject:
   - component: {fileID: 1677098132}
   - component: {fileID: 1677098131}
   - component: {fileID: 1677098134}
+  - component: {fileID: 1677098135}
   m_Layer: 5
   m_Name: 'Music White Toggle '
   m_TagString: Untagged
@@ -2973,6 +2989,20 @@ MonoBehaviour:
   offAnchor: {fileID: 1015278166}
   animate: 1
   animDuration: 0.12
+--- !u!114 &1677098135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677098129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2957db42578f048bf0037af3dd7fd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 0
+  toggle: {fileID: 1677098131}
 --- !u!1 &1786768936
 GameObject:
   m_ObjectHideFlags: 0

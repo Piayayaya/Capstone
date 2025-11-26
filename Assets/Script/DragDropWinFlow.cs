@@ -1,5 +1,4 @@
-// DragDropWinFlow.cs  (CanvasGroup-only version)
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class DragDropWinFlow : MonoBehaviour
@@ -40,7 +39,16 @@ public class DragDropWinFlow : MonoBehaviour
         int award = wrongTries == 0 ? coinsFirstTry :
                     wrongTries == 1 ? coinsSecondTry : coinsOtherTries;
 
+        Debug.Log($"[DragDropWinFlow] HandleWin, award={award}, CoinService? {(CoinService.Instance != null)}");
+
+        // existing popup
         if (coinPopup) coinPopup.Show(award);
+
+        // give the coins to this player for Drag & Drop
+        if (CoinService.Instance != null)
+        {
+            CoinService.Instance.AddCoins(award, GameModeId.DragAndDrop);
+        }
 
         float popupTotal = (coinPopup ? coinPopup.appearDuration + coinPopup.holdTime + coinPopup.fadeOutDuration : 0f);
         StartCoroutine(ShowRestartAfter(popupTotal + delayAfterPopup));

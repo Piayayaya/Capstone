@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class SeeItWinFlow : MonoBehaviour
@@ -62,6 +62,17 @@ public class SeeItWinFlow : MonoBehaviour
         int award = attempts <= 1 ? firstTryCoins
                   : attempts == 2 ? secondTryCoins
                   : laterTryCoins;
+
+        // 🔹 NEW: add coins to the global CoinService (SeeItOrLoseIt mode)
+        if (CoinService.Instance != null)
+        {
+            Debug.Log($"[SeeItWinFlow] Awarding {award} coins for SeeItOrLoseIt.");
+            CoinService.Instance.AddCoins(award, GameModeId.SeeItOrLoseIt);
+        }
+        else
+        {
+            Debug.LogWarning("[SeeItWinFlow] CoinService.Instance is null – no coins added.");
+        }
 
         // 4) show coin popup then playAgain
         if (coinPopup != null)
