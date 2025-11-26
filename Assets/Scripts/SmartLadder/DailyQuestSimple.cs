@@ -312,31 +312,39 @@ public class DailyQuestSimple : MonoBehaviour
 
     List<QuestDef> BuildPool()
     {
-        EnsureCatalog();
-
         var pool = new List<QuestDef>();
 
-        // Prefer ScriptableObject if assigned and has content
-        if (catalogSO != null && catalogSO.quests != null && catalogSO.quests.Count > 0)
+        try
         {
-            foreach (var q in catalogSO.quests)
+            // Read all quests from local SQLite
+            var rows = LocalDb.DB.Table<LocalQuestDef>().ToList();
+
+            foreach (var r in rows)
             {
-                if (q == null || !q.eligibleForDaily || string.IsNullOrWhiteSpace(q.questId)) continue;
-                pool.Add(FromSO(q));
+                if (r == null || string.IsNullOrWhiteSpace(r.id)) continue;
+
+                pool.Add(new QuestDef
+                {
+                    id = r.id,
+                    title = r.title ?? "",
+                    description = r.description ?? "",
+                    progressTag = r.progressTag ?? "",
+                    target = r.target,
+                    coinReward = r.coinReward
+                });
             }
+
+            if (logVerbose)
+                Debug.Log($"[DailyQuest] Loaded {pool.Count} quests from SQLite.");
         }
-        else
+        catch (System.Exception ex)
         {
-            // Fallback to inline
-            foreach (var q in catalogInline)
-            {
-                if (q == null || string.IsNullOrWhiteSpace(q.id)) continue;
-                pool.Add(q);
-            }
+            Debug.LogError("[DailyQuest] Failed to load quests from SQLite: " + ex);
         }
 
         return pool;
     }
+
 
     QuestDef FromSO(QuestDefinition d) => new QuestDef
     {

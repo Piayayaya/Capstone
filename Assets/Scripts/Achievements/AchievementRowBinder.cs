@@ -1,104 +1,151 @@
-﻿using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class AchievementRowBinder : MonoBehaviour
 {
     [Header("UI")]
-    public Image icon;
     public TMP_Text titleText;
-    public TMP_Text descText;
+    public TMP_Text descriptionText;
     public TMP_Text progressText;
-    public Slider progressBar;  // min=0, max=1
-    public GameObject divider;
+    public Image iconImage;
+
+    [Header("Claim UI")]
     public Button claimButton;
-    public TMP_Text claimLabel;
+    public TMP_Text claimButtonLabel;      // <- drag the Button's TMP child here
+    public GameObject completedCheck;      // optional tick/check image
+    public GameObject bottomDivider;       // optional line between rows
 
-    [Header("State")]
-    public string id;
+    private LocalAchievementDef _local;
+    private AchievementDef _def;
+    private AchievementProgressData _progress;
 
-    public void Bind(AchievementDef def, AchievementProgressData prog)
+    [Header("Progress Bar")]
+    public Slider progressSlider;         // <-- add this
+
+    public void Bind(LocalAchievementDef local, AchievementDef def, AchievementProgressData progress)
     {
-        id = def.id;
-        if (icon) icon.sprite = def.icon;
-        if (titleText) titleText.text = def.displayName;
-        if (descText) descText.text = def.description;
+        _local = local;
+        _def = def;
+        _progress = progress ?? new AchievementProgressData();
 
-        var t = Mathf.Max(1, def.target);
-        var ratio = Mathf.Clamp01((float)prog.value / t);
-        if (progressBar)
+        // Title/description: prefer SQLite text, fall back to ScriptableObject text
+        string title = !string.IsNullOrEmpty(local?.title) ? local.title : def?.displayName;
+        string desc = !string.IsNullOrEmpty(local?.description) ? local.description : def?.description;
+
+        if (titleText) titleText.text = title ?? "";
+        if (descriptionText) descriptionText.text = desc ?? "";
+
+        // Icon comes from the ScriptableObject runtime def
+        if (iconImage)
         {
-            progressBar.minValue = 0;
-            progressBar.maxValue = 1;
-            progressBar.value = ratio;
-        }
-
-        if (progressText)
-        {
-            if (prog.completed && !def.showAsCounter)
-                progressText.text = "Completed";
-            else
-                progressText.text = $"{prog.value}/{def.target}";
-        }
-
-        // Optional: tint when completed
-        if (prog.completed && icon) icon.color = Color.white;
-        RefreshClaimUI(def, prog);
-    }
-
-    void RefreshClaimUI(AchievementDef def, AchievementProgressData prog)
-    {
-        if (!claimButton) return;
-
-        bool show = def.coinReward > 0 && prog.completed && !prog.rewardGranted && !def.autoGrantReward;
-        claimButton.gameObject.SetActive(show);
-
-        if (show)
-        {
-            if (claimLabel) claimLabel.text = $"CLAIM +{def.coinReward}";
-            claimButton.onClick.RemoveAllListeners();
-            claimButton.onClick.AddListener(() =>
+            if (def != null && def.icon != null)
             {
-                claimButton.interactable = false; // debounce
-                bool ok = AchievementManager.I && AchievementManager.I.Claim(def.id);
-                // After Claim, manager triggers OnProgressChanged → Bind runs again and hides the button
-            });
+                iconImage.sprite = def.icon;
+                iconImage.enabled = true;
+            }
+            else
+            {
+                iconImage.enabled = false;
+            }
+        }
+
+        RefreshUI();
+    }
+
+    void RefreshUI()
+    {
+        int target = _def != null ? _def.target : _local?.target ?? 0;
+        bool showCounter = _def != null ? _def.showAsCounter : true;
+
+        if (progressSlider)
+        {
+            if (target > 0)
+            {
+                progressSlider.gameObject.SetActive(true);
+                progressSlider.wholeNumbers = true;
+                progressSlider.minValue = 0;
+                progressSlider.maxValue = target;
+                progressSlider.value = Mathf.Clamp(_progress.value, 0, target);
+                progressSlider.interactable = false;   // just a display bar
+            }
+            else
+            {
+                progressSlider.gameObject.SetActive(false);
+            }
+        }
+
+        // Default: hide claim button
+        if (claimButton)
+        {
+            claimButton.interactable = false;
+            claimButton.gameObject.SetActive(false);
+        }
+        if (claimButtonLabel)
+            claimButtonLabel.text = "";
+
+        if (_progress.completed)
+        {
+            // “Completed” text
+            if (progressText)
+                progressText.text = "Completed";
+
+            // Can we claim a reward?
+            bool canClaim = false;
+            var id = _local?.id ?? _def?.id;
+
+            if (!string.IsNullOrEmpty(id) && AchievementManager.I != null)
+                canClaim = AchievementManager.I.CanClaim(id);
+
+            if (claimButton)
+            {
+                claimButton.gameObject.SetActive(canClaim);  // only show when claimable
+                claimButton.interactable = canClaim;
+            }
+            if (claimButtonLabel && canClaim)
+                claimButtonLabel.text = "CLAIM";
+        }
+        else
+        {
+            // Not completed yet – show progress, hide button
+            if (showCounter && target > 0)
+            {
+                if (progressText) progressText.text = $"{_progress.value}/{target}";
+            }
+            else if (progressText)
+            {
+                progressText.text = "";
+            }
+
+            if (claimButton)
+            {
+                claimButton.gameObject.SetActive(false);
+                claimButton.interactable = false;
+            }
+        }
+
+        if (completedCheck)
+            completedCheck.SetActive(_progress.completed);
+    }
+
+    // Hook this to the Claim button OnClick
+    public void OnClickClaim()
+    {
+        var id = _local?.id ?? _def?.id;
+        if (string.IsNullOrEmpty(id) || AchievementManager.I == null) return;
+
+        if (AchievementManager.I.Claim(id))
+        {
+            // Refresh our cached progress and UI (button will disappear)
+            _progress = AchievementManager.I.GetProgress(id);
+            RefreshUI();
         }
     }
 
-    void OnEnable()
-    {
-        if (AchievementManager.I)
-            AchievementManager.I.OnProgressChanged += HandleUpdate;
-    }
-
-    void OnDisable()
-    {
-        if (AchievementManager.I)
-            AchievementManager.I.OnProgressChanged -= HandleUpdate;
-    }
-
-    void HandleUpdate(string changedId, AchievementProgressData data)
-    {
-        if (changedId != id) return;
-        var def = AchievementManager.I ? AchievementManager.I.GetDef(id) : null;
-        if (def != null) Bind(def, data);
-    }
-
+    // Called by the panel so we can hide the last divider
     public void SetIsLast(bool isLast)
     {
-        if (divider) divider.SetActive(!isLast); // hide divider on last row
+        if (bottomDivider)
+            bottomDivider.SetActive(!isLast);
     }
-}
-
-// Small helper extension so binder can fetch def safely
-public static class AchievementManagerExt
-{
-    public static AchievementDef GetDef(this AchievementManager m, string id)
-    {
-        foreach (var d in m.catalog.items)
-            if (d && d.id == id) return d;
-        return null;
-    }
-
 }

@@ -12,6 +12,7 @@ public class AchievementDef : ScriptableObject
     public Sprite icon;                  // shown in list
 
     [Header("Progress")]
+    public string progressTag;           // e.g., "answers_any", "correct_smartladder"
     public int target = 1;               // e.g., 10 correct answers
     public bool showAsCounter = true;    // progress label "3/10", or just a checkmark when done
 
@@ -19,7 +20,6 @@ public class AchievementDef : ScriptableObject
     public bool hiddenUntilStarted = false;  // keeps list tidy if you like
 
     [Header("Reward")]
-    public int coinReward = 0;          // coins to give
+    public int coinReward = 0;           // coins to give
     public bool autoGrantReward = false; // manual claim flow
-
 }

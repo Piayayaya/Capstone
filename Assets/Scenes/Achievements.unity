@@ -407,38 +407,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RenderShadows: 1
-  m_RequiresDepthTextureOption: 2
-  m_RequiresOpaqueTextureOption: 2
-  m_CameraType: 0
-  m_Cameras: []
-  m_RendererIndex: -1
-  m_VolumeLayerMask:
-    serializedVersion: 2
-    m_Bits: 1
-  m_VolumeTrigger: {fileID: 0}
-  m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
-  m_Antialiasing: 0
-  m_AntialiasingQuality: 2
-  m_StopNaN: 0
-  m_Dithering: 0
-  m_ClearDepth: 1
-  m_AllowXRRendering: 1
-  m_AllowHDROutput: 1
-  m_UseScreenCoordOverride: 0
-  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
-  m_RequiresDepthTexture: 0
-  m_RequiresColorTexture: 0
-  m_Version: 2
-  m_TaaSettings:
-    m_Quality: 3
-    m_FrameInfluence: 0.1
-    m_JitterScale: 1
-    m_MipBias: 0
-    m_VarianceClampScale: 0.9
-    m_ContrastAdaptiveSharpening: 0
 --- !u!81 &384267039
 AudioListener:
   m_ObjectHideFlags: 0
@@ -682,7 +650,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9273512ed17a2e49aac6e5c620ded5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catalog: {fileID: 11400000, guid: 5a2bac4c1048a79458d2c18bcef35c3f, type: 2}
   contentRoot: {fileID: 588511784}
   rowPrefab: {fileID: 5073144248767662469, guid: bfd1a8fd92117fc4285812ff23c314b2, type: 3}
 --- !u!114 &588511786
@@ -941,7 +908,7 @@ GameObject:
   - component: {fileID: 1207005074}
   - component: {fileID: 1207005073}
   m_Layer: 5
-  m_Name: Scroll View
+  m_Name: AchievementPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1072,10 +1039,10 @@ RectTransform:
   - {fileID: 1474149716}
   m_Father: {fileID: 477556247}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 196.90509}
-  m_SizeDelta: {x: 1080, y: 393.81018}
+  m_SizeDelta: {x: 0, y: 393.81018}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1413268360
 MonoBehaviour:
@@ -1977,7 +1944,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1414306004}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

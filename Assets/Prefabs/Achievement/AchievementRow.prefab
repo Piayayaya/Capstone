@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2, y: -227}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 0, y: -235}
+  m_SizeDelta: {x: 714.4175, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3868663336666766933
 CanvasRenderer:
@@ -311,8 +311,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 414.37378}
-  m_SizeDelta: {x: 0, y: 828.7476}
+  m_AnchoredPosition: {x: 0, y: 453.01093}
+  m_SizeDelta: {x: 0, y: 906.0219}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8838403852180474818
 CanvasRenderer:
@@ -364,15 +364,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b23db0c88628a74e9d6b26cc7fc53d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  icon: {fileID: 951293198726742426}
   titleText: {fileID: 1547362539740616977}
-  descText: {fileID: 5609811677797434205}
+  descriptionText: {fileID: 5609811677797434205}
   progressText: {fileID: 5940702723781315637}
-  progressBar: {fileID: 5071687646835121176}
-  divider: {fileID: 8868503435398811932}
+  iconImage: {fileID: 951293198726742426}
   claimButton: {fileID: 3097239017456871115}
-  claimLabel: {fileID: 446659784409840706}
-  id: 
+  claimButtonLabel: {fileID: 446659784409840706}
+  completedCheck: {fileID: 0}
+  bottomDivider: {fileID: 8868503435398811932}
+  progressSlider: {fileID: 5071687646835121176}
 --- !u!114 &1060408555726588118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -487,7 +487,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.9091797, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -657,7 +657,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 280977814716961624}
   m_FillRect: {fileID: 8731975124117534999}
   m_HandleRect: {fileID: 3508902221458292471}
@@ -1106,7 +1106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.16470337, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1243,7 +1243,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8258219808593980668}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5073144248767662469}
+        m_TargetAssemblyTypeName: AchievementRowBinder, Assembly-CSharp
+        m_MethodName: OnClickClaim
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8868503435398811932
 GameObject:
   m_ObjectHideFlags: 0

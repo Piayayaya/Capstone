@@ -1,47 +1,90 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AchievementsPanel : MonoBehaviour
 {
     [Header("Wiring")]
-    public AchievementsCatalog catalog;         // same as manager or a subset
-    public Transform contentRoot;               // ScrollView/Viewport/Content
-    public AchievementRowBinder rowPrefab;      // a prefab with the binder script
+    [Tooltip("ScrollView/Viewport/Content transform")]
+    public Transform contentRoot;
+    [Tooltip("Prefab with AchievementRowBinder on it")]
+    public AchievementRowBinder rowPrefab;
 
-    readonly List<AchievementRowBinder> rows = new();
+    private readonly List<AchievementRowBinder> rows = new();
 
-    void OnEnable() { Build(); }
-    void OnDisable() { Clear(); }
+    void OnEnable()
+    {
+        Build();
+    }
+
+    void OnDisable()
+    {
+        Clear();
+    }
 
     void Clear()
     {
-        foreach (var r in rows) if (r) Destroy(r.gameObject);
+        foreach (var r in rows)
+        {
+            if (r) Destroy(r.gameObject);
+        }
         rows.Clear();
     }
 
     public void Build()
     {
-        if (!catalog || !rowPrefab || !contentRoot || !AchievementManager.I) return;
+        if (!contentRoot || !rowPrefab)
+        {
+            Debug.LogWarning("[AchievementsPanel] contentRoot or rowPrefab not assigned.");
+            return;
+        }
+
         Clear();
 
-        foreach (var def in catalog.items)
+        var mgr = AchievementManager.I;
+        if (mgr == null)
         {
-            if (!def || string.IsNullOrEmpty(def.id)) continue;
+            Debug.LogWarning("[AchievementsPanel] No AchievementManager instance.");
+            return;
+        }
 
-            // Hide until started?
-            if (def.hiddenUntilStarted)
-            {
-                var prog = AchievementManager.I.GetProgress(def.id);
-                if (prog.value <= 0 && !prog.completed) continue;
-            }
+        // Load all achievement rows from SQLite
+        List<LocalAchievementDef> locals;
+        try
+        {
+            locals = LocalDb.DB.Table<LocalAchievementDef>().ToList();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("[AchievementsPanel] Failed to query LocalAchievementDef: " + ex);
+            return;
+        }
+
+        if (locals == null || locals.Count == 0)
+        {
+            Debug.LogWarning("[AchievementsPanel] No LocalAchievementDef records found.");
+            return;
+        }
+
+        foreach (var local in locals)
+        {
+            if (local == null || string.IsNullOrEmpty(local.id))
+                continue;
+
+            // Runtime def (for icon, flags, etc.)
+            var runtimeDef = mgr.GetDef(local.id);
+            // Progress data from PlayerPrefs
+            var prog = mgr.GetProgress(local.id);
 
             var row = Instantiate(rowPrefab, contentRoot);
-            var data = AchievementManager.I.GetProgress(def.id);
-            row.Bind(def, data);
+            row.Bind(local, runtimeDef, prog);
             rows.Add(row);
+        }
 
-            for (int i = 0; i < rows.Count; i++)
-                rows[i].SetIsLast(i == rows.Count - 1);
+        // Mark last row so we can hide bottom divider, etc.
+        for (int i = 0; i < rows.Count; i++)
+        {
+            rows[i].SetIsLast(i == rows.Count - 1);
         }
     }
 }
