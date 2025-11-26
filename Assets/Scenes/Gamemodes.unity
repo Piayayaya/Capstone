@@ -588,8 +588,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 665987581}
-        m_TargetAssemblyTypeName: ArrowLeftToDashboard, Assembly-CSharp
+      - m_Target: {fileID: 783261337}
+        m_TargetAssemblyTypeName: GotoAchievements, Assembly-CSharp
         m_MethodName: Go
         m_Mode: 1
         m_Arguments:
@@ -746,7 +746,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 597605974}
   m_CullTransparentMesh: 1
---- !u!1 &665987573
+--- !u!1 &603760242
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -754,214 +754,105 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 665987578}
-  - component: {fileID: 665987577}
-  - component: {fileID: 665987575}
-  - component: {fileID: 665987574}
-  - component: {fileID: 665987579}
-  - component: {fileID: 665987580}
-  - component: {fileID: 665987581}
-  - component: {fileID: 665987582}
-  - component: {fileID: 665987583}
-  - component: {fileID: 665987584}
-  m_Layer: 0
-  m_Name: GameController
+  - component: {fileID: 603760243}
+  - component: {fileID: 603760244}
+  m_Layer: 5
+  m_Name: GameModeIntro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &665987574
-MonoBehaviour:
+--- !u!224 &603760243
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2676e8cc1745c4a4586f42b21c8bf389, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &665987575
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 127111c5aba99964da0cd21d413393ce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneName: Background_NameTheFlag
-  delay: 0
---- !u!114 &665987577
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d2ba34206b7f8f488fe5c4a8674e014, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scenes:
-  - Background_NameTheFlag
-  - JapanBackground
-  message: "NAME THE FLAG\n\nThe Name the Flag game is a super fun way to learn about
-    different countries around the world! Before each question starts, you\u2019ll
-    see a clue or picture in the background that gives you a hint about the country
-    \u2014 it could be something like a famous place, food, or animal from that country.
-    Then, a flag will appear on the screen, and you have to guess which country it
-    belongs to before the timer runs out!\n\nEarn coins for correct answers:\n10
-    coins \u2013 first try\n5 coins \u2013 second try\n3 coins \u2013 last try\n\nLook
-    carefully at the clue, think about the country, and tap your answer. The goal
-    is to earn as many coins as you can and see how many flags you can name correctly
-    \u2014 get ready to play, learn, and explore the world!"
---- !u!4 &665987578
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
-  serializedVersion: 2
+  m_GameObject: {fileID: 603760242}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 568.7749, y: 901.0158, z: -10.510673}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 883270784}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &665987579
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &603760244
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
+  m_GameObject: {fileID: 603760242}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5bf14751029cc3946b73ecf84a290efd, type: 3}
+  m_Script: {fileID: 11500000, guid: 4fac5df1a2f7b7e4b8e933066e021a1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: DragAndDrop
-  message: "<align=center>DRAG AND DROP</align>\n\nThe Drag and Drop game is a fun
-    word puzzle where you look at a picture and guess the word it shows! The letters
-    are mixed up, and you need to drag them into the right boxes to spell the correct
-    word. There\u2019s a timer, so try to finish before time runs out!\n\n\u2022
-    You can use one hint per game to reveal one correct letter.\n\u2022 If you get
-    the word before the timer ends, you\u2019ll earn 10 coins.\n\nBe fast, be smart,
-    and have fun spelling the right words!"
---- !u!114 &665987580
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28b2674d2f5c17d40b72670ecc439059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneName: TuneYourTongue
-  message: '<align=center>TUNE YOUR TONGUE</align>
+  gameModeId: 7001
+  targetSceneName: SmartLadder-DifficultySelection
+  fallbackDescription: 'Answer trivia/quiz questions to climb the ladder. Choose
+    a difficulty (easy to expert).
 
-
-    The Tune Your Tongue game
-    is a fun way to practice saying words correctly. You will see a word or picture,
-    and you need to say the word into the microphone. There is a timer, so speak
-    before the time runs out. If you say the word correctly, you will earn 10 coins.
-    This game helps you learn how to pronounce words the right way while having fun.'
---- !u!114 &665987581
+    Each correct answer moves you up. Reach the
+    top to win!'
+--- !u!1 &660935094
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 660935095}
+  - component: {fileID: 660935096}
+  m_Layer: 5
+  m_Name: GameModeIntro
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &660935095
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660935094}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 938608915}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.0010564327, y: 1561.9369}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &660935096
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
+  m_GameObject: {fileID: 660935094}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e59687a677de0142af91ac791579f82, type: 3}
+  m_Script: {fileID: 11500000, guid: 4fac5df1a2f7b7e4b8e933066e021a1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Dashboard
---- !u!114 &665987582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c59e5640c0b043340bfdd6239994a683, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneName: SeeItorLoseIt
-  message: '<align=center>SEE IT OR LOSE IT</align>
-
-
-    The See it or Lose it game
-    is a fun game where you look at two pictures and try to find the thing that is
-    different. Each game has 3 different things to find, and there is a timer, so
-    you need to be quick. If you find all the differences before time runs out, you
-    will earn 10 coins. This game helps you practice looking carefully and spotting
-    differences while having fun.'
---- !u!114 &665987583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d2ba34206b7f8f488fe5c4a8674e014, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scenes:
-  - Background_NameTheFlag
-  - JapanBackground
-  message: "NAME THE FLAG\n\nThe Name the Flag game is a super fun way to learn about
-    different countries around the world! Before each question starts, you\u2019ll
-    see a clue or picture in the background that gives you a hint about the country
-    \u2014 it could be something like a famous place, food, or animal from that country.
-    Then, a flag will appear on the screen, and you have to guess which country it
-    belongs to before the timer runs out!\n\nEarn coins for correct answers:\n10
-    coins \u2013 first try\n5 coins \u2013 second try\n3 coins \u2013 last try\n\nLook
-    carefully at the clue, think about the country, and tap your answer. The goal
-    is to earn as many coins as you can and see how many flags you can name correctly
-    \u2014 get ready to play, learn, and explore the world!"
---- !u!114 &665987584
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 665987573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a106d7929ee8efa4faa013121fec868e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneName: SmartLadder-DifficultySelection
-  message: "<align=center>SMART LADDER</align>\n\nThe Smart Ladder game is a fun
-    and exciting quiz game where you climb up levels by answering questions! There
-    are five levels to play \u2014 Easy, Normal, Hard, Advance, and Expert. Each
-    level has more questions to answer: 20 in Easy, 30 in Normal, 50 in Hard, 70
-    in Advance, and 100 in Expert. To move to the next level, you need to finish
-    all the questions in your current one. Each question has a timer, so you have
-    to think and answer before time runs out! You can earn coins depending on how
-    many tries it takes to get the right answer \u2014 10 coins if you get it right
-    on your first try, 5 coins on your second, and 3 coins on your last try. The
-    goal is to answer as many questions correctly and climb all the way to the top
-    of the Smart Ladder!"
+  gameModeId: 7005
+  targetSceneName: SeeItorLoseIt
+  fallbackDescription: "Find the differences between two pictures. Tap the correct
+    spots before\r\ntime runs out or you\u2019ll lose the round!"
 --- !u!1 &718974590
 GameObject:
   m_ObjectHideFlags: 0
@@ -995,6 +886,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 231181390}
+  - {fileID: 722241547}
   m_Father: {fileID: 1990933370}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1046,9 +938,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 665987579}
-        m_TargetAssemblyTypeName: DragAndDropLoader, Assembly-CSharp
-        m_MethodName: LoadDragAndDrop
+      - m_Target: {fileID: 722241548}
+        m_TargetAssemblyTypeName: GameModeIntroLoader, Assembly-CSharp
+        m_MethodName: OnClickShowIntro
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1108,6 +1000,161 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &722241546
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 722241547}
+  - component: {fileID: 722241548}
+  m_Layer: 5
+  m_Name: GameModeIntro
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &722241547
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 722241546}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 718974591}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.0020141602, y: 783.5558}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &722241548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 722241546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fac5df1a2f7b7e4b8e933066e021a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameModeId: 7003
+  targetSceneName: DragAndDrop
+  fallbackDescription: 'Drag the letters into the correct order to form the right
+    word before the time runs out.
+
+    Think fast and spell carefully!'
+--- !u!1 &748415734
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 748415735}
+  - component: {fileID: 748415736}
+  m_Layer: 5
+  m_Name: GameModeIntro
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &748415735
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748415734}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2061964485}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.00007033348, y: 399.20886}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &748415736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748415734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fac5df1a2f7b7e4b8e933066e021a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameModeId: 7002
+  targetSceneName: Background_NameTheFlag
+  fallbackDescription: This is the Name the Flag game. (Fallback text if Firebase
+    is not available.)
+--- !u!1 &783261335
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 783261336}
+  - component: {fileID: 783261337}
+  m_Layer: 5
+  m_Name: GotoDashboardLoader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &783261336
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 783261335}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1990933370}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &783261337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 783261335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27d9924a5935d454e8ea05094f3bf95c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: Dashboard
 --- !u!1 &883270783
 GameObject:
   m_ObjectHideFlags: 0
@@ -1120,7 +1167,6 @@ GameObject:
   - component: {fileID: 883270787}
   - component: {fileID: 883270786}
   - component: {fileID: 883270785}
-  - component: {fileID: 883270788}
   - component: {fileID: 883270789}
   m_Layer: 5
   m_Name: SmartLadder button
@@ -1142,6 +1188,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1265846834}
+  - {fileID: 603760243}
   m_Father: {fileID: 1990933370}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1193,9 +1240,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 883270788}
-        m_TargetAssemblyTypeName: GotoSmartLadder, Assembly-CSharp
-        m_MethodName: Go
+      - m_Target: {fileID: 603760244}
+        m_TargetAssemblyTypeName: GameModeIntroLoader, Assembly-CSharp
+        m_MethodName: OnClickShowIntro
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1243,29 +1290,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883270783}
   m_CullTransparentMesh: 1
---- !u!114 &883270788
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 883270783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a106d7929ee8efa4faa013121fec868e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneName: SmartLadder-DifficultySelection
-  message: "\r\nThe Smart Ladder game is a fun and exciting quiz game where you climb
-    up levels by answering questions! There are five levels to play \u2014 Easy,
-    Normal, Hard, Advance, and Expert. Each level has more questions to answer: 20
-    in Easy, 30 in Normal, 50 in Hard, 70 in Advance, and 100 in Expert. To move
-    to the next level, you need to finish all the questions in your current one.
-    Each question has a timer, so you have to think and answer before time runs out!
-    You can earn coins depending on how many tries it takes to get the right answer
-    \u2014 10 coins if you get it right on your first try, 5 coins on your second,
-    and 3 coins on your last try. The goal is to answer as many questions correctly
-    and climb all the way to the top of the Smart Ladder!\r\n"
 --- !u!114 &883270789
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1379,6 +1403,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1981227418}
+  - {fileID: 660935095}
   m_Father: {fileID: 1990933370}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1430,9 +1455,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 665987582}
-        m_TargetAssemblyTypeName: GotoSeeItOrLoseIt, Assembly-CSharp
-        m_MethodName: LoadScene
+      - m_Target: {fileID: 660935096}
+        m_TargetAssemblyTypeName: GameModeIntroLoader, Assembly-CSharp
+        m_MethodName: OnClickShowIntro
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1492,6 +1517,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc634e711384fe94790f97429104ddd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &947036156
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 947036157}
+  - component: {fileID: 947036158}
+  m_Layer: 5
+  m_Name: GameModeIntro
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &947036157
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947036156}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1108567680}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.0010564327, y: 1170.953}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &947036158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947036156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fac5df1a2f7b7e4b8e933066e021a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameModeId: 7004
+  targetSceneName: TuneYourTongue
+  fallbackDescription: 'Listen or read the word, then say it clearly. The game checks
+    your pronunciation
+
+    and helps you practice speaking correctly.'
 --- !u!1 &1108567679
 GameObject:
   m_ObjectHideFlags: 0
@@ -1525,6 +1604,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1842122812}
+  - {fileID: 947036157}
   m_Father: {fileID: 1990933370}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1576,9 +1656,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 665987580}
-        m_TargetAssemblyTypeName: GotoTuneYourTongue, Assembly-CSharp
-        m_MethodName: Go
+      - m_Target: {fileID: 947036158}
+        m_TargetAssemblyTypeName: GameModeIntroLoader, Assembly-CSharp
+        m_MethodName: OnClickShowIntro
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2258,7 +2338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c316c0577af3974aa3dec9e4bcd0ac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelRoot: {fileID: 0}
+  panelRoot: {fileID: 185582217}
   canvasGroup: {fileID: 1550816900}
   messageText: {fileID: 1185626802}
   proceedButton: {fileID: 1447984548}
@@ -2273,8 +2353,8 @@ CanvasGroup:
   m_GameObject: {fileID: 1550816895}
   m_Enabled: 1
   m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!1 &1583595207
 GameObject:
@@ -3179,6 +3259,7 @@ RectTransform:
   - {fileID: 718974591}
   - {fileID: 1108567680}
   - {fileID: 938608915}
+  - {fileID: 783261336}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3219,6 +3300,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 597605975}
+  - {fileID: 748415735}
   m_Father: {fileID: 1990933370}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3270,9 +3352,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 665987583}
-        m_TargetAssemblyTypeName: GotoNameTheFlagSimple, Assembly-CSharp
-        m_MethodName: Go
+      - m_Target: {fileID: 748415736}
+        m_TargetAssemblyTypeName: GameModeIntroLoader, Assembly-CSharp
+        m_MethodName: OnClickShowIntro
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3476,5 +3558,4 @@ SceneRoots:
   - {fileID: 1606559777}
   - {fileID: 1990933370}
   - {fileID: 918395695}
-  - {fileID: 665987578}
   - {fileID: 185582218}

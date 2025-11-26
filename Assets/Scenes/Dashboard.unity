@@ -10018,7 +10018,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31db7cde80575df4191d69dd848b6e43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catalog: {fileID: 11400000, guid: 5a2bac4c1048a79458d2c18bcef35c3f, type: 2}
+  catalog: {fileID: 11400000, guid: 18496a6c51532d24fb079f5c27186448, type: 2}
   rewardToast: {fileID: 1039711098}
   coinWallet: {fileID: 758921585}
   logVerbose: 1
