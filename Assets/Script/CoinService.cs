@@ -168,4 +168,35 @@ public class CoinService : MonoBehaviour
 
         await db.UpdateChildrenAsync(updates);
     }
+
+    // -------- HARD RESET USED BY SETTINGS (RESET / DELETE) --------
+    /// <summary>
+    /// Sets all coins to 0 locally and notifies any UI listeners.
+    /// Firebase write is handled separately (DangerActionsManager does its own UpdateChildren).
+    /// </summary>
+    public void ForceSetAllZeroLocal()
+    {
+        // zero total
+        TotalCoins = 0;
+
+        // zero every mode
+        foreach (GameModeId id in Enum.GetValues(typeof(GameModeId)))
+        {
+            byMode[id] = 0;
+        }
+
+        // save to PlayerPrefs with your existing logic
+        SaveLocal();
+
+        // fire events so any coin UI updates immediately
+        FireAllEvents();
+    }
+
+    /// <summary>
+    /// Wrapper used by DangerActionsManager so it can just call DebugForceZeroAndBroadcast().
+    /// </summary>
+    public void DebugForceZeroAndBroadcast()
+    {
+        ForceSetAllZeroLocal();
+    }
 }

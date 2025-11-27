@@ -7,12 +7,17 @@ using UnityEngine.UI;
 public class DrawerMenu : MonoBehaviour
 {
     [Header("Wiring")]
-    public RectTransform drawer;      // assign ProfileDrawer/Panel (the sliding white panel)
-    public CanvasGroup drawerCg;      // CanvasGroup on the same object as 'drawer'
-    public GameObject blocker;        // assign ProfileDrawer/Blocker (has Button + Image)
+    [Tooltip("Sliding white panel object (ProfileDrawer/Panel)")]
+    public RectTransform drawer;          // assign ProfileDrawer/Panel
+    [Tooltip("CanvasGroup on the same object as 'drawer'")]
+    public CanvasGroup drawerCg;          // assign CanvasGroup on ProfileDrawer
+    [Tooltip("Full-screen transparent button behind the drawer (ProfileDrawer/Blocker)")]
+    public GameObject blocker;            // assign ProfileDrawer/Blocker
 
     [Header("Motion")]
-    public float openX = 0f;          // opened X
+    [Tooltip("X position when opened (usually 0).")]
+    public float openX = 0f;
+    [Tooltip("How long the slide animation takes.")]
     public float tweenSeconds = 0.25f;
     public AnimationCurve curve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
@@ -20,11 +25,11 @@ public class DrawerMenu : MonoBehaviour
     public UnityEvent onOpened;
     public UnityEvent onClosed;
 
-    float _closedX;
-    bool _isOpen;
-    bool _isAnimating;
+    private float _closedX;
+    private bool _isOpen;
+    private bool _isAnimating;
 
-    void Awake()
+    private void Awake()
     {
         if (!drawer)
         {
@@ -35,20 +40,20 @@ public class DrawerMenu : MonoBehaviour
         if (!drawerCg)
             drawerCg = drawer.GetComponent<CanvasGroup>();
 
-        // compute closed position based on current width
+        // Closed X based on current width
         _closedX = -drawer.rect.width;
 
-        // start closed
+        // Start closed
         CloseImmediate();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
-        // ensure it draws on top of other UI
+        // Make sure drawer UI is on top of other UI
         transform.SetAsLastSibling();
     }
 
-    // === called by profile button ===
+    // === Hook this to your PROFILE BUTTON ===
     public void Toggle()
     {
         if (_isAnimating) return;
@@ -70,15 +75,14 @@ public class DrawerMenu : MonoBehaviour
         StartCoroutine(Slide(false));
     }
 
-    // === called by Blocker button ===
+    // === Hook this to the Blocker Button (ProfileDrawer/Blocker) ===
     public void OnBlockerClicked()
     {
-        // so clicking the transparent area closes the drawer
         if (!_isAnimating && _isOpen)
             Close();
     }
 
-    void CloseImmediate()
+    private void CloseImmediate()
     {
         _isOpen = false;
         _isAnimating = false;
@@ -98,10 +102,10 @@ public class DrawerMenu : MonoBehaviour
             blocker.SetActive(false);
     }
 
-    IEnumerator Slide(bool show)
+    private IEnumerator Slide(bool show)
     {
         _isAnimating = true;
-        transform.SetAsLastSibling();               // keep on top
+        transform.SetAsLastSibling();
 
         if (blocker)
             blocker.SetActive(true);
@@ -112,7 +116,7 @@ public class DrawerMenu : MonoBehaviour
         if (drawerCg)
         {
             drawerCg.blocksRaycasts = true;
-            drawerCg.interactable = false;         // until finished
+            drawerCg.interactable = false;   // re-enabled at the end
         }
 
         float t = 0f;
@@ -146,7 +150,6 @@ public class DrawerMenu : MonoBehaviour
         if (show) onOpened?.Invoke();
         else onClosed?.Invoke();
 
-        // we keep drawer active always so layout stays fine
         drawer.gameObject.SetActive(true);
     }
 }
