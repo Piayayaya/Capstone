@@ -62,6 +62,10 @@ public class NameTheFlagWinFlow : MonoBehaviour
         {
             Debug.Log($"[NameTheFlagWinFlow] Awarding {award} coins, attempts={attempts}"); // helpful log
             CoinService.Instance.AddCoins(award, GameModeId.NameTheFlag);
+            DailyQuestSimple.Report("answers_any", 1);
+            AchievementManager.I?.Report("answers_any", 1);
+            AchievementManager.I?.Report("Modes Played", 1); 
+            AchievementManager.I?.Report("flags_correct", 1);
         }
         else
         {

@@ -1,10 +1,15 @@
 using SQLite4Unity3d;
 
-[Table("GameModes")]
 public class LocalGamemode
 {
-    [PrimaryKey] public string id { get; set; }   // Firebase key of the gamemode
-    public string gameModeName { get; set; }
-    public string gameInstruc { get; set; }
-    public string updated_at { get; set; }        // optional
+    // PK – this matches the Firebase key 7001, 7002, etc.
+    [PrimaryKey]
+    public int id { get; set; }          // 7001
+
+    public string gameModeName { get; set; }  // "Smart Ladder"
+    public string gameInstruc { get; set; }  // long description text
+
+    // Audit fields – match what MasterSqliteSync expects
+    public string created_at { get; set; }   // e.g. "2025-11-25T00:00:00Z"
+    public string updated_at { get; set; }
 }

@@ -462,7 +462,7 @@ MonoBehaviour:
   catalogResourcePath: Quests/QuestCatalog
   coinWallet: {fileID: 758921585}
   rewardToast: {fileID: 1039711098}
-  rewardToastPrefab: {fileID: 0}
+  rewardToastPrefab: {fileID: 1039711098}
   toastParent: {fileID: 0}
   logVerbose: 1
 --- !u!4 &111237360
@@ -3600,6 +3600,52 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &527994837
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 527994839}
+  - component: {fileID: 527994838}
+  m_Layer: 0
+  m_Name: CharacterInventory
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &527994838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 527994837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 350a61fe4a4d8b54899b2753eef866b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultCharacterId: char_starter
+  wallet: {fileID: 758921585}
+--- !u!4 &527994839
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 527994837}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 524.57495, y: 1411.6163, z: -14.869677}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &533142569
 GameObject:
   m_ObjectHideFlags: 0
@@ -4273,6 +4319,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 614180316}
   m_CullTransparentMesh: 1
+--- !u!1 &616746700
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 616746702}
+  - component: {fileID: 616746701}
+  m_Layer: 0
+  m_Name: CharacterSelectService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &616746701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 616746700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 379d93f3e1ef469419d68f52bcb2d4dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultCharacterId: char_starter
+--- !u!4 &616746702
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 616746700}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 524.57495, y: 1411.6163, z: -14.869677}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619288740
 GameObject:
   m_ObjectHideFlags: 0
@@ -6060,6 +6151,7 @@ GameObject:
   - component: {fileID: 980481315}
   - component: {fileID: 980481314}
   - component: {fileID: 980481313}
+  - component: {fileID: 980481316}
   m_Layer: 5
   m_Name: PlayerCharacter
   m_TagString: Untagged
@@ -6140,6 +6232,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980481311}
   m_CullTransparentMesh: 1
+--- !u!114 &980481316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 980481311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 503a1210cc1a8c9459ba400521e63c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  avatarImage: {fileID: 980481314}
+  characterDefs:
+  - {fileID: 11400000, guid: 04740443de29fd54da08badadeac1036, type: 2}
+  - {fileID: 11400000, guid: ee9dfe3299e73f641a5b07bf3dd4cacb, type: 2}
+  - {fileID: 11400000, guid: 53eee00544b820749a70fad5120f5cef, type: 2}
+  - {fileID: 11400000, guid: e8ea70c16eb051f4397c2064b99a6c01, type: 2}
 --- !u!1 &984231306
 GameObject:
   m_ObjectHideFlags: 0
@@ -11596,7 +11706,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1891078674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13182,3 +13292,5 @@ SceneRoots:
   - {fileID: 126734927}
   - {fileID: 2033654269}
   - {fileID: 710425885}
+  - {fileID: 616746702}
+  - {fileID: 527994839}

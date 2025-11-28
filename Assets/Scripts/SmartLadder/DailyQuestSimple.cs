@@ -105,13 +105,8 @@ public class DailyQuestSimple : MonoBehaviour
     }
 
     // ----------------- Public: gameplay reporting -----------------
-    /// <summary>
-    /// Call from gameplay when player makes progress.
-    /// Example: DailyQuestSimple.Report("answers_any", 1);
-    /// </summary>
     public static void Report(string progressTag, int amount = 1)
     {
-        // Resolve instance with Unity-style null checks (handles destroyed objects)
         DailyQuestSimple inst = Instance;
         if (inst == null) inst = FindObjectOfType<DailyQuestSimple>();
         if (inst == null) inst = CreateHeadlessManager();   // last resort
@@ -184,7 +179,6 @@ public class DailyQuestSimple : MonoBehaviour
             var toast = GetToast();
             if (toast != null)
             {
-                // Adjust this call if your RewardToast signature differs
                 toast.Show(def.coinReward, null);
             }
             else
@@ -196,7 +190,6 @@ public class DailyQuestSimple : MonoBehaviour
         }
         else
         {
-            // Not complete; do nothing or navigate to a relevant mode if you want.
             if (logVerbose) Debug.Log($"[DailyQuest] '{def.title}' not complete yet. Progress {e.current}/{def.target}");
         }
     }
@@ -258,21 +251,55 @@ public class DailyQuestSimple : MonoBehaviour
 
         if (PlayerPrefs.HasKey(SAVE_KEY))
         {
-            _state = JsonUtility.FromJson<SavedState>(PlayerPrefs.GetString(SAVE_KEY));
+            try
+            {
+                _state = JsonUtility.FromJson<SavedState>(PlayerPrefs.GetString(SAVE_KEY));
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[DailyQuest] Failed to parse saved state, clearing. " + e);
+                _state = null;
+                PlayerPrefs.DeleteKey(SAVE_KEY);
+            }
         }
 
-        if (_state == null || _state.yyyymmdd != today)
+        if (_state == null || _state.yyyymmdd != today || _state.entries == null || _state.entries.Count == 0)
         {
+            if (logVerbose)
+                Debug.Log("[DailyQuest] No valid state for today, rolling new.");
             RollNew(today);
         }
         else
         {
-            // Rehydrate today's quest definitions from saved IDs
             var pool = BuildPool();
+            if (pool.Count == 0)
+            {
+                Debug.LogWarning("[DailyQuest] Pool is empty when trying to restore today, rolling new.");
+                RollNew(today);
+                return;
+            }
+
+            bool missingAny = false;
+
             for (int i = 0; i < _todayDefs.Length; i++)
             {
                 var id = _state.entries.ElementAtOrDefault(i)?.id;
-                _todayDefs[i] = pool.FirstOrDefault(q => q.id == id);
+                if (string.IsNullOrEmpty(id))
+                {
+                    _todayDefs[i] = null;
+                    continue;
+                }
+
+                var def = pool.FirstOrDefault(q => q.id == id);
+                if (def == null) missingAny = true;
+
+                _todayDefs[i] = def;
+            }
+
+            if (missingAny)
+            {
+                Debug.LogWarning("[DailyQuest] Some saved quest IDs were not found in pool; re-rolling today.");
+                RollNew(today);
             }
         }
     }
@@ -282,7 +309,7 @@ public class DailyQuestSimple : MonoBehaviour
         var pool = BuildPool();
         if (pool.Count == 0)
         {
-            Debug.LogWarning("[DailyQuest] No quests found in Inline or SO catalog.");
+            Debug.LogWarning("[DailyQuest] No quests available in SQLite or Catalog; rows will be empty.");
             _state = new SavedState { yyyymmdd = yyyymmdd, entries = new List<SavedEntry>() };
             for (int i = 0; i < _todayDefs.Length; i++)
             {
@@ -308,17 +335,22 @@ public class DailyQuestSimple : MonoBehaviour
             _state.entries.Add(new SavedEntry { id = def.id, current = 0, complete = false, claimed = false });
         }
         Save();
+
+        if (logVerbose)
+            Debug.Log($"[DailyQuest] Rolled new quests for {yyyymmdd}, count={_todayDefs.Count(d => d != null)}");
     }
 
+    /// <summary>
+    /// Build pool from SQLite; if empty or error, fall back to Catalog SO and Inline list.
+    /// </summary>
     List<QuestDef> BuildPool()
     {
         var pool = new List<QuestDef>();
 
+        // 1) Try SQLite
         try
         {
-            // Read all quests from local SQLite
             var rows = LocalDb.DB.Table<LocalQuestDef>().ToList();
-
             foreach (var r in rows)
             {
                 if (r == null || string.IsNullOrWhiteSpace(r.id)) continue;
@@ -335,16 +367,34 @@ public class DailyQuestSimple : MonoBehaviour
             }
 
             if (logVerbose)
-                Debug.Log($"[DailyQuest] Loaded {pool.Count} quests from SQLite.");
+                Debug.Log($"[DailyQuest] SQLite pool size = {pool.Count}");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.LogError("[DailyQuest] Failed to load quests from SQLite: " + ex);
+            pool.Clear();
+        }
+
+        // 2) If SQLite gave nothing, fall back to Catalog SO
+        if (pool.Count == 0 && catalogSO != null && catalogSO.quests != null && catalogSO.quests.Count > 0)
+        {
+            foreach (var d in catalogSO.quests)
+                if (d != null) pool.Add(FromSO(d));
+
+            if (logVerbose)
+                Debug.Log($"[DailyQuest] Fallback to QuestCatalog SO, count={pool.Count}");
+        }
+
+        // 3) And finally any inline quests
+        if (catalogInline != null && catalogInline.Count > 0)
+        {
+            pool.AddRange(catalogInline);
+            if (logVerbose)
+                Debug.Log($"[DailyQuest] Added Inline catalog, total pool={pool.Count}");
         }
 
         return pool;
     }
-
 
     QuestDef FromSO(QuestDefinition d) => new QuestDef
     {
@@ -383,11 +433,9 @@ public class DailyQuestSimple : MonoBehaviour
     {
         if (rewardToast != null) return rewardToast;
 
-        // Try to find one in the active scene (even if inactive)
         rewardToast = FindObjectOfType<RewardToast>(true);
         if (rewardToast != null) return rewardToast;
 
-        // Spawn from prefab if assigned
         if (rewardToastPrefab != null)
         {
             Transform parent = toastParent != null ? toastParent : GetTopCanvasTransform();
@@ -454,7 +502,6 @@ public class DailyQuestSimple : MonoBehaviour
         var inst = go.AddComponent<DailyQuestSimple>();
         DontDestroyOnLoad(go);
 
-        // Make sure a real catalog exists even if spawned mid-game
         inst.EnsureCatalog();
         inst.LoadOrRollToday();
 

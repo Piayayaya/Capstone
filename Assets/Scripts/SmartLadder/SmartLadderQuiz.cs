@@ -282,10 +282,10 @@ public class SmartLadderQuiz : MonoBehaviour
         Debug.LogWarning("Sent");
         if (_lastAnswerCorrect)
             DailyQuestSimple.Report("correct_smartladder", 1);
-        DailyQuestSimple.Report("answers_any", 1);
-        DailyQuestSimple.Report("q_daily_3_any", 1);
-        AchievementManager.I?.Report("a_answers_5_any", 1);
-        AchievementManager.I?.Report("a_answers_25_any", 1);
+            DailyQuestSimple.Report("answers_any", 1);
+            DailyQuestSimple.Report("q_daily_3_any", 1);
+            AchievementManager.I?.Report("a_answers_5_any", 1);
+            AchievementManager.I?.Report("a_answers_25_any", 1);
 
 
         if (explanationText)

@@ -39,6 +39,7 @@ public class NameTheFlagController : MonoBehaviour
 
     public void ResetRound()
     {
+        DailyQuestSimple.Report("ntf_rounds", 1);
         wrongAttemptsThisRound = 0;
         roundFinished = false;   // NEW: reset when starting a new round
 

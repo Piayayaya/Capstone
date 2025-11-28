@@ -1,76 +1,64 @@
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterManagerUI : MonoBehaviour
 {
-    public CharacterCatalog catalog;
-    public Transform contentParent;   // ScrollView/Viewport/Content
-    public GameObject cardPrefab;     // CharacterCard prefab
-    public bool clearOnStart = true;
+    [Header("UI")]
+    public RectTransform contentRoot;          // parent where cards live
+    public CharacterCardBinder cardPrefab;     // prefab with CharacterCardBinder attached
 
-    [Header("Debug")]
-    public bool seedTwoOwnedForTesting = false; // <-- turn ON in Inspector for first run
+    [Header("Catalog")]
+    public CharacterDefinition[] allCharacters; // all possible characters (including starter)
 
-    void Start()
+    void OnEnable()
     {
-        StartCoroutine(InitWhenInventoryReady());
-    }
-
-    IEnumerator InitWhenInventoryReady()
-    {
-        while (CharacterInventory.Instance == null) yield return null;
-
-        if (seedTwoOwnedForTesting && catalog && catalog.characters.Count > 0)
+        // Subscribe to inventory events
+        if (CharacterInventory.Instance != null)
         {
-            CharacterInventory.Instance.AddOwned(catalog.characters[0].id);
-            if (catalog.characters.Count > 1)
-                CharacterInventory.Instance.AddOwned(catalog.characters[1].id);
+            CharacterInventory.Instance.OnInventoryChanged += RefreshCardsOnly;
+            CharacterInventory.Instance.OnEquippedChanged += RefreshCardsOnly;
         }
 
-        Populate();
-
-        CharacterInventory.Instance.OnInventoryChanged -= Populate;
-        CharacterInventory.Instance.OnInventoryChanged += Populate;
-        CharacterInventory.Instance.OnEquippedChanged -= RefreshCardsOnly;
-        CharacterInventory.Instance.OnEquippedChanged += RefreshCardsOnly;
+        RefreshCardsOnly();
     }
 
-    void RefreshCardsOnly()
+    void OnDisable()
     {
-        foreach (Transform t in contentParent)
+        // Unsubscribe to prevent calling on destroyed objects
+        if (CharacterInventory.Instance != null)
         {
-            var binder = t.GetComponent<CharacterCardBinder>();
-            if (binder) binder.SendMessage("Refresh", SendMessageOptions.DontRequireReceiver);
+            CharacterInventory.Instance.OnInventoryChanged -= RefreshCardsOnly;
+            CharacterInventory.Instance.OnEquippedChanged -= RefreshCardsOnly;
         }
     }
 
-    public void Populate()
+    public void RefreshCardsOnly()
     {
-        if (!catalog || !cardPrefab || !contentParent)
+        if (contentRoot == null || cardPrefab == null) return;
+        if (CharacterInventory.Instance == null) return;
+
+        // 1) Safely clear existing children
+        //    Use for-loop from end instead of foreach to avoid MissingReferenceException.
+        for (int i = contentRoot.childCount - 1; i >= 0; i--)
         {
-            Debug.LogError("[CharacterManagerUI] Missing wiring (catalog/cardPrefab/contentParent).");
-            return;
+            var child = contentRoot.GetChild(i);
+            if (child != null)
+                Destroy(child.gameObject);
         }
 
-        if (clearOnStart)
-        {
-            for (int i = contentParent.childCount - 1; i >= 0; i--)
-                Destroy(contentParent.GetChild(i).gameObject);
-        }
+        // 2) Rebuild cards from the catalog & inventory
+        if (allCharacters == null) return;
 
-        int spawned = 0;
-        foreach (var def in catalog.characters)
+        foreach (var def in allCharacters)
         {
-            if (CharacterInventory.Instance.IsOwned(def.id))
-            {
-                var go = Instantiate(cardPrefab, contentParent);
-                var binder = go.GetComponent<CharacterCardBinder>();
-                if (!binder) { Debug.LogError("Card prefab missing CharacterCardBinder!"); continue; }
-                binder.Bind(def);
-                spawned++;
-            }
+            if (def == null) continue;
+
+            // Only show if owned
+            if (!CharacterInventory.Instance.IsOwned(def.id))
+                continue;
+
+            var card = Instantiate(cardPrefab, contentRoot);
+            card.Bind(def);
         }
-        Debug.Log($"[CharacterManagerUI] Spawned {spawned} owned character cards.");
-        if (spawned == 0) Debug.LogWarning("[CharacterManagerUI] No owned characters. (IDs mismatch or empty PlayerPrefs)");
     }
 }

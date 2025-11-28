@@ -246,36 +246,65 @@ public class MasterSqliteSync : MonoBehaviour
     // ---------------- GAMEMODES ----------------
     int UpsertGamemodes(string json)
     {
-        if (string.IsNullOrEmpty(json)) return 0;
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogWarning("[SQLite] Gamemodes JSON empty.");
+            return 0;
+        }
 
+        // This expects Firebase /Gamemodes to look like:
+        // { "7001": { "gameModeName": "...", "gameInstruc": "...", "updatedAt": "..." }, ... }
         var rootDict = JsonConvert.DeserializeObject<Dictionary<string, GamemodeDTO>>(json);
-        if (rootDict == null) return 0;
+        if (rootDict == null)
+        {
+            Debug.LogWarning("[SQLite] Gamemodes JSON deserialized to null.");
+            return 0;
+        }
 
         int count = 0;
 
         LocalDb.DB.RunInTransaction(() =>
         {
+            // Optional: clear the table first if you don't want stale modes
+            // LocalDb.DB.DeleteAll<LocalGamemode>();
+
             foreach (var pair in rootDict)
             {
-                string id = pair.Key;
+                string idStr = pair.Key;   // "7001", "7002", etc.
                 var g = pair.Value;
-                if (g == null) continue;
-
-                LocalDb.DB.InsertOrReplace(new LocalGamemode
+                if (g == null)
                 {
-                    id = id,
-                    gameModeName = g.gameModeName,
-                    gameInstruc = g.gameInstruc,
-                    updated_at = g.updatedAt
-                });
+                    Debug.LogWarning($"[SQLite] Null GamemodeDTO for key={idStr}");
+                    continue;
+                }
 
+                if (!int.TryParse(idStr, out int numericId))
+                {
+                    Debug.LogWarning($"[SQLite] Skipping Gamemode with non-numeric id '{idStr}'");
+                    continue;
+                }
+
+                var local = new LocalGamemode
+                {
+                    id = numericId,
+                    gameModeName = g.gameModeName ?? string.Empty,
+                    gameInstruc = g.gameInstruc ?? string.Empty,
+                    created_at = "",                       // fill if you like
+                    updated_at = g.updatedAt ?? string.Empty
+                };
+
+                LocalDb.DB.InsertOrReplace(local);
                 count++;
+
+                Debug.Log($"[SQLite] Upsert Gamemode id={numericId}, name='{local.gameModeName}', instrucLen={local.gameInstruc.Length}");
             }
         });
 
         Debug.Log("[SQLite] Gamemodes upserted: " + count);
         return count;
     }
+
+
 
     // ---------------- QUESTIONS (YOUR 3-LEVEL SHAPE) ----------------
     // Questions/{gameModeId}/{difficulty}/{questionId}:{...}

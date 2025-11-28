@@ -796,11 +796,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameModeId: 7001
   targetSceneName: SmartLadder-DifficultySelection
-  fallbackDescription: 'Answer trivia/quiz questions to climb the ladder. Choose
-    a difficulty (easy to expert).
-
-    Each correct answer moves you up. Reach the
-    top to win!'
+  fallbackInstruc: Get ready to learn with BrainyMe!
 --- !u!1 &660935094
 GameObject:
   m_ObjectHideFlags: 0
@@ -851,8 +847,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameModeId: 7005
   targetSceneName: SeeItorLoseIt
-  fallbackDescription: "Find the differences between two pictures. Tap the correct
-    spots before\r\ntime runs out or you\u2019ll lose the round!"
+  fallbackInstruc: Get ready to learn with BrainyMe!
 --- !u!1 &718974590
 GameObject:
   m_ObjectHideFlags: 0
@@ -1050,10 +1045,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameModeId: 7003
   targetSceneName: DragAndDrop
-  fallbackDescription: 'Drag the letters into the correct order to form the right
-    word before the time runs out.
-
-    Think fast and spell carefully!'
+  fallbackInstruc: Get ready to learn with BrainyMe!
 --- !u!1 &748415734
 GameObject:
   m_ObjectHideFlags: 0
@@ -1104,8 +1096,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameModeId: 7002
   targetSceneName: Background_NameTheFlag
-  fallbackDescription: This is the Name the Flag game. (Fallback text if Firebase
-    is not available.)
+  fallbackInstruc: Get ready to learn with BrainyMe!
 --- !u!1 &783261335
 GameObject:
   m_ObjectHideFlags: 0
@@ -1567,10 +1558,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameModeId: 7004
   targetSceneName: TuneYourTongue
-  fallbackDescription: 'Listen or read the word, then say it clearly. The game checks
-    your pronunciation
-
-    and helps you practice speaking correctly.'
+  fallbackInstruc: Get ready to learn with BrainyMe!
 --- !u!1 &1108567679
 GameObject:
   m_ObjectHideFlags: 0
@@ -2343,7 +2331,7 @@ MonoBehaviour:
   messageText: {fileID: 1185626802}
   proceedButton: {fileID: 1447984548}
   cancelButton: {fileID: 1583595209}
-  cancelSceneName: 
+  cancelSceneName: Gamemodes
 --- !u!225 &1550816900
 CanvasGroup:
   m_ObjectHideFlags: 0

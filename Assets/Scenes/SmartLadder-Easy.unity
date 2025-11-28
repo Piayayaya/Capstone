@@ -1944,6 +1944,7 @@ GameObject:
   - component: {fileID: 285730384}
   - component: {fileID: 285730386}
   - component: {fileID: 285730385}
+  - component: {fileID: 285730387}
   m_Layer: 5
   m_Name: Player
   m_TagString: Untagged
@@ -2008,6 +2009,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 285730383}
   m_CullTransparentMesh: 1
+--- !u!114 &285730387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285730383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 503a1210cc1a8c9459ba400521e63c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  avatarImage: {fileID: 285730385}
+  characterDefs:
+  - {fileID: 11400000, guid: 04740443de29fd54da08badadeac1036, type: 2}
+  - {fileID: 11400000, guid: ee9dfe3299e73f641a5b07bf3dd4cacb, type: 2}
+  - {fileID: 11400000, guid: 53eee00544b820749a70fad5120f5cef, type: 2}
+  - {fileID: 11400000, guid: e8ea70c16eb051f4397c2064b99a6c01, type: 2}
 --- !u!1 &321074334
 GameObject:
   m_ObjectHideFlags: 0
@@ -5567,7 +5586,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -20957.523}
+  m_AnchoredPosition: {x: 0, y: -20540.293}
   m_SizeDelta: {x: 1063, y: 22860.523}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &678250657
@@ -6652,6 +6671,7 @@ GameObject:
   - component: {fileID: 794983247}
   - component: {fileID: 794983249}
   - component: {fileID: 794983248}
+  - component: {fileID: 794983250}
   m_Layer: 5
   m_Name: Handle
   m_TagString: Untagged
@@ -6716,6 +6736,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 794983246}
   m_CullTransparentMesh: 1
+--- !u!114 &794983250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 794983246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 503a1210cc1a8c9459ba400521e63c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  avatarImage: {fileID: 794983248}
+  characterDefs:
+  - {fileID: 11400000, guid: 04740443de29fd54da08badadeac1036, type: 2}
+  - {fileID: 11400000, guid: ee9dfe3299e73f641a5b07bf3dd4cacb, type: 2}
+  - {fileID: 11400000, guid: 53eee00544b820749a70fad5120f5cef, type: 2}
+  - {fileID: 11400000, guid: e8ea70c16eb051f4397c2064b99a6c01, type: 2}
 --- !u!1 &796178993
 GameObject:
   m_ObjectHideFlags: 0
