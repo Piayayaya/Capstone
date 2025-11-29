@@ -1132,6 +1132,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f76d9555505c647abff02827a85977, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  panelRoot: {fileID: 0}
+  messageText: {fileID: 0}
+  yesButton: {fileID: 0}
+  noButton: {fileID: 0}
+  createAccountSceneName: CreateAccount
+  playerIdPrefsKey: DEVICE_PLAYER_ID
+  userIdPrefsKey: activeUserId_v1
+  wipeAllLocalPrefsOnDelete: 1
 --- !u!4 &812632604
 Transform:
   m_ObjectHideFlags: 0
@@ -2754,7 +2762,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 100
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -2993,7 +3001,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 100
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
