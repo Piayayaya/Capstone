@@ -7,6 +7,8 @@ using Firebase.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using System;
+using static QuestionDTO;
 
 public class MasterSqliteSync : MonoBehaviour
 {
@@ -45,6 +47,22 @@ public class MasterSqliteSync : MonoBehaviour
         public string createdBy;
         public string updatedBy;
     }
+
+    private void ApplyShopItemsToDb(IEnumerable<FbShopItem> fbItems)
+    {
+        var db = LocalDb.DB;
+        db.CreateTable<LocalShopItem>();
+
+        db.DeleteAll<LocalShopItem>();
+
+        foreach (var fb in fbItems)
+        {
+            db.InsertOrReplace(ShopSyncMapper.ToLocal(fb));
+        }
+
+        Debug.Log($"[MasterSqliteSync] Saved {fbItems.Count()} shop item(s) to SQLite.");
+    }
+
 
     private int SaveAchievementsToSqlite(string achievementsJson)
     {
@@ -174,6 +192,52 @@ public class MasterSqliteSync : MonoBehaviour
         Debug.Log($"[MasterSqliteSync] Saved {list.Count} quests to SQLite.");
     }
 
+    private void SaveShopItemsToSqlite(string shopJson)
+    {
+        if (string.IsNullOrWhiteSpace(shopJson))
+        {
+            Debug.LogWarning("[MasterSqliteSync] ShopItems JSON empty/null.");
+            return;
+        }
+
+        // /ShopItems is an object keyed by Firebase key:
+        // { "9001": { refId: "char_poppi", itemName: "Poppi", ... }, ... }
+        Dictionary<string, FbShopItem> map = null;
+
+        try
+        {
+            map = JsonConvert.DeserializeObject<Dictionary<string, FbShopItem>>(shopJson);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[MasterSqliteSync] Failed to parse shopJson: " + ex);
+            return;
+        }
+
+        if (map == null || map.Count == 0)
+        {
+            Debug.LogWarning("[MasterSqliteSync] No shop items parsed from JSON.");
+            return;
+        }
+
+        var list = new List<FbShopItem>();
+
+        foreach (var kv in map)
+        {
+            var fb = kv.Value;
+            if (fb == null) continue;
+
+            // make sure fb.key is filled with the Firebase key ("9001")
+            if (string.IsNullOrEmpty(fb.key))
+                fb.key = kv.Key;
+
+            list.Add(fb);
+        }
+
+        ApplyShopItemsToDb(list);
+    }
+
+
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -208,6 +272,7 @@ public class MasterSqliteSync : MonoBehaviour
             });
     }
 
+
     private async Task SyncMaster()
     {
         if (Application.internetReachability == NetworkReachability.NotReachable)
@@ -222,21 +287,29 @@ public class MasterSqliteSync : MonoBehaviour
         var qSnap = await root.Child("Questions").GetValueAsync();
         var questsSnap = await root.Child("Quests").GetValueAsync();
         var achSnap = await root.Child("Achievements").GetValueAsync();
+        var shopSnap = await root.Child("ShopItems").GetValueAsync();
+
 
         string questsJson = questsSnap.GetRawJsonValue();
         string modesJson = modesSnap.GetRawJsonValue();
         string qJson = qSnap.GetRawJsonValue();
         string achievementsJson = achSnap.GetRawJsonValue();
+        string shopJson = shopSnap.GetRawJsonValue();
+
 
         Debug.Log("[MasterSqliteSync] Gamemodes json length = " + (modesJson?.Length ?? 0));
         Debug.Log("[MasterSqliteSync] Questions json length = " + (qJson?.Length ?? 0));
         Debug.Log($"[MasterSqliteSync] Quests json length = {questsJson?.Length ?? 0}");
         Debug.Log("[MasterSqliteSync] Achievements json length = " + (achievementsJson?.Length ?? 0));
+        Debug.Log("[MasterSqliteSync] ShopItems json length = " + (shopJson?.Length ?? 0));
+
 
         LastGamemodeCount = UpsertGamemodes(modesJson);
         LastQuestionCount = UpsertQuestions(qJson);
         SaveQuestsToSqlite(questsJson);
         SaveAchievementsToSqlite(achievementsJson);
+        SaveShopItemsToSqlite(shopJson);
+
 
         IsMasterSynced = true;
 
@@ -414,6 +487,40 @@ public class QuestionDTO
         }
         return list;
     }
+
+    [System.Serializable]
+    public class FbShopItem
+    {
+        public string key;        // "9001"
+        public string refId;      // "char_poppi"
+        public string itemName;
+        public string itemType;
+        public string itemImage;
+        public int priceCoins;
+        public int pricePhp;
+        public int rewardCoins;
+        public bool isActive;
+    }
+
+    public static class ShopSyncMapper
+    {
+        public static LocalShopItem ToLocal(FbShopItem fb)
+        {
+            return new LocalShopItem
+            {
+                FirebaseKey = fb.key,
+                RefId = fb.refId,
+                ItemName = fb.itemName,
+                ItemType = fb.itemType,
+                ItemImage = fb.itemImage,
+                PriceCoins = fb.priceCoins,
+                PricePhp = fb.pricePhp,
+                RewardCoins = fb.rewardCoins,
+                IsActive = fb.isActive
+            };
+        }
+    }
+
 }
 
 #endregion

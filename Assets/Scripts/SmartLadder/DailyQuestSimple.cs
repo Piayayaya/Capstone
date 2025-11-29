@@ -159,7 +159,9 @@ public class DailyQuestSimple : MonoBehaviour
 
     void OnClickRow(int i)
     {
+        // safety checks
         if (i < 0 || i >= _todayDefs.Length) return;
+
         var def = _todayDefs[i];
         if (def == null) return;
 
@@ -171,9 +173,18 @@ public class DailyQuestSimple : MonoBehaviour
             e.claimed = true;
             Save();
 
-            // Coins
-            var wallet = GetWallet();
-            if (wallet != null) wallet.Add(def.coinReward);
+            // Coins: prefer global CoinService so HUD + Shop see it
+            if (CoinService.Instance != null)
+            {
+                // Count this under DailyQuests AND increase TotalCoins
+                CoinService.Instance.AddModeCoins(GameModeId.DailyQuests, def.coinReward);
+            }
+            else
+            {
+                // Fallback to old wallet system if CoinService isn't in the scene
+                var wallet = GetWallet();
+                if (wallet != null) wallet.Add(def.coinReward);
+            }
 
             // Toast (auto-find or spawn)
             var toast = GetToast();
@@ -190,9 +201,11 @@ public class DailyQuestSimple : MonoBehaviour
         }
         else
         {
-            if (logVerbose) Debug.Log($"[DailyQuest] '{def.title}' not complete yet. Progress {e.current}/{def.target}");
+            if (logVerbose)
+                Debug.Log($"[DailyQuest] '{def.title}' not complete yet. Progress {e.current}/{def.target}");
         }
     }
+
 
     // ----------------- Binding -----------------
     void BindAll()

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34e75bf988d89cb47ad5a84b1f62a085, type: 3}
   m_Name: CoinPack2000
   m_EditorClassIdentifier: 
-  id: coins_2000
-  displayName: 1000 Coins
+  id: coins_600
+  displayName: 600 Coins
   type: 1
   icon: {fileID: 21300000, guid: 2a9422a609003af40bb5b971f138a415, type: 3}
   usesGameCoins: 0

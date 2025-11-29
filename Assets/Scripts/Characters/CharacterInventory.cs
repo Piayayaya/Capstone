@@ -76,13 +76,27 @@ public class CharacterInventory : MonoBehaviour
         if (!string.IsNullOrEmpty(defaultCharacterId) && def.id == defaultCharacterId)
             return false;
 
+        // must be owned and not currently equipped
         if (!owned.Contains(def.id)) return false;
         if (equippedId == def.id) return false; // disallow selling equipped
 
         owned.Remove(def.id);
 
-        // pay the refund
-        if (wallet) wallet.Add(def.GetSellPrice());
+        // --- pay the refund via CoinService so TotalCoins & HUD update ---
+        int refund = def.GetSellPrice();
+        if (refund > 0)
+        {
+            if (CoinService.Instance != null)
+            {
+                // you can change the helper name if you used a different one
+                CoinService.Instance.AddCharacterSellCoins(refund);
+            }
+            else if (wallet != null)
+            {
+                // fallback to old wallet system if CoinService is missing
+                wallet.Add(refund);
+            }
+        }
 
         // if we accidentally sold the equipped (shouldn't happen), clear or pick another
         if (!owned.Contains(equippedId))
@@ -92,6 +106,7 @@ public class CharacterInventory : MonoBehaviour
         OnInventoryChanged?.Invoke();
         return true;
     }
+
 
 
     string GetAnyOwnedOrEmpty()
