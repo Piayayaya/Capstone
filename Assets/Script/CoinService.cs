@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Firebase.Database;
 using System.Threading.Tasks;
+using Firebase.Database;
+using UnityEngine;
 
 public enum GameModeId
 {
@@ -12,7 +13,8 @@ public enum GameModeId
     TuneYourTongue,
     SeeItOrLoseIt,
     DailyRewards,
-    DailyQuests
+    DailyQuests,
+    Achievements
 }
 
 public class CoinService : MonoBehaviour
@@ -23,140 +25,174 @@ public class CoinService : MonoBehaviour
     private string playerId;
 
     public int TotalCoins { get; private set; }
-    private Dictionary<GameModeId, int> byMode = new();
+    private readonly Dictionary<GameModeId, int> byMode = new();
 
     public event Action<int> OnTotalChanged;
     public event Action<GameModeId, int> OnModeChanged;
 
-    private const string LOCAL_TOTAL = "LOCAL_TOTAL_COINS";
-    private const string LOCAL_MODE_PREFIX = "LOCAL_MODE_COINS_";
+    // PlayerPrefs keys
+    private const string LOCAL_TOTAL = "BM_LOCAL_TOTAL_COINS";
+    private const string LOCAL_MODE_PREFIX = "BM_LOCAL_MODE_COINS_";
+    private const string PLAYER_KEY = "DEVICE_PLAYER_ID";
+
+    // ------------------------ UNITY LIFECYCLE ------------------------
 
     private async void Awake()
     {
-        if (Instance != null) { Destroy(gameObject); return; }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        await Init();
-    }
-
-    private async Task Init()
-    {
-        await Task.Delay(300); // wait Firebase ready
-        db = FirebaseDatabase.DefaultInstance.RootReference;
-
-        playerId = PlayerPrefs.GetString("DEVICE_PLAYER_ID", "");
-        if (string.IsNullOrEmpty(playerId))
+        if (Instance != null && Instance != this)
         {
-            Debug.LogWarning("No playerId yet. CoinService will use local only until login/create.");
-            LoadLocal();
+            Destroy(gameObject);
             return;
         }
 
-        await LoadFromFirebase();
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // 1) Always load local first so coins survive app close
+        LoadLocal();
+        FireAllEvents();
+        Debug.Log($"[CoinService] Awake. Local total={TotalCoins}");
+
+        // 2) Try to hook up Firebase + player mapping
+        await InitFirebaseAndPlayer();
     }
 
-    // Called after you create/login player
+    // ------------------------ INIT & PLAYER ------------------------
+
+    private async Task InitFirebaseAndPlayer()
+    {
+        // Wait (a bit) for FirebaseInit to say it's ready
+        int guard = 0;
+        while (!FirebaseInit.IsReady && guard < 50)
+        {
+            await Task.Delay(100); // up to ~5 seconds
+            guard++;
+        }
+
+        try
+        {
+            db = FirebaseDatabase.DefaultInstance.RootReference;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[CoinService] Firebase Database init failed, staying local-only. " + e.Message);
+            db = null;
+        }
+
+        // Restore playerId from prefs
+        playerId = PlayerPrefs.GetString(PLAYER_KEY, "");
+        Debug.Log($"[CoinService] InitFirebaseAndPlayer: stored playerId='{playerId}'");
+
+        if (db != null && !string.IsNullOrEmpty(playerId))
+        {
+            await LoadFromFirebase();
+        }
+    }
+
+    /// <summary>
+    /// Called after you create/login a user (RegisterUI, Google login, etc.).
+    /// Binds this device's coins to that /players/{userId}/coins node.
+    /// </summary>
     public async Task SetPlayer(string newPlayerId)
     {
-        playerId = newPlayerId;
-        PlayerPrefs.SetString("DEVICE_PLAYER_ID", playerId);
+        if (string.IsNullOrEmpty(newPlayerId))
+        {
+            Debug.LogWarning("[CoinService] SetPlayer called with empty id.");
+            return;
+        }
 
-        await LoadFromFirebase();
+        playerId = newPlayerId;
+        PlayerPrefs.SetString(PLAYER_KEY, playerId);
+        PlayerPrefs.Save();
+
+        Debug.Log($"[CoinService] SetPlayer -> '{playerId}'");
+
+        // Ensure we have a db reference
+        if (db == null)
+            await InitFirebaseAndPlayer();
+        else
+            await LoadFromFirebase();
     }
+
+    // ------------------------ LOCAL SAVE ------------------------
 
     private void LoadLocal()
     {
         TotalCoins = PlayerPrefs.GetInt(LOCAL_TOTAL, 0);
+
         foreach (GameModeId id in Enum.GetValues(typeof(GameModeId)))
         {
-            byMode[id] = PlayerPrefs.GetInt(LOCAL_MODE_PREFIX + id, 0);
+            int v = PlayerPrefs.GetInt(LOCAL_MODE_PREFIX + id, 0);
+            byMode[id] = v;
         }
     }
 
     private void SaveLocal()
     {
         PlayerPrefs.SetInt(LOCAL_TOTAL, TotalCoins);
+
         foreach (var kvp in byMode)
+        {
             PlayerPrefs.SetInt(LOCAL_MODE_PREFIX + kvp.Key, kvp.Value);
+        }
 
         PlayerPrefs.Save();
     }
 
+    // ------------------------ FIREBASE SYNC ------------------------
+
     private async Task LoadFromFirebase()
     {
-        // fallback to local first so UI not empty
-        LoadLocal();
-        FireAllEvents();
+        if (db == null || string.IsNullOrEmpty(playerId))
+            return;
 
-        var snap = await db.Child("players").Child(playerId).Child("coins").GetValueAsync();
-        if (!snap.Exists)
+        DataSnapshot snap;
+        try
         {
-            // create if missing
+            snap = await db.Child("players").Child(playerId).Child("coins").GetValueAsync();
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[CoinService] LoadFromFirebase failed, keeping local coins. " + e);
+            return;
+        }
+
+        if (snap == null || !snap.Exists)
+        {
+            // First time this user has coins in Firebase – push local values up.
+            Debug.Log("[CoinService] No coins node in Firebase; pushing local values.");
             await WriteFullCoinsToFirebase();
             return;
         }
 
-        TotalCoins = snap.Child("total").Exists ? int.Parse(snap.Child("total").Value.ToString()) : 0;
+        // Only override local if values exist on server
+        if (snap.Child("total").Exists &&
+            int.TryParse(snap.Child("total").Value.ToString(), out int serverTotal))
+        {
+            TotalCoins = serverTotal;
+        }
 
         foreach (GameModeId id in Enum.GetValues(typeof(GameModeId)))
         {
             var modeSnap = snap.Child("byMode").Child(id.ToString());
-            byMode[id] = modeSnap.Exists ? int.Parse(modeSnap.Value.ToString()) : 0;
+            if (modeSnap.Exists &&
+                int.TryParse(modeSnap.Value.ToString(), out int modeValue))
+            {
+                byMode[id] = modeValue;
+            }
         }
 
         SaveLocal();
         FireAllEvents();
-    }
 
-    private void FireAllEvents()
-    {
-        OnTotalChanged?.Invoke(TotalCoins);
-        foreach (var kvp in byMode)
-            OnModeChanged?.Invoke(kvp.Key, kvp.Value);
-    }
-
-    public int GetModeCoins(GameModeId mode)
-        => byMode.TryGetValue(mode, out int v) ? v : 0;
-
-    public async void AddCoins(int amount, GameModeId mode)
-    {
-        if (amount <= 0) return;
-
-        // DEBUG: log whenever NameTheFlag adds coins (helps catch any double-awards)
-        if (mode == GameModeId.NameTheFlag)
-        {
-            Debug.Log($"[CoinService] AddCoins NAME THE FLAG +{amount}, total BEFORE={TotalCoins}");
-        }
-
-        // update local immediately
-        TotalCoins += amount;
-        byMode[mode] = GetModeCoins(mode) + amount;
-        SaveLocal();
-
-        OnTotalChanged?.Invoke(TotalCoins);
-        OnModeChanged?.Invoke(mode, byMode[mode]);
-
-        // if no player logged in yet, stop here
-        if (string.IsNullOrEmpty(playerId) || db == null) return;
-
-        // write updated values to firebase
-        await WriteFullCoinsToFirebase();
-    }
-
-    // --- convenience wrappers (optional, but nice) ---
-    public void AddDailyRewardCoins(int amount)
-    {
-        AddCoins(amount, GameModeId.DailyRewards);
-    }
-
-    public void AddDailyQuestCoins(int amount)
-    {
-        AddCoins(amount, GameModeId.DailyQuests);
+        Debug.Log($"[CoinService] Loaded from Firebase: total={TotalCoins}");
     }
 
     private async Task WriteFullCoinsToFirebase()
     {
+        if (db == null || string.IsNullOrEmpty(playerId))
+            return;
+
         var updates = new Dictionary<string, object>
         {
             [$"players/{playerId}/coins/total"] = TotalCoins,
@@ -164,39 +200,142 @@ public class CoinService : MonoBehaviour
         };
 
         foreach (var kvp in byMode)
+        {
             updates[$"players/{playerId}/coins/byMode/{kvp.Key}"] = kvp.Value;
+        }
 
-        await db.UpdateChildrenAsync(updates);
+        try
+        {
+            await db.UpdateChildrenAsync(updates);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[CoinService] WriteFullCoinsToFirebase failed (will retry on next change). " + e);
+        }
     }
 
-    // -------- HARD RESET USED BY SETTINGS (RESET / DELETE) --------
+    // ------------------------ EVENTS / READ API ------------------------
+
+    private void FireAllEvents()
+    {
+        OnTotalChanged?.Invoke(TotalCoins);
+
+        foreach (var kvp in byMode)
+        {
+            OnModeChanged?.Invoke(kvp.Key, kvp.Value);
+        }
+    }
+
+    public int GetModeCoins(GameModeId mode)
+        => byMode.TryGetValue(mode, out int v) ? v : 0;
+
+    // ------------------------ COIN MUTATION CORE ------------------------
+
+    private async void AddCoinsInternal(int amount, GameModeId mode)
+    {
+        if (amount <= 0) return;
+
+        // Debug special case
+        if (mode == GameModeId.NameTheFlag)
+        {
+            Debug.Log($"[CoinService] AddCoins NAME THE FLAG +{amount}, total BEFORE={TotalCoins}");
+        }
+
+        TotalCoins += amount;
+        byMode[mode] = GetModeCoins(mode) + amount;
+
+        SaveLocal();
+
+        OnTotalChanged?.Invoke(TotalCoins);
+        OnModeChanged?.Invoke(mode, byMode[mode]);
+
+        // Fire-and-forget sync to Firebase
+        if (db != null && !string.IsNullOrEmpty(playerId))
+        {
+            await WriteFullCoinsToFirebase();
+        }
+    }
+
+    // ------------------------ PUBLIC HELPERS (USED BY OTHER SYSTEMS) ------------------------
+
+    public void AddModeCoins(GameModeId mode, int amount)
+    {
+        AddCoinsInternal(amount, mode);
+    }
+
+    public void AddDailyRewardCoins(int amount)
+    {
+        AddCoinsInternal(amount, GameModeId.DailyRewards);
+    }
+
+    public void AddDailyQuestCoins(int amount)
+    {
+        AddCoinsInternal(amount, GameModeId.DailyQuests);
+    }
+
+    public void AddAchievementCoins(int amount)
+    {
+        AddCoinsInternal(amount, GameModeId.Achievements);
+    }
+
+    public void AddCharacterSellCoins(int amount)
+    {
+        // You can choose any bucket; Achievements is fine for "misc coins"
+        AddCoinsInternal(amount, GameModeId.Achievements);
+    }
+
     /// <summary>
-    /// Sets all coins to 0 locally and notifies any UI listeners.
-    /// Firebase write is handled separately (DangerActionsManager does its own UpdateChildren).
+    /// Used by Shop to spend coins.
+    /// Updates local, fires events, and pushes to Firebase (if possible).
     /// </summary>
+    public bool TrySpendCoins(int amount)
+    {
+        if (amount <= 0) return true;
+
+        Debug.Log($"[CoinService] TrySpendCoins amount={amount}, total BEFORE={TotalCoins}");
+
+        if (TotalCoins < amount)
+        {
+            Debug.Log($"[CoinService] NOT ENOUGH COINS: need {amount}, have {TotalCoins}");
+            return false;
+        }
+
+        TotalCoins -= amount;
+        SaveLocal();
+        OnTotalChanged?.Invoke(TotalCoins);
+
+        // fire-and-forget sync to Firebase
+        if (db != null && !string.IsNullOrEmpty(playerId))
+        {
+            _ = WriteFullCoinsToFirebase();
+        }
+
+        Debug.Log($"[CoinService] Spend OK. total AFTER={TotalCoins}");
+        return true;
+    }
+
+    // ------------------------ HARD RESET (used by settings) ------------------------
+
     public void ForceSetAllZeroLocal()
     {
-        // zero total
         TotalCoins = 0;
 
-        // zero every mode
         foreach (GameModeId id in Enum.GetValues(typeof(GameModeId)))
         {
             byMode[id] = 0;
         }
 
-        // save to PlayerPrefs with your existing logic
         SaveLocal();
-
-        // fire events so any coin UI updates immediately
         FireAllEvents();
     }
 
-    /// <summary>
-    /// Wrapper used by DangerActionsManager so it can just call DebugForceZeroAndBroadcast().
-    /// </summary>
     public void DebugForceZeroAndBroadcast()
     {
         ForceSetAllZeroLocal();
+    }
+
+    public void AddCoins(int amount, GameModeId mode)
+    {
+        AddCoinsInternal(amount, mode);
     }
 }

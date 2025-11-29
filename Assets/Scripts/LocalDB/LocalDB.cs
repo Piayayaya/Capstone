@@ -26,6 +26,7 @@ public static class LocalDb
         DB.CreateTable<LocalQuestDef>();
         DB.CreateTable<LocalAchievementDef>();
         DB.CreateTable<LocalCharacterInventoryRow>();
+        DB.CreateTable<LocalShopItem>();
 
         Debug.Log("[LocalDb] SQLite ready: " + path);
     }

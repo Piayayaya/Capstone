@@ -186,9 +186,17 @@ public class DailyLoginPopup : MonoBehaviour
         if (coinRewards != null && coinRewards.Length == 7)
             reward = coinRewards[dayIndex];
 
-        // TODO: Hook into your wallet/inventory here
-        // Example:
-        // Wallet.Instance.AddCoins(reward);
+        // *** NEW: hook into CoinService so DailyRewards affect TotalCoins ***
+        if (CoinService.Instance != null)
+        {
+            // This will update per-mode (DailyRewards) AND TotalCoins, and refresh HUD.
+            CoinService.Instance.AddDailyRewardCoins(reward);
+        }
+        else
+        {
+            Debug.LogWarning($"[DailyLoginPopup] CoinService.Instance is null, cannot add daily reward coins.");
+        }
+
         Debug.Log($"Daily reward claimed: Day {dayIndex + 1} -> +{reward} coins");
 
         // Disable all buttons to prevent double-claim while toast shows (optional)
@@ -207,7 +215,6 @@ public class DailyLoginPopup : MonoBehaviour
             // Fallback: if no toast, close immediately
             Close();
         }
-
 
         // Mark today as claimed
         string todayStr = DateTime.UtcNow.Date.ToString("yyyy-MM-dd");
@@ -232,7 +239,4 @@ public class DailyLoginPopup : MonoBehaviour
         _shownThisSession = false;
         Debug.Log("Daily login data reset.");
     }
-
-
 }
-

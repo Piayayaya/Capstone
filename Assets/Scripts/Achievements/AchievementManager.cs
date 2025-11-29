@@ -1,7 +1,9 @@
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TMPro;
 
 public class AchievementManager : MonoBehaviour
 {
@@ -12,7 +14,14 @@ public class AchievementManager : MonoBehaviour
 
     [Header("Optional hooks")]
     public RewardToast rewardToast;     // optional, if you want a toast on completion
-    public CoinWallet coinWallet;       // optional, in case you reward coins later
+    public CoinWallet coinWallet;       // optional, fallback wallet if CoinService is missing
+
+    [Header("Reward Panel (optional)")]
+    [Tooltip("Panel that briefly shows +X COINS when a reward is granted.")]
+    public GameObject rewardPanelRoot;
+    public TMP_Text rewardPanelText;        // e.g. "+100 COINS"
+    [Tooltip("How long the reward panel stays visible.")]
+    public float rewardPanelDuration = 2f;
 
     [Header("Debug")]
     public bool logVerbose = true;
@@ -31,11 +40,17 @@ public class AchievementManager : MonoBehaviour
     public event Action<string, AchievementProgressData> OnProgressChanged;  // id, data
     public event Action<string> OnCompleted;                                 // id
 
+    Coroutine rewardPanelRoutine;
+
     void Awake()
     {
         if (I != null && I != this) { Destroy(gameObject); return; }
         I = this;
         DontDestroyOnLoad(gameObject);
+
+        // make sure reward panel is hidden at start
+        if (rewardPanelRoot != null)
+            rewardPanelRoot.SetActive(false);
 
         BuildDefinitionsFromSqliteAndCatalog();
         Load();
@@ -188,8 +203,12 @@ public class AchievementManager : MonoBehaviour
 
             // Resolve display name (prefer SQLite title, then SO, then id)
             string displayName = !string.IsNullOrEmpty(local.title) ? local.title : id;
-            if (soDefs.TryGetValue(id, out var so) && !string.IsNullOrEmpty(so.displayName))
-                displayName = so.displayName;
+            AchievementDef soDef = null;
+            if (soDefs.TryGetValue(id, out var soFromDict) && !string.IsNullOrEmpty(soFromDict.displayName))
+            {
+                displayName = soFromDict.displayName;
+                soDef = soFromDict;
+            }
 
             if (logVerbose) Debug.Log($"[Achievements] Completed: {displayName} ({id})");
 
@@ -200,16 +219,23 @@ public class AchievementManager : MonoBehaviour
             OnCompleted?.Invoke(id);
 
             // Optional auto-grant reward (flag comes from SO)
-            bool autoGrant = so != null && so.autoGrantReward;
-            int coinReward = local.coinReward > 0 ? local.coinReward : (so != null ? so.coinReward : 0);
+            bool autoGrant = soDef != null && soDef.autoGrantReward;
+            int coinReward = local.coinReward > 0 ? local.coinReward : (soDef != null ? soDef.coinReward : 0);
 
             if (autoGrant && coinReward > 0 && !p.rewardGranted)
             {
-                if (coinWallet) coinWallet.Add(coinReward);
-                p.rewardGranted = true;
+                bool paid = PayCoins(coinReward);
 
-                // numeric toast if you like
-                if (rewardToast) rewardToast.Show(coinReward);
+                if (paid)
+                {
+                    p.rewardGranted = true;
+
+                    // numeric toast if you like
+                    if (rewardToast) rewardToast.Show(coinReward);
+
+                    // 👇 show the reward panel
+                    ShowRewardPanel(coinReward);
+                }
             }
         }
 
@@ -277,11 +303,19 @@ public class AchievementManager : MonoBehaviour
         int coinReward = local?.coinReward ?? (so != null ? so.coinReward : 0);
         bool autoGrant = so != null && so.autoGrantReward;
 
+        if (logVerbose)
+            Debug.Log($"[Achievements] Claim called for {id}: completed={p.completed}, rewardGranted={p.rewardGranted}, coinReward={coinReward}, autoGrant={autoGrant}");
+
         if (!p.completed || p.rewardGranted || coinReward <= 0 || autoGrant)
             return false;
 
-        // Pay coins
-        if (coinWallet) coinWallet.Add(coinReward);
+        // Pay coins via CoinService first so TotalCoins updates
+        bool paid = PayCoins(coinReward);
+        if (!paid)
+        {
+            Debug.LogWarning($"[Achievements] Claim({id}) could not pay reward {coinReward} (no CoinService and no coinWallet).");
+            return false;
+        }
 
         p.rewardGranted = true;
         Save();
@@ -289,10 +323,60 @@ public class AchievementManager : MonoBehaviour
         // Toast (numeric overload)
         if (rewardToast) rewardToast.Show(coinReward);
 
+        // 👇 show the reward panel
+        ShowRewardPanel(coinReward);
+
         if (logVerbose) Debug.Log($"[Achievements] Claimed reward for {id}: +{coinReward}");
 
         // refresh UI rows
         OnProgressChanged?.Invoke(id, p);
         return true;
+    }
+
+    // ----------------------------------------------------------------------
+    // COIN PAYMENT + REWARD PANEL
+    // ----------------------------------------------------------------------
+
+    /// <summary>
+    /// Centralized coin payment: prefer CoinService, fallback to CoinWallet.
+    /// </summary>
+    bool PayCoins(int amount)
+    {
+        bool paid = false;
+
+        if (CoinService.Instance != null)
+        {
+            // Count this under Achievements bucket so per-mode stats get updated
+            CoinService.Instance.AddAchievementCoins(amount);
+            paid = true;
+        }
+        else if (coinWallet != null)
+        {
+            coinWallet.Add(amount);
+            paid = true;
+        }
+
+        return paid;
+    }
+
+    void ShowRewardPanel(int coins)
+    {
+        if (rewardPanelRoot == null || rewardPanelText == null)
+            return;
+
+        if (rewardPanelRoutine != null)
+            StopCoroutine(rewardPanelRoutine);
+
+        rewardPanelRoutine = StartCoroutine(RewardPanelRoutine(coins));
+    }
+
+    IEnumerator RewardPanelRoutine(int coins)
+    {
+        rewardPanelRoot.SetActive(true);
+        rewardPanelText.text = $"+{coins} COINS";
+
+        yield return new WaitForSeconds(rewardPanelDuration);
+
+        rewardPanelRoot.SetActive(false);
     }
 }
