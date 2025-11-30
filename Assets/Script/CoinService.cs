@@ -241,6 +241,12 @@ public class CoinService : MonoBehaviour
             Debug.Log($"[CoinService] AddCoins NAME THE FLAG +{amount}, total BEFORE={TotalCoins}");
         }
 
+        // 🔔 NEW: log to NotificationService (if it exists)
+        if (NotificationService.Instance != null)
+        {
+            NotificationService.Instance.LogCoinsEarned(amount, mode);
+        }
+
         TotalCoins += amount;
         byMode[mode] = GetModeCoins(mode) + amount;
 

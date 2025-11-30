@@ -69,6 +69,9 @@ EditorBuildSettings:
     path: Assets/Scenes/SmartLadder-DifficultySelection.unity
     guid: 08a27ac73d0258d43b2c568b6dcf9aad
   - enabled: 1
+    path: Assets/Scenes/MeetTheTeam.unity
+    guid: d460e481097679740be18844319cfac1
+  - enabled: 1
     path: Assets/Scenes/SmartLadder-Easy.unity
     guid: 1867758a850d7194b847ff1d6913230e
   - enabled: 1
@@ -80,6 +83,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TotalCoins.unity
     guid: 99e8883f71d22464b9717f9965087b92
+  - enabled: 1
+    path: Assets/Scenes/LearnHowtoPurchase.unity
+    guid: 4aa9908b39d0b7d418b21c84f2048df0
+  - enabled: 1
+    path: Assets/Scenes/LearnHowtoPlay.unity
+    guid: 9c750eedafd517a48a98e1f45ffe93da
   - enabled: 1
     path: Assets/Scenes/TuneYourTongue - Copy.unity
     guid: 528755fae3183e14a8492c1304394130

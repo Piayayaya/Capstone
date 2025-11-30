@@ -10,6 +10,9 @@ public class CharacterSelectionService : MonoBehaviour
 
     private const string PREF_KEY = "BM_SelectedCharacterId_v1";
 
+    // NEW: remember which user this selection belongs to
+    private const string PREF_LAST_USER_KEY = "BM_SelectedCharacter_LastUser_v1";
+
     /// <summary>Current selected character ID.</summary>
     public string CurrentId => _currentId;
     private string _currentId;
@@ -28,6 +31,27 @@ public class CharacterSelectionService : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        HandleUserChangeAndLoad();
+    }
+
+    // ------------------------------------------------------
+    // NEW: Per-user selection handling
+    // ------------------------------------------------------
+    private void HandleUserChangeAndLoad()
+    {
+        string currentUserId = UserIdProvider.ActiveUserId;
+        string lastUserId = PlayerPrefs.GetString(PREF_LAST_USER_KEY, "");
+
+        if (!string.IsNullOrEmpty(lastUserId) && lastUserId != currentUserId)
+        {
+            // Different user -> forget previous selection
+            Debug.Log($"[CharacterSelectionService] User changed {lastUserId} -> {currentUserId}. Clearing selection key.");
+            PlayerPrefs.DeleteKey(PREF_KEY);
+        }
+
+        PlayerPrefs.SetString(PREF_LAST_USER_KEY, currentUserId);
+        PlayerPrefs.Save();
 
         // Load saved selection or default
         _currentId = PlayerPrefs.GetString(PREF_KEY, defaultCharacterId);
@@ -56,5 +80,17 @@ public class CharacterSelectionService : MonoBehaviour
 
         // (Optional / later) also push this to Firebase/SQLite user data
         // e.g. UserProgress.activePlayer.selectedCharacterId = _currentId;
+    }
+
+    /// <summary>
+    /// Optional helper you can call from your Delete Account flow
+    /// to reset selection immediately for the current user.
+    /// </summary>
+    public void ResetSelectionToDefault()
+    {
+        _currentId = defaultCharacterId;
+        PlayerPrefs.DeleteKey(PREF_KEY);
+        PlayerPrefs.Save();
+        OnSelectionChanged?.Invoke(_currentId);
     }
 }

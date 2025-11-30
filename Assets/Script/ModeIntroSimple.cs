@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -45,12 +45,27 @@ public class ModeIntroSimple : MonoBehaviour
         if (panelRoot) panelRoot.SetActive(false);
     }
 
+    // NEW: helper to mute/unmute background music while TTS is talking
+    private void SetBgmMutedForTts(bool muted)
+    {
+        // Try to find your BackgroundMusicController in the scene
+        var bgm = FindObjectOfType<BackgroundMusicController>();
+        if (bgm == null) return;
+
+        var src = bgm.GetComponent<AudioSource>();
+        if (src == null) return;
+
+        src.mute = muted;
+    }
+
     public void Open(string message, Action onProceed)
     {
         Debug.Log("[ModeIntroSimple] Open");
         if (messageText) messageText.text = message ?? "";
         _onProceed = onProceed;
 
+        // 🔇 Mute background music while TTS is speaking
+        SetBgmMutedForTts(true);
         TTSManager.Speak(message);
 
         if (panelRoot) panelRoot.SetActive(true);
@@ -72,6 +87,10 @@ public class ModeIntroSimple : MonoBehaviour
             canvasGroup.interactable = false;
         }
         if (panelRoot) panelRoot.SetActive(false);
+
+        // ✅ Make sure TTS stops and music comes back whenever the panel is closed
+        TTSManager.Stop();
+        SetBgmMutedForTts(false);
     }
 
     void OnProceed()
@@ -81,6 +100,7 @@ public class ModeIntroSimple : MonoBehaviour
         Close();
         cb?.Invoke();
         TTSManager.Stop();
+        SetBgmMutedForTts(false);
     }
 
     void OnCancel()
@@ -89,7 +109,8 @@ public class ModeIntroSimple : MonoBehaviour
         if (!string.IsNullOrEmpty(cancelSceneName))
             SceneManager.LoadScene(cancelSceneName);
         else
-            Close(); TTSManager.Stop();
-
+            Close();
+        TTSManager.Stop();
+        SetBgmMutedForTts(false);
     }
 }

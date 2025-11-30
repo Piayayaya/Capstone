@@ -1364,6 +1364,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 845987314}
   m_CullTransparentMesh: 1
+--- !u!1 &889224603
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 889224605}
+  - component: {fileID: 889224604}
+  m_Layer: 0
+  m_Name: NotificationService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &889224604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889224603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0a6f1d8fbbf6274a95f69f79dba80b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &889224605
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889224603}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 416.45233, y: 1148.0736, z: -22.717794}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &998497449
 GameObject:
   m_ObjectHideFlags: 0
@@ -2649,6 +2693,7 @@ GameObject:
   - component: {fileID: 1978863306}
   - component: {fileID: 1978863308}
   - component: {fileID: 1978863307}
+  - component: {fileID: 1978863309}
   m_Layer: 5
   m_Name: owl
   m_TagString: Untagged
@@ -2713,6 +2758,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1978863305}
   m_CullTransparentMesh: 1
+--- !u!114 &1978863309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978863305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30fbf81d86864db46a5a148a17bfd37e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floatAmplitude: 15
+  floatSpeed: 2.2
+  tiltAngle: 6
+  tiltSpeed: 3
+  hopHeight: 35
+  hopDuration: 0.35
+  minHopInterval: 2
+  maxHopInterval: 5
+  breatheAmount: 0.05
+  breatheSpeed: 1.5
 --- !u!1 &1997113760
 GameObject:
   m_ObjectHideFlags: 0
@@ -3114,3 +3181,4 @@ SceneRoots:
   - {fileID: 603583025}
   - {fileID: 1997113763}
   - {fileID: 812632604}
+  - {fileID: 889224605}

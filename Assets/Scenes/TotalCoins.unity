@@ -404,6 +404,7 @@ GameObject:
   - component: {fileID: 111785375}
   - component: {fileID: 111785374}
   - component: {fileID: 111785376}
+  - component: {fileID: 111785377}
   m_Layer: 5
   m_Name: Character
   m_TagString: Untagged
@@ -427,8 +428,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8.183098, y: 620.0594}
-  m_SizeDelta: {x: 698.1816, y: 518.3233}
+  m_AnchoredPosition: {x: 8.183098, y: 614.85944}
+  m_SizeDelta: {x: 698.1816, y: 455.9234}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &111785374
 MonoBehaviour:
@@ -486,6 +487,28 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ee9dfe3299e73f641a5b07bf3dd4cacb, type: 2}
   - {fileID: 11400000, guid: 53eee00544b820749a70fad5120f5cef, type: 2}
   - {fileID: 11400000, guid: e8ea70c16eb051f4397c2064b99a6c01, type: 2}
+--- !u!114 &111785377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 111785372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30fbf81d86864db46a5a148a17bfd37e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floatAmplitude: 15
+  floatSpeed: 2.2
+  tiltAngle: 6
+  tiltSpeed: 3
+  hopHeight: 35
+  hopDuration: 0.35
+  minHopInterval: 2
+  maxHopInterval: 5
+  breatheAmount: 0.05
+  breatheSpeed: 1.5
 --- !u!1 &191557479
 GameObject:
   m_ObjectHideFlags: 0
@@ -2322,7 +2345,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535

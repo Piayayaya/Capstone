@@ -180,7 +180,7 @@ public class DangerActionsManager : MonoBehaviour
             Debug.LogWarning($"[DangerActionsManager] No playerId in PlayerPrefs (key={playerIdPrefsKey}), skipped Firebase reset.");
         }
 
-        // 2) Reset local progress (coins, daily login/quests, achievements)
+        // 2) Reset local progress (coins, daily login/quests, achievements, shop, characters)
         ResetLocalProgress();
 
         // 3) Make sure runtime systems show the reset state immediately
@@ -224,6 +224,7 @@ public class DangerActionsManager : MonoBehaviour
     /// <summary>
     /// Clears local progress data but keeps the account itself.
     /// (Only PlayerPrefs keys – adjust to your actual ones.)
+    /// ALSO clears shop purchases + character inventory.
     /// </summary>
     private void ResetLocalProgress()
     {
@@ -234,6 +235,28 @@ public class DangerActionsManager : MonoBehaviour
         PlayerPrefs.DeleteKey("BM_AchievementState_v1");
 
         PlayerPrefs.Save();
+
+        // --- NEW: clear local shop data (coins + owned characters in ShopSave) ---
+        ShopSave.ResetAll();
+
+        // --- NEW: clear CharacterInventory + selection (local SQLite + equipped) ---
+        if (CharacterInventory.Instance != null)
+        {
+            CharacterInventory.Instance.ResetAllLocalInventory();
+
+            // re-grant starter so UI not empty (optional but nice)
+            if (!string.IsNullOrEmpty(CharacterInventory.Instance.defaultCharacterId))
+            {
+                string starter = CharacterInventory.Instance.defaultCharacterId;
+                CharacterInventory.Instance.AddOwned(starter);
+                CharacterInventory.Instance.Equip(starter);
+            }
+        }
+
+        if (CharacterSelectionService.Instance != null)
+        {
+            CharacterSelectionService.Instance.ResetSelectionToDefault();
+        }
     }
 
     /// <summary>
@@ -280,7 +303,7 @@ public class DangerActionsManager : MonoBehaviour
             Debug.LogWarning($"[DangerActionsManager] No playerId/userId in PlayerPrefs (keys={playerIdPrefsKey}/{userIdPrefsKey}), skipped Firebase delete.");
         }
 
-        // 2) Wipe local data
+        // 2) Wipe local data (including shop + character inventory)
         WipeLocalAccountData();
 
         // 3) (optional) clear profile name
@@ -328,6 +351,7 @@ public class DangerActionsManager : MonoBehaviour
 
     /// <summary>
     /// Clears local PlayerPrefs so the app behaves like a fresh install.
+    /// Also resets shop + characters in memory & SQLite.
     /// </summary>
     private void WipeLocalAccountData()
     {
@@ -346,6 +370,23 @@ public class DangerActionsManager : MonoBehaviour
         }
 
         PlayerPrefs.Save();
+
+        // --- NEW: also wipe shop + characters for this session ---
+
+        // reset ShopSave JSON
+        ShopSave.ResetAll();
+
+        // clear character inventory table + in-memory owned list
+        if (CharacterInventory.Instance != null)
+        {
+            CharacterInventory.Instance.ResetAllLocalInventory();
+        }
+
+        // clear selected character id
+        if (CharacterSelectionService.Instance != null)
+        {
+            CharacterSelectionService.Instance.ResetSelectionToDefault();
+        }
 
         // Also clear coin UI in the current session
         if (CoinService.Instance != null)

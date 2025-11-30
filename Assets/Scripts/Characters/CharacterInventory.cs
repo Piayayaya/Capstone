@@ -24,6 +24,9 @@ public class CharacterInventory : MonoBehaviour
     public event Action OnInventoryChanged;
     public event Action OnEquippedChanged;
 
+    // 🚨 NEW: we remember which user this inventory belongs to
+    private const string LAST_USER_PREF_KEY = "BM_CharInv_LastUserId_v1";
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -32,6 +35,9 @@ public class CharacterInventory : MonoBehaviour
 
         // Ensure DB is ready
         var _ = LocalDb.DB;
+
+        // --- NEW: check if device user changed; if yes -> wipe old inventory ---
+        HandleUserChange();
 
         LoadFromSqlite();
         EnsureDefaultCharacter();
@@ -107,8 +113,6 @@ public class CharacterInventory : MonoBehaviour
         return true;
     }
 
-
-
     string GetAnyOwnedOrEmpty()
     {
         foreach (var id in owned)
@@ -183,6 +187,44 @@ public class CharacterInventory : MonoBehaviour
 
         Debug.Log("[CharacterInventory] Granted default character: " + defaultCharacterId);
     }
+
+    // =========================================================
+    //            NEW: HANDLE PER-USER INVENTORY
+    // =========================================================
+
+    /// <summary>
+    /// Detects if the active user on this device changed
+    /// compared to the last time the Characters scene ran.
+    /// If it changed, we wipe local inventory so the new
+    /// account does NOT see the previous account's purchases.
+    /// </summary>
+    private void HandleUserChange()
+    {
+        // uses your existing UserIdProvider
+        string currentUserId = UserIdProvider.ActiveUserId;   // guest id or google uid
+        string lastUserId = PlayerPrefs.GetString(LAST_USER_PREF_KEY, "");
+
+        if (!string.IsNullOrEmpty(lastUserId) && lastUserId != currentUserId)
+        {
+            Debug.Log($"[CharacterInventory] Detected user change {lastUserId} -> {currentUserId}. Wiping local character inventory.");
+            ResetAllLocalInventory();
+        }
+
+        PlayerPrefs.SetString(LAST_USER_PREF_KEY, currentUserId);
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>
+    /// Clears local character inventory data (used when switching user or deleting account).
+    /// </summary>
+    public void ResetAllLocalInventory()
+    {
+        owned.Clear();
+        equippedId = "";
+
+        // wipe SQLite snapshot
+        LocalDb.DB.DeleteAll<LocalCharacterInventoryRow>();
+    }
 }
 
 // 1 row per character the player owns
@@ -194,4 +236,3 @@ public class LocalCharacterInventoryRow
     public int isOwned { get; set; }     // 1 = owned, 0 = not owned (we’ll only store 1s)
     public int isEquipped { get; set; }  // 1 = currently selected, 0 = not selected
 }
-
