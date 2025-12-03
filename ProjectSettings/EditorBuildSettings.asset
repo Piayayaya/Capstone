@@ -90,6 +90,9 @@ EditorBuildSettings:
     path: Assets/Scenes/LearnHowtoPlay.unity
     guid: 9c750eedafd517a48a98e1f45ffe93da
   - enabled: 1
+    path: Assets/Scenes/EmpathyQuest.unity
+    guid: 64143b3bdae444b4b85542f6388f296f
+  - enabled: 1
     path: Assets/Scenes/TuneYourTongue - Copy.unity
     guid: 528755fae3183e14a8492c1304394130
   - enabled: 1
