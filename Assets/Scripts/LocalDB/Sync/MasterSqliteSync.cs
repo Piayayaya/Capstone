@@ -17,6 +17,7 @@ public class MasterSqliteSync : MonoBehaviour
     public static int LastGamemodeCount = 0;
 
     private DatabaseReference root;
+
     private class RemoteQuestRow
     {
         public string questId;
@@ -62,7 +63,6 @@ public class MasterSqliteSync : MonoBehaviour
 
         Debug.Log($"[MasterSqliteSync] Saved {fbItems.Count()} shop item(s) to SQLite.");
     }
-
 
     private int SaveAchievementsToSqlite(string achievementsJson)
     {
@@ -128,7 +128,6 @@ public class MasterSqliteSync : MonoBehaviour
         return list.Count;
     }
 
-
     private void SaveQuestsToSqlite(string questsJson)
     {
         if (string.IsNullOrWhiteSpace(questsJson))
@@ -137,8 +136,6 @@ public class MasterSqliteSync : MonoBehaviour
             return;
         }
 
-        // Firebase tblQuests is an object keyed by questId
-        // { "q_answers_10_any": { questId: "...", title: "...", ... }, ... }
         Dictionary<string, RemoteQuestRow> map = null;
 
         try
@@ -200,8 +197,6 @@ public class MasterSqliteSync : MonoBehaviour
             return;
         }
 
-        // /ShopItems is an object keyed by Firebase key:
-        // { "9001": { refId: "char_poppi", itemName: "Poppi", ... }, ... }
         Dictionary<string, FbShopItem> map = null;
 
         try
@@ -227,7 +222,6 @@ public class MasterSqliteSync : MonoBehaviour
             var fb = kv.Value;
             if (fb == null) continue;
 
-            // make sure fb.key is filled with the Firebase key ("9001")
             if (string.IsNullOrEmpty(fb.key))
                 fb.key = kv.Key;
 
@@ -237,17 +231,31 @@ public class MasterSqliteSync : MonoBehaviour
         ApplyShopItemsToDb(list);
     }
 
-
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        // avoid the warning "DontDestroyOnLoad only works for root"
+        if (transform.parent == null)
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Debug.LogWarning("[MasterSqliteSync] GameObject is not root; DontDestroyOnLoad skipped.");
+        }
 
         LocalDb.Init();
 
         Debug.Log("[MasterSqliteSync] Awake started");
+
+#if UNITY_ANDROID && !UNITY_EDITOR
         InitFirebaseAndSync();
+#else
+        Debug.LogWarning("[MasterSqliteSync] Firebase master sync disabled in Editor / non-Android. Using existing local DB only.");
+        IsMasterSynced = true;
+#endif
     }
 
+#if UNITY_ANDROID && !UNITY_EDITOR
     private void InitFirebaseAndSync()
     {
         Debug.Log("[MasterSqliteSync] Checking Firebase dependencies...");
@@ -261,7 +269,6 @@ public class MasterSqliteSync : MonoBehaviour
                     return;
                 }
 
-                // Set DB URL here so this script is independent
                 FirebaseApp.DefaultInstance.Options.DatabaseUrl =
                     new System.Uri("https://brainyme-firebase-default-rtdb.asia-southeast1.firebasedatabase.app/");
 
@@ -272,15 +279,15 @@ public class MasterSqliteSync : MonoBehaviour
             });
     }
 
-
     private async Task SyncMaster()
     {
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
             Debug.LogWarning("[MasterSqliteSync] Offline, skipping master sync.");
-            IsMasterSynced = true; // allow game to proceed using old local data
+            IsMasterSynced = true;
             return;
         }
+
         Debug.Log("[MasterSqliteSync] Downloading master data...");
 
         var modesSnap = await root.Child("Gamemodes").GetValueAsync();
@@ -289,13 +296,11 @@ public class MasterSqliteSync : MonoBehaviour
         var achSnap = await root.Child("Achievements").GetValueAsync();
         var shopSnap = await root.Child("ShopItems").GetValueAsync();
 
-
         string questsJson = questsSnap.GetRawJsonValue();
         string modesJson = modesSnap.GetRawJsonValue();
         string qJson = qSnap.GetRawJsonValue();
         string achievementsJson = achSnap.GetRawJsonValue();
         string shopJson = shopSnap.GetRawJsonValue();
-
 
         Debug.Log("[MasterSqliteSync] Gamemodes json length = " + (modesJson?.Length ?? 0));
         Debug.Log("[MasterSqliteSync] Questions json length = " + (qJson?.Length ?? 0));
@@ -303,18 +308,17 @@ public class MasterSqliteSync : MonoBehaviour
         Debug.Log("[MasterSqliteSync] Achievements json length = " + (achievementsJson?.Length ?? 0));
         Debug.Log("[MasterSqliteSync] ShopItems json length = " + (shopJson?.Length ?? 0));
 
-
         LastGamemodeCount = UpsertGamemodes(modesJson);
         LastQuestionCount = UpsertQuestions(qJson);
         SaveQuestsToSqlite(questsJson);
         SaveAchievementsToSqlite(achievementsJson);
         SaveShopItemsToSqlite(shopJson);
 
-
         IsMasterSynced = true;
 
         Debug.Log($"[MasterSqliteSync] Master sync complete! modes={LastGamemodeCount}, questions={LastQuestionCount}");
     }
+#endif
 
     // ---------------- GAMEMODES ----------------
     int UpsertGamemodes(string json)
@@ -325,8 +329,6 @@ public class MasterSqliteSync : MonoBehaviour
             return 0;
         }
 
-        // This expects Firebase /Gamemodes to look like:
-        // { "7001": { "gameModeName": "...", "gameInstruc": "...", "updatedAt": "..." }, ... }
         var rootDict = JsonConvert.DeserializeObject<Dictionary<string, GamemodeDTO>>(json);
         if (rootDict == null)
         {
@@ -338,12 +340,9 @@ public class MasterSqliteSync : MonoBehaviour
 
         LocalDb.DB.RunInTransaction(() =>
         {
-            // Optional: clear the table first if you don't want stale modes
-            // LocalDb.DB.DeleteAll<LocalGamemode>();
-
             foreach (var pair in rootDict)
             {
-                string idStr = pair.Key;   // "7001", "7002", etc.
+                string idStr = pair.Key;
                 var g = pair.Value;
                 if (g == null)
                 {
@@ -362,14 +361,14 @@ public class MasterSqliteSync : MonoBehaviour
                     id = numericId,
                     gameModeName = g.gameModeName ?? string.Empty,
                     gameInstruc = g.gameInstruc ?? string.Empty,
-                    created_at = "",                       // fill if you like
+                    created_at = "",
                     updated_at = g.updatedAt ?? string.Empty
                 };
 
                 LocalDb.DB.InsertOrReplace(local);
                 count++;
 
-                Debug.Log($"[SQLite] Upsert Gamemode id={numericId}, name='{local.gameModeName}', instrucLen={local.gameInstruc.Length}");
+                Debug.Log($"[SQLite] Upsert Gamemode id={numericId}, name='{local.gameModeName}', instrucLen={local.gameModeName.Length}");
             }
         });
 
@@ -377,10 +376,7 @@ public class MasterSqliteSync : MonoBehaviour
         return count;
     }
 
-
-
-    // ---------------- QUESTIONS (YOUR 3-LEVEL SHAPE) ----------------
-    // Questions/{gameModeId}/{difficulty}/{questionId}:{...}
+    // ---------------- QUESTIONS ----------------
     int UpsertQuestions(string json)
     {
         if (string.IsNullOrEmpty(json)) return 0;
@@ -407,19 +403,19 @@ public class MasterSqliteSync : MonoBehaviour
         {
             foreach (var gmPair in rootDict)
             {
-                string gmNode = gmPair.Key; // smartladder
+                string gmNode = gmPair.Key;
                 var diffs = gmPair.Value;
                 if (diffs == null) continue;
 
                 foreach (var diffPair in diffs)
                 {
-                    string diffNode = diffPair.Key; // advanced
+                    string diffNode = diffPair.Key;
                     var questions = diffPair.Value;
                     if (questions == null) continue;
 
                     foreach (var qPair in questions)
                     {
-                        string qId = qPair.Key; // 3301
+                        string qId = qPair.Key;
                         var q = qPair.Value;
                         if (q == null) continue;
 
@@ -454,7 +450,7 @@ public class MasterSqliteSync : MonoBehaviour
 public class GamemodeDTO
 {
     public string gameModeName;
-    public string gameInstruc;  // if your node uses different name, rename here
+    public string gameInstruc;
     public string updatedAt;
 }
 
@@ -468,7 +464,7 @@ public class QuestionDTO
     public JToken choices;
     public int correctAnsIndex;
     public string updatedAt;
-    public string explanation; 
+    public string explanation;
 
     public List<string> GetChoicesAsList()
     {
@@ -491,8 +487,8 @@ public class QuestionDTO
     [System.Serializable]
     public class FbShopItem
     {
-        public string key;        // "9001"
-        public string refId;      // "char_poppi"
+        public string key;
+        public string refId;
         public string itemName;
         public string itemType;
         public string itemImage;
@@ -520,7 +516,6 @@ public class QuestionDTO
             };
         }
     }
-
 }
 
 #endregion

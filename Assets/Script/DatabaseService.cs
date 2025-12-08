@@ -21,9 +21,15 @@ public class DatabaseService : MonoBehaviour
 
     private async Task StartDatabaseService()
     {
+#if UNITY_ANDROID && !UNITY_EDITOR
         await Task.Delay(500);
         db = FirebaseDatabase.DefaultInstance.RootReference;
         Debug.Log("DatabaseService initialized");
+#else
+        db = null;
+        await Task.CompletedTask;
+        Debug.LogWarning("DatabaseService: Firebase disabled in Editor / non-Android. Using local-only mode.");
+#endif
     }
 
     // ======================================================
@@ -68,7 +74,6 @@ public class DatabaseService : MonoBehaviour
 
     // ======================================================
     // DEVICE -> USER mapping (ONE USER PER DEVICE)
-    // deviceUsers/{deviceKey} = userId
     // ======================================================
 
     public async Task ClaimDevice(string deviceKey, string userId)
@@ -82,8 +87,6 @@ public class DatabaseService : MonoBehaviour
     {
         if (db == null) return;
         await db.Child("deviceUsers").Child(deviceKey).RemoveValueAsync();
-
-        // ✅ FIX: removed userId in log (it doesn't exist here)
         Debug.Log($"✔ Device released: {deviceKey}");
     }
 
@@ -116,7 +119,7 @@ public class DatabaseService : MonoBehaviour
     }
 
     // ======================================================
-    // UPDATE USERNAME ONLY (no new user created)
+    // UPDATE USERNAME ONLY
     // ======================================================
     public async Task UpdateUserName(string userId, string newUsername)
     {
@@ -134,9 +137,6 @@ public class DatabaseService : MonoBehaviour
         Debug.Log("✔ Username updated in Firebase");
     }
 
-    // ======================================================
-    // SAVE PROFILE PICTURE FILE NAME
-    // ======================================================
     public async Task UpdateUserProfilePicture(string userId, string fileName)
     {
         if (db == null) return;

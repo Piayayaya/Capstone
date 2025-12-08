@@ -30,12 +30,9 @@ public class CoinService : MonoBehaviour
     public event Action<int> OnTotalChanged;
     public event Action<GameModeId, int> OnModeChanged;
 
-    // PlayerPrefs keys
     private const string LOCAL_TOTAL = "BM_LOCAL_TOTAL_COINS";
     private const string LOCAL_MODE_PREFIX = "BM_LOCAL_MODE_COINS_";
     private const string PLAYER_KEY = "DEVICE_PLAYER_ID";
-
-    // ------------------------ UNITY LIFECYCLE ------------------------
 
     private async void Awake()
     {
@@ -48,24 +45,20 @@ public class CoinService : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // 1) Always load local first so coins survive app close
         LoadLocal();
         FireAllEvents();
         Debug.Log($"[CoinService] Awake. Local total={TotalCoins}");
 
-        // 2) Try to hook up Firebase + player mapping
         await InitFirebaseAndPlayer();
     }
 
-    // ------------------------ INIT & PLAYER ------------------------
-
     private async Task InitFirebaseAndPlayer()
     {
-        // Wait (a bit) for FirebaseInit to say it's ready
+#if UNITY_ANDROID && !UNITY_EDITOR
         int guard = 0;
         while (!FirebaseInit.IsReady && guard < 50)
         {
-            await Task.Delay(100); // up to ~5 seconds
+            await Task.Delay(100);
             guard++;
         }
 
@@ -79,7 +72,6 @@ public class CoinService : MonoBehaviour
             db = null;
         }
 
-        // Restore playerId from prefs
         playerId = PlayerPrefs.GetString(PLAYER_KEY, "");
         Debug.Log($"[CoinService] InitFirebaseAndPlayer: stored playerId='{playerId}'");
 
@@ -87,12 +79,14 @@ public class CoinService : MonoBehaviour
         {
             await LoadFromFirebase();
         }
+#else
+        // Editor / non-Android: no Firebase, just keep local coins
+        playerId = PlayerPrefs.GetString(PLAYER_KEY, "");
+        Debug.Log($"[CoinService] InitFirebaseAndPlayer (Editor/local-only). playerId='{playerId}'");
+        await Task.CompletedTask;
+#endif
     }
 
-    /// <summary>
-    /// Called after you create/login a user (RegisterUI, Google login, etc.).
-    /// Binds this device's coins to that /players/{userId}/coins node.
-    /// </summary>
     public async Task SetPlayer(string newPlayerId)
     {
         if (string.IsNullOrEmpty(newPlayerId))
@@ -107,14 +101,11 @@ public class CoinService : MonoBehaviour
 
         Debug.Log($"[CoinService] SetPlayer -> '{playerId}'");
 
-        // Ensure we have a db reference
         if (db == null)
             await InitFirebaseAndPlayer();
         else
             await LoadFromFirebase();
     }
-
-    // ------------------------ LOCAL SAVE ------------------------
 
     private void LoadLocal()
     {
@@ -139,8 +130,6 @@ public class CoinService : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // ------------------------ FIREBASE SYNC ------------------------
-
     private async Task LoadFromFirebase()
     {
         if (db == null || string.IsNullOrEmpty(playerId))
@@ -159,13 +148,11 @@ public class CoinService : MonoBehaviour
 
         if (snap == null || !snap.Exists)
         {
-            // First time this user has coins in Firebase – push local values up.
             Debug.Log("[CoinService] No coins node in Firebase; pushing local values.");
             await WriteFullCoinsToFirebase();
             return;
         }
 
-        // Only override local if values exist on server
         if (snap.Child("total").Exists &&
             int.TryParse(snap.Child("total").Value.ToString(), out int serverTotal))
         {
@@ -214,8 +201,6 @@ public class CoinService : MonoBehaviour
         }
     }
 
-    // ------------------------ EVENTS / READ API ------------------------
-
     private void FireAllEvents()
     {
         OnTotalChanged?.Invoke(TotalCoins);
@@ -229,19 +214,15 @@ public class CoinService : MonoBehaviour
     public int GetModeCoins(GameModeId mode)
         => byMode.TryGetValue(mode, out int v) ? v : 0;
 
-    // ------------------------ COIN MUTATION CORE ------------------------
-
     private async void AddCoinsInternal(int amount, GameModeId mode)
     {
         if (amount <= 0) return;
 
-        // Debug special case
         if (mode == GameModeId.NameTheFlag)
         {
             Debug.Log($"[CoinService] AddCoins NAME THE FLAG +{amount}, total BEFORE={TotalCoins}");
         }
 
-        // 🔔 NEW: log to NotificationService (if it exists)
         if (NotificationService.Instance != null)
         {
             NotificationService.Instance.LogCoinsEarned(amount, mode);
@@ -255,14 +236,11 @@ public class CoinService : MonoBehaviour
         OnTotalChanged?.Invoke(TotalCoins);
         OnModeChanged?.Invoke(mode, byMode[mode]);
 
-        // Fire-and-forget sync to Firebase
         if (db != null && !string.IsNullOrEmpty(playerId))
         {
             await WriteFullCoinsToFirebase();
         }
     }
-
-    // ------------------------ PUBLIC HELPERS (USED BY OTHER SYSTEMS) ------------------------
 
     public void AddModeCoins(GameModeId mode, int amount)
     {
@@ -286,14 +264,9 @@ public class CoinService : MonoBehaviour
 
     public void AddCharacterSellCoins(int amount)
     {
-        // You can choose any bucket; Achievements is fine for "misc coins"
         AddCoinsInternal(amount, GameModeId.Achievements);
     }
 
-    /// <summary>
-    /// Used by Shop to spend coins.
-    /// Updates local, fires events, and pushes to Firebase (if possible).
-    /// </summary>
     public bool TrySpendCoins(int amount)
     {
         if (amount <= 0) return true;
@@ -310,7 +283,6 @@ public class CoinService : MonoBehaviour
         SaveLocal();
         OnTotalChanged?.Invoke(TotalCoins);
 
-        // fire-and-forget sync to Firebase
         if (db != null && !string.IsNullOrEmpty(playerId))
         {
             _ = WriteFullCoinsToFirebase();
@@ -319,8 +291,6 @@ public class CoinService : MonoBehaviour
         Debug.Log($"[CoinService] Spend OK. total AFTER={TotalCoins}");
         return true;
     }
-
-    // ------------------------ HARD RESET (used by settings) ------------------------
 
     public void ForceSetAllZeroLocal()
     {
