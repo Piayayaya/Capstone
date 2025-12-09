@@ -109,19 +109,42 @@ public class ShopAPI : MonoBehaviour
         var item = catalog ? catalog.GetById(itemId) : null;
         if (item == null) return;
 
+        int grantedCoins = 0;
+
         if (item.type == ItemType.CoinsPack)
         {
-            // Right now we just log; later you and your teammate can decide
-            // how peso purchases should add to CoinService.
+            // Extract numeric part from something like "500 COINS"
             var numeric = Regex.Replace(item.displayName, "[^0-9]", "");
             if (int.TryParse(numeric, out int amount))
             {
-                Debug.Log($"[MOCK] Would grant {amount} coins from peso product (not wired to CoinService yet).");
+                grantedCoins = amount;
+
+                if (CoinService.Instance != null)
+                {
+                    CoinService.Instance.AddCoinsFromStore(amount);
+                    Debug.Log($"[MOCK] Granted {amount} coins from peso product via CoinService.");
+                }
+                else
+                {
+                    ShopSave.AddCoins(amount);
+                    Debug.Log($"[MOCK] Granted {amount} coins using ShopSave fallback.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[MOCK] Could not parse coin amount from '{item.displayName}'.");
             }
         }
         else if (item.type == ItemType.Subscription && item.subscriptionDays > 0)
         {
             ShopSave.GrantNoAdsForDays(item.subscriptionDays);
+        }
+
+        // Optional: add a notification entry as a receipt
+        if (grantedCoins > 0 && NotificationService.Instance != null)
+        {
+            NotificationService.Instance.Add(
+                $"You purchased {grantedCoins} coins in the Store.");
         }
 
         Debug.Log($"[MOCK] Delivered peso product: {item.displayName}");

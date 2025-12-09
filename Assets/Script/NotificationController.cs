@@ -21,6 +21,15 @@ public class NotificationController : MonoBehaviour
             NotificationService.Instance.OnLogChanged -= Refresh;
     }
 
+    // Optional helper if you ever want to log directly from UI:
+    public void Log(string message)
+    {
+        if (NotificationService.Instance != null)
+        {
+            NotificationService.Instance.Add(message);
+        }
+    }
+
     private void Refresh()
     {
         if (notificationText == null) return;
@@ -32,7 +41,7 @@ public class NotificationController : MonoBehaviour
         }
 
         var list = NotificationService.Instance.Entries;
-        if (list.Count == 0)
+        if (list == null || list.Count == 0)
         {
             notificationText.text = "No notifications yet.";
             return;

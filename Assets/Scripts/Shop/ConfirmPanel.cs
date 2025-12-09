@@ -23,6 +23,9 @@ public class ConfirmPanel : MonoBehaviour
     [Header("Success panel")]
     public TimedPanel timedPanel;   // your SuccessPurchasePanel with timer
 
+    [Header("Parent / OTP gate for PHP items")]
+    [SerializeField] private ParentApprovalPanel parentApprovalPanel;   // 🔹 drag new panel here
+
     // ---- internal state ----
     private ItemDefinition _currentSoItem;   // ScriptableObject-based item
     private LocalShopItem _currentDbItem;    // SQLite-based item
@@ -121,6 +124,7 @@ public class ConfirmPanel : MonoBehaviour
                 return;
             }
 
+            // 1) Coins (in-game currency)
             if (_currentDbItem.PriceCoins > 0)
             {
                 success = shopAPI.BuyWithCoinsFromDb(_currentDbItem.RefId);
@@ -130,10 +134,23 @@ public class ConfirmPanel : MonoBehaviour
                     return;
                 }
             }
+            // 2) PHP (real-money style) -> require parent approval panel
+            else if (_currentDbItem.PricePhp > 0)
+            {
+                if (parentApprovalPanel != null)
+                {
+                    parentApprovalPanel.StartDbPurchase(_currentDbItem, this);
+                    // ParentApprovalPanel will call OnExternalPaymentSuccess()
+                    // when OTP is correct, so we stop here.
+                    return;
+                }
+
+                Debug.Log("[ConfirmPanel] Non-coin DB purchase (PHP) – parentApprovalPanel is null; auto-success.");
+                success = true;
+            }
+            // 3) FREE items
             else
             {
-                // Non-coin DB items (if ever) – treat as success for now
-                Debug.Log("[ConfirmPanel] Non-coin DB purchase not implemented; marking as success.");
                 success = true;
             }
         }
@@ -157,13 +174,20 @@ public class ConfirmPanel : MonoBehaviour
             }
             else
             {
-                // Peso / IAP mock
+                // Peso / IAP-style -> parent approval gate if available
+                if (parentApprovalPanel != null)
+                {
+                    parentApprovalPanel.StartSoPurchase(_currentSoItem, this);
+                    return;
+                }
+
+                // fallback to your original mock
                 shopAPI.BuyPesoProductMock(_currentSoItem.id);
                 success = true;
             }
         }
 
-        // If we reach here with success = true, show success panel if assigned
+        // If we reach here with success = true (coins or free items), show success panel if assigned
         if (success && timedPanel != null)
         {
             timedPanel.ShowPanel();
@@ -173,6 +197,31 @@ public class ConfirmPanel : MonoBehaviour
         gameObject.SetActive(false);
 
         // refresh UI (both old and new binders)
+        foreach (var b in FindObjectsByType<ShopCardBinder>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            b.Refresh();
+
+        foreach (var b in FindObjectsByType<ShopCardBinderDb>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            b.Refresh();
+
+        var hud = FindFirstHud();
+        if (hud) hud.Refresh();
+    }
+
+    /// <summary>
+    /// Called by ParentApprovalPanel when OTP is correct and the mock payment is granted.
+    /// </summary>
+    public void OnExternalPaymentSuccess()
+    {
+        Debug.Log("[ConfirmPanel] External payment success, showing success panel and refreshing UI.");
+
+        if (timedPanel != null)
+        {
+            timedPanel.ShowPanel();
+        }
+
+        HideNotEnoughInstant();
+        gameObject.SetActive(false);
+
         foreach (var b in FindObjectsByType<ShopCardBinder>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             b.Refresh();
 

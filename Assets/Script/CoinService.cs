@@ -14,7 +14,8 @@ public enum GameModeId
     SeeItOrLoseIt,
     DailyRewards,
     DailyQuests,
-    Achievements
+    Achievements,
+    Store          // <--- NEW: for coin packs bought with pesos
 }
 
 public class CoinService : MonoBehaviour
@@ -265,6 +266,12 @@ public class CoinService : MonoBehaviour
     public void AddCharacterSellCoins(int amount)
     {
         AddCoinsInternal(amount, GameModeId.Achievements);
+    }
+
+    // NEW: coins from peso store purchases
+    public void AddCoinsFromStore(int amount)
+    {
+        AddCoinsInternal(amount, GameModeId.Store);
     }
 
     public bool TrySpendCoins(int amount)
